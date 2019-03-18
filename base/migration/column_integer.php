@@ -1,0 +1,1 @@
+$table->integer('{{name}}',false,true);
