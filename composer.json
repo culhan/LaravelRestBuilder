@@ -9,7 +9,7 @@
             "homepage": "http://tryits.web.id"
         }
     ],
-    "homepage": "https://github.com/khancode/laravelrestbuilder",
+    "homepage": "https://github.com/culhan/LaravelRestBuilder",
     "keywords": ["Laravel", "LaravelRestBuilder"],
     "require": {
         "illuminate/support": "~5",
