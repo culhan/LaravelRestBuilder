@@ -36,12 +36,10 @@ class ResourceBuilder
         $i = 0;
         $code_relation = '';
         foreach ($relation as $key => $value_relation) {
-            foreach ($value_relation as $key_2 => $value_2) {
-                $code_relation .= (($i!=0) ? "\t\t\t":"").'$this->mergeWhen(\Request::get("show_'.$value_2['name'].'",1)==1, [
-                    "'.$value_2['name'].'"    =>  json_decode($this->'.$value_2['name'].'),
-                ])'.",\r\n";                
-                $i++;
-            }
+            $code_relation .= (($i!=0) ? "\t\t\t":"").'$this->mergeWhen(\Request::get("show_'.$value_relation['name'].'",1)==1, [
+                "'.$value_relation['name'].'"    =>  json_decode($this->'.$value_relation['name'].'),
+            ])'.",\r\n";                
+            $i++;
         }
         $base_resource = str_replace('// end list relation',$code_relation."\t\t\t"."// end list relation",$base_resource);
 

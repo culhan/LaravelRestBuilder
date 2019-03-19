@@ -17,6 +17,16 @@
         .form-control::-moz-placeholder { color: #a0a3a77a; }  /* Mozilla Firefox 19+ */
         .form-control:-ms-input-placeholder { color: #a0a3a77a; }  /* Internet Explorer 10-11 */
         .form-control::-ms-input-placeholder { color: #a0a3a77a; }  /* Microsoft Edge */
+        .btn-delete {
+            width: calc(1.5em + .75rem - 2px);
+            padding: 0px;
+            margin: 0;
+            height: calc(1.5em + .75rem - 2px);
+        }
+        .form-control {
+            height: calc(1.5em + .75rem - 2px);
+            padding: 0.10rem .75rem;
+        }
     </style>
     <title>Create Modul</title>
   </head>
@@ -128,6 +138,31 @@
         </form>
     </div>
 
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
+    Launch demo modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal_1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">            
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -174,7 +209,7 @@
                             '<label>Name </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+data.value+']['+i+'][name]">'+
+                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][name]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -185,7 +220,7 @@
                             '<label>Tabel </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+data.value+']['+i+'][table]">'+
+                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][table]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -196,7 +231,7 @@
                             '<label>Foreign Key </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="ferign key relasi" name="relation['+data.value+']['+i+'][foreign_key]">'+
+                            '<input type="" class="form-control" placeholder="ferign key relasi" name="relation['+i+'][foreign_key]">'+
                         '</div>'+
                     '</div>'+
                     '';                
@@ -211,7 +246,7 @@
                             '<label>Name </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama relasi" name="relation['+data.value+']['+i+'][name]">'+
+                            '<input type="" class="form-control" placeholder="nama relasi" name="relation['+i+'][name]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -222,7 +257,7 @@
                             '<label>Tabel </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+data.value+']['+i+'][table]">'+
+                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][table]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -233,7 +268,7 @@
                             '<label>Foreign Key Model </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="foregin key tabel relasi" name="relation['+data.value+']['+i+'][foreign_key_model]">'+
+                            '<input type="" class="form-control" placeholder="foregin key tabel relasi" name="relation['+i+'][foreign_key_model]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -244,7 +279,7 @@
                             '<label>Foreign Key Joining Model </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="foregin key joining tabel relasi" name="relation['+data.value+']['+i+'][foreign_key_joining_model]">'+
+                            '<input type="" class="form-control" placeholder="foregin key joining tabel relasi" name="relation['+i+'][foreign_key_joining_model]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -255,7 +290,7 @@
                             '<label>Intermediate Tabel </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="intermediate table" name="relation['+data.value+']['+i+'][intermediate_table]">'+
+                            '<input type="" class="form-control" placeholder="intermediate table" name="relation['+i+'][intermediate_table]">'+
                         '</div>'+
                     '</div>'+
                     '';                
@@ -267,7 +302,7 @@
                         '<label>Custom Join </label>'+
                     '</div>'+
                     '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="custom join relasi (ex:left join zw_com_products on (zw_com_products.id=zw_com_order_products.product_id))" name="relation['+data.value+']['+i+'][custom_join]">'+
+                        '<input type="" class="form-control" placeholder="custom join relasi (ex:left join zw_com_products on (zw_com_products.id=zw_com_order_products.product_id))" name="relation['+i+'][custom_join]">'+
                     '</div>'+
                 '</div>'+
                 '';
@@ -278,7 +313,7 @@
                         '<label>Custom option </label>'+
                     '</div>'+
                     '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="custom option relasi (ex:and zw_com_products.deleted_by is null and zw_com_products.com_id = \'.user()->com_id.\')" name="relation['+data.value+']['+i+'][custom_option]">'+
+                        '<input type="" class="form-control" placeholder="custom option relasi (ex:and zw_com_products.deleted_by is null and zw_com_products.com_id = \'.user()->com_id.\')" name="relation['+i+'][custom_option]">'+
                     '</div>'+
                 '</div>'+
                 '';
@@ -325,13 +360,13 @@
                             '<label>'+(ikolom+1)+'.&nbsp&nbspNama</label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama" name="relation['+data+']['+irelasi+'][column_add_on]['+ikolom+'][name]">'+
+                            '<input type="" class="form-control" placeholder="nama" name="relation['+irelasi+'][column_add_on]['+ikolom+'][name]">'+
                         '</div>'+
                         '<div class="col-sm-1" style="padding-top:5px;">'+
                             '<label>Tipe</label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<select class="form-control" name="relation['+data+']['+irelasi+'][column_add_on]['+ikolom+'][type]">'+
+                            '<select class="form-control" name="relation['+irelasi+'][column_add_on]['+ikolom+'][type]">'+
                                 '<option value="integer">Integer</option>'+
                                 '<option value="string">String</option>'+
                             '</select>'+
@@ -350,23 +385,24 @@
                             '<label>'+(ikolom+1)+'.&nbsp&nbspNama</label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama" name="relation['+data+']['+irelasi+'][select_column]['+ikolom+'][name]">'+
+                            '<input type="" class="form-control" placeholder="nama" name="relation['+irelasi+'][select_column]['+ikolom+'][name]">'+
                         '</div>'+
                         '<div class="col-sm-1" style="padding-top:5px;">'+
                             '<label>Kolom</label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama kolom" name="relation['+data+']['+irelasi+'][select_column]['+ikolom+'][column]">'+
+                            '<input type="" class="form-control" placeholder="nama kolom" name="relation['+irelasi+'][select_column]['+ikolom+'][column]">'+
                         '</div>'+
                         '<div class="col-sm-1" style="padding-top:5px;">'+
                             '<label>Tipe</label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<select class="form-control" name="relation['+data+']['+irelasi+'][select_column]['+ikolom+'][type]">'+
+                            '<select class="form-control" name="relation['+irelasi+'][select_column]['+ikolom+'][type]">'+
                                 '<option value="integer">Integer</option>'+
                                 '<option value="string">String</option>'+
                             '</select>'+
                         '</div>'+
+                        '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_relasi(\''+data+'\','+irelasi+','+(ikolom)+')">x</button>'+
                     '</div>'+
                 '';
 
@@ -381,14 +417,14 @@
             window.jumlah_relasi++
             jumlah_relasi = window.jumlah_relasi
             html_new_relasi = 
-                '<label for="relasi'+jumlah_relasi+'"><b>Relasi '+jumlah_relasi+'</b> <button type="button" class="btn btn-danger" onclick="removeRelasi(\'relation.'+nama_relasi+'\')">Hapus</button></label>'+
+                '<label for="relasi'+jumlah_relasi+'" class="col-sm-12"><b>Relasi '+jumlah_relasi+'</b> <button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeRelasi(\'relation.'+nama_relasi+'\')">Hapus</button></label>'+
                 '<div class="container mb-4">'+
                     '<div class="row mb-3">'+
                         '<div class="col-sm-2" style="padding-top:5px;">'+
                             '<label>Type </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<select class="form-control relasi_type_'+nama_relasi+'" onchange="ubah_type_relasi(this,'+nama_relasi+')">'+
+                            '<select class="form-control relasi_type_'+nama_relasi+'" onchange="ubah_type_relasi(this,'+nama_relasi+')" name="relation['+nama_relasi+'][type]">'+
                                 '<option value="belongs_to">Belongs To</option>'+
                                 '<option value="has_one">Has One</option>'+
                                 '<option value="has_many">Has Many</option>'+
@@ -449,7 +485,7 @@
                             '<div class="input-group">'+
                                 '<select class="form-control" onchange="ubah_type_kolom(this,'+nama_kolom+')" name="column['+nama_kolom+'][type]">'+
                                     '<option value="increment">Increment</option>'+
-                                    '<option value="integer">Integer</option>'+
+                                    '<option value="integer" selected="selected">Integer</option>'+
                                     '<option value="smallInteger">Small Integer</option>'+
                                     '<option value="decimal">Decimal</option>'+
                                     '<option value="datetime">Datetime</option>'+
@@ -540,7 +576,7 @@
             window.jumlah_route++
             jumlah_route = window.jumlah_route
             html_new_route = 
-                '<label><b>Route '+jumlah_route+'</b> <button type="button" class="btn btn-danger" onclick="removeRoute(\'route.'+nama_route+'\')">Hapus</button></label>'+
+                '<label class="col-sm-12"><b>Route '+jumlah_route+'</b> <button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeRoute(\'route.'+nama_route+'\')">Hapus</button></label>'+
                 '<div class="container mb-4">'+
                     '<div class="row mb-3">'+
                         '<div class="col-sm-2" style="padding-top:5px;">'+
@@ -633,12 +669,35 @@
 
             if( obj instanceof Object ) {                
                 data = []
+                i = 0
                 $.each(obj, function( index_obj, value_obj ) {
-                    data[index_obj] = value_obj
+                    data[i] = value_obj
+                    i++
                 })
                 obj = data
             }
             return obj
+        }
+
+        function remove_kolom_relasi(data, irelasi, ikolom) {
+            objModul = $('#modul').serializeJSON()
+            splice_multilevel_array(objModul,'relation.'+irelasi+'.select_column.'+ikolom)
+            build_kolom_relasi_select_column_modul(data,irelasi,ikolom)
+        }
+
+        function build_kolom_relasi_select_column_modul(data,irelasi,ikolom) {
+            $( ".kolom_relasi_"+data+"_"+irelasi ).html('')
+            select_column_data = toArray(get_data_array(objModul,'relation.'+irelasi+'.select_column',[]))
+            $( "[onclick=\"tambah_kolom_relasi('"+data+"',"+irelasi+","+(select_column_data.length+1)+")\"]" ).attr('onclick',"tambah_kolom_relasi('"+data+"',"+irelasi+",0)");
+            i = 0
+            $.each(select_column_data, function( index, value ) {
+                tambah_kolom_relasi(data,irelasi,i)
+                $( '[name="relation['+irelasi+'][select_column]['+i+'][name]"]' ).val(value['name'])
+                $( '[name="relation['+irelasi+'][select_column]['+i+'][column]"]' ).val(value['column'])
+                $( '[name="relation['+irelasi+'][select_column]['+i+'][type]"]' ).val(value['type'])
+                i++
+            });
+            // $( "[onclick=\"tambah_kolom_relasi('"+data+"',"+irelasi+","+(i+1)+")\"]" ).attr('onclick',"tambah_kolom_relasi('"+data+"',"+irelasi+","+(i)+")");
         }
 
         function moveColumn(old_index, new_index) {
@@ -672,7 +731,7 @@
             objModul = $('#modul').serializeJSON()
             data = data.split('.')
             type_relasi_remove = $( ".relasi_type_"+data[1] ).val() 
-            splice_multilevel_array(objModul,data[0]+'.'+type_relasi_remove+'.'+data[1])
+            splice_multilevel_array(objModul,data[0]+'.'+data[1])
             build_kolom_relasi_modul(objModul)
         }
 
@@ -788,7 +847,9 @@
 
         function set_value_kolom(i,data) {
             $( '[name="column['+i+'][name]"]' ).val(data['name']);
-            $( '[name="column['+i+'][type]"]' ).val(data['type']).change();
+            if(data['type']) {
+                $( '[name="column['+i+'][type]"]' ).val(data['type']).change();
+            }
             if(data['precision']) {
                 $( '[name="column['+i+'][precision]"]' ).val(data['precision']);
             }
@@ -851,65 +912,123 @@
             window.jumlah_relasi = 0
             if(get_data_array(data,'relation')) {
                 $.each(data['relation'], function( index_relasi, value_relasi ) {
-                    $.each(value_relasi, function( index_relasi_detail, value_relasi_detail ) {
-                        tambah_relasi(jumlah_relasi_builded)
-                        $( '.relasi_type_'+jumlah_relasi_builded ).val(index_relasi).change();
-                        if( value_relasi_detail['name'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][name]"]' ).val(value_relasi_detail['name']);
-                        }
-                        if( value_relasi_detail['table'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][table]"]' ).val(value_relasi_detail['table']);
-                        }
-                        if( value_relasi_detail['foreign_key'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][foreign_key]"]' ).val(value_relasi_detail['foreign_key']);
-                        }
-                        if( value_relasi_detail['custom_join'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][custom_join]"]' ).val(value_relasi_detail['custom_join']);
-                        }
-                        if( value_relasi_detail['custom_option'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][custom_option]"]' ).val(value_relasi_detail['custom_option']);
-                        }
+                    tambah_relasi(jumlah_relasi_builded)
+                    $( '.relasi_type_'+jumlah_relasi_builded ).val(value_relasi['type']).change();
+                    if( value_relasi['name'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][name]"]' ).val(value_relasi['name']);
+                    }
+                    if( value_relasi['table'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][table]"]' ).val(value_relasi['table']);
+                    }
+                    if( value_relasi['foreign_key'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][foreign_key]"]' ).val(value_relasi['foreign_key']);
+                    }
+                    if( value_relasi['custom_join'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][custom_join]"]' ).val(value_relasi['custom_join']);
+                    }
+                    if( value_relasi['custom_option'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][custom_option]"]' ).val(value_relasi['custom_option']);
+                    }
 
-                        // khusus many to many
-                        if( value_relasi_detail['foreign_key_model'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][foreign_key_model]"]' ).val(value_relasi_detail['foreign_key_model']);
-                        }
-                        if( value_relasi_detail['foreign_key_joining_model'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][foreign_key_joining_model]"]' ).val(value_relasi_detail['foreign_key_joining_model']);
-                        }
-                        if( value_relasi_detail['intermediate_table'] )
-                        {
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][intermediate_table]"]' ).val(value_relasi_detail['intermediate_table']);
-                        }
+                    // khusus many to many
+                    if( value_relasi['foreign_key_model'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_model]"]' ).val(value_relasi['foreign_key_model']);
+                    }
+                    if( value_relasi['foreign_key_joining_model'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_joining_model]"]' ).val(value_relasi['foreign_key_joining_model']);
+                    }
+                    if( value_relasi['intermediate_table'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][intermediate_table]"]' ).val(value_relasi['intermediate_table']);
+                    }
 
-                        select_column_relasi = 0
-                        $( '.kolom_relasi_'+index_relasi+'_'+jumlah_relasi_builded ).html('')
-                        $.each(value_relasi_detail['select_column'], function( index_relasi_detail, value_relasi_detail ) {
-                            tambah_kolom_relasi(index_relasi,jumlah_relasi_builded,select_column_relasi)
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][name]"]' ).val(value_relasi_detail['name']);
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][column]"]' ).val(value_relasi_detail['column']);
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][type]"]' ).val(value_relasi_detail['type']);
-                            select_column_relasi++
-                        });
+                    select_column_relasi = 0
+                    $( '.kolom_relasi_'+value_relasi['type']+'_'+jumlah_relasi_builded ).html('')                    
+                    $.each(value_relasi['select_column'], function( index_relasi_detail, value_relasi_detail ) {
+                        tambah_kolom_relasi(value_relasi['type'],jumlah_relasi_builded,select_column_relasi)
+                        $( '[name="relation['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][name]"]' ).val(value_relasi_detail['name']);
+                        $( '[name="relation['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][column]"]' ).val(value_relasi_detail['column']);
+                        $( '[name="relation['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][type]"]' ).val(value_relasi_detail['type']);
+                        select_column_relasi++
+                    });
 
-                        select_column_tambahan_relasi = 0
-                        $( '.kolom_tambahan_relasi_'+index_relasi+'_'+jumlah_relasi_builded ).html('')
-                        $.each(value_relasi_detail['column_add_on'], function( index_relasi_detail, value_relasi_detail ) {
-                            tambah_kolom_tambahan_relasi(index_relasi,jumlah_relasi_builded,select_column_tambahan_relasi)
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][column_add_on]['+select_column_tambahan_relasi+'][name]"]' ).val(value_relasi_detail['name']);                    
-                            $( '[name="relation['+index_relasi+']['+jumlah_relasi_builded+'][column_add_on]['+select_column_tambahan_relasi+'][type]"]' ).val(value_relasi_detail['type']);
-                            select_column_tambahan_relasi++
-                        });
+                    select_column_tambahan_relasi = 0
+                    $( '.kolom_tambahan_relasi_'+value_relasi['type']+'_'+jumlah_relasi_builded ).html('')
+                    $.each(value_relasi['column_add_on'], function( index_relasi_detail, value_relasi_detail ) {
+                        tambah_kolom_tambahan_relasi(value_relasi['type'],jumlah_relasi_builded,select_column_tambahan_relasi)
+                        $( '[name="relation['+jumlah_relasi_builded+'][column_add_on]['+select_column_tambahan_relasi+'][name]"]' ).val(value_relasi_detail['name']);                    
+                        $( '[name="relation['+jumlah_relasi_builded+'][column_add_on]['+select_column_tambahan_relasi+'][type]"]' ).val(value_relasi_detail['type']);
+                        select_column_tambahan_relasi++
+                    });
 
-                        jumlah_relasi_builded++
-                    })
+                    jumlah_relasi_builded++
+
+                    // $.each(value_relasi, function( index_relasi_detail, value_relasi_detail ) {
+                    //     tambah_relasi(jumlah_relasi_builded)
+                    //     $( '.relasi_type_'+jumlah_relasi_builded ).val(index_relasi).change();
+                    //     if( value_relasi_detail['name'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][name]"]' ).val(value_relasi_detail['name']);
+                    //     }
+                    //     if( value_relasi_detail['table'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][table]"]' ).val(value_relasi_detail['table']);
+                    //     }
+                    //     if( value_relasi_detail['foreign_key'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][foreign_key]"]' ).val(value_relasi_detail['foreign_key']);
+                    //     }
+                    //     if( value_relasi_detail['custom_join'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][custom_join]"]' ).val(value_relasi_detail['custom_join']);
+                    //     }
+                    //     if( value_relasi_detail['custom_option'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][custom_option]"]' ).val(value_relasi_detail['custom_option']);
+                    //     }
+
+                    //     // khusus many to many
+                    //     if( value_relasi_detail['foreign_key_model'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_model]"]' ).val(value_relasi_detail['foreign_key_model']);
+                    //     }
+                    //     if( value_relasi_detail['foreign_key_joining_model'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_joining_model]"]' ).val(value_relasi_detail['foreign_key_joining_model']);
+                    //     }
+                    //     if( value_relasi_detail['intermediate_table'] )
+                    //     {
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][intermediate_table]"]' ).val(value_relasi_detail['intermediate_table']);
+                    //     }
+
+                    //     select_column_relasi = 0
+                    //     $( '.kolom_relasi_'+index_relasi+'_'+jumlah_relasi_builded ).html('')
+                    //     $.each(value_relasi_detail['select_column'], function( index_relasi_detail, value_relasi_detail ) {
+                    //         tambah_kolom_relasi(index_relasi,jumlah_relasi_builded,select_column_relasi)
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][name]"]' ).val(value_relasi_detail['name']);
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][column]"]' ).val(value_relasi_detail['column']);
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][select_column]['+select_column_relasi+'][type]"]' ).val(value_relasi_detail['type']);
+                    //         select_column_relasi++
+                    //     });
+
+                    //     select_column_tambahan_relasi = 0
+                    //     $( '.kolom_tambahan_relasi_'+index_relasi+'_'+jumlah_relasi_builded ).html('')
+                    //     $.each(value_relasi_detail['column_add_on'], function( index_relasi_detail, value_relasi_detail ) {
+                    //         tambah_kolom_tambahan_relasi(index_relasi,jumlah_relasi_builded,select_column_tambahan_relasi)
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][column_add_on]['+select_column_tambahan_relasi+'][name]"]' ).val(value_relasi_detail['name']);                    
+                    //         $( '[name="relation['+jumlah_relasi_builded+'][column_add_on]['+select_column_tambahan_relasi+'][type]"]' ).val(value_relasi_detail['type']);
+                    //         select_column_tambahan_relasi++
+                    //     });
+
+                    //     jumlah_relasi_builded++
+                    // })
                 })
             }
         }
@@ -956,7 +1075,29 @@
                 type: "POST",
                 data: $('#modul').serialize(),                
                 success: function (data) {
-                    alert(data);
+                    htmlcreated = ''
+                    htmlupdated = ''
+                    $.each(data,function(index,value) {
+                        $.each(value,function(index_2,value_2) {
+                            if(index == 'created') {
+                                htmlcreated += value_2+"<br>"
+                            }else {
+                                htmlupdated += value_2+"<br>"
+                            }
+                            
+                        })
+                    })
+
+                    html = ''
+                    if(htmlcreated != '') {
+                        html += 'created <br>'+htmlcreated+'<br>'
+                    }
+                    if(htmlupdated != '') {
+                        html += 'updated <br>'+htmlupdated+'<br>'
+                    }
+                    
+                    $( "#modal_1 .modal-body" ).html(html)
+                    $( "#launch_modal_1" ).click()
                 }
             });
         }

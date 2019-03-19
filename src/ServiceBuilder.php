@@ -52,76 +52,78 @@ class ServiceBuilder
                     }
                 }  
                 
+                $has_many_code = '';
+                $has_one_code = '';
+                $belongs_to_code = '';
+                $belongs_to_many_code = '';
+                $i = 0;
                 foreach ($relation as $key_relation => $value_relation) {
-                    foreach ($value_relation as $key_relation2 => $value_relation2) {
-                        $cols_table_model .= '"'.$value_relation2['name'].'"';
-                        if( !empty($cols_table_model) )
-                        {
-                            $cols_table_model .= ",\r\n\t\t\t";
-                        }                    
-                        $cols_table_model_validation .= '"'.$value_relation2['name'].'"'."\t=>\t".'""';
-                        if( !empty($cols_table_model_validation) )
-                        {
-                            $cols_table_model_validation .= ",\r\n\t\t\t";
-                        }
+                    
+                    $cols_table_model .= '"'.$value_relation['name'].'"';
+                    if( !empty($cols_table_model) )
+                    {
+                        $cols_table_model .= ",\r\n\t\t\t";
+                    }                    
+                    $cols_table_model_validation .= '"'.$value_relation['name'].'"'."\t=>\t".'""';
+                    if( !empty($cols_table_model_validation) )
+                    {
+                        $cols_table_model_validation .= ",\r\n\t\t\t";
                     }
+                    
 
                     // has many create data
-                    if( $key_relation == 'has_many' )
+                    if( $value_relation['type'] == 'has_many' )
                     {
-                        $has_many_code = '';
-                        foreach ($value_relation as $key_relation_has_many => $value_relation_has_many) {
-                            $base_create_code = file_get_contents(__DIR__.'/../base/service/has_many_create_data.php', FILE_USE_INCLUDE_PATH);
-                            $base_create_code = str_replace('{{name_has_many}}',$value_relation_has_many['name'],$base_create_code);
-                            $base_create_code = str_replace('{{foregin_key}}',$value_relation_has_many['foreign_key'],$base_create_code);
-                            $base_create_code = str_replace('{{service_name}}',((!empty($value_relation_has_many['service_name'])) ? ucwords($value_relation_has_many['service_name']) : ucwords($value_relation_has_many['name'])),$base_create_code);
-                            
-                            $has_many_code .= $base_create_code;
-                        }
+                        
+                        $base_create_code = file_get_contents(__DIR__.'/../base/service/has_many_create_data.php', FILE_USE_INCLUDE_PATH);
+                        $base_create_code = str_replace('{{name_has_many}}',$value_relation['name'],$base_create_code);
+                        $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        
+                        $has_many_code .= (($i!=0) ? "\t\t":"").$base_create_code;
+                        
                     }
 
                     // has one create data
-                    if( $key_relation == 'has_one' )
-                    {
-                        $has_one_code = '';
-                        foreach ($value_relation as $key_relation_has_one => $value_relation_has_one) {
-                            $base_create_code = file_get_contents(__DIR__.'/../base/service/has_one_create_data.php', FILE_USE_INCLUDE_PATH);
-                            $base_create_code = str_replace('{{name_has_one}}',$value_relation_has_one['name'],$base_create_code);
-                            $base_create_code = str_replace('{{foregin_key}}',$value_relation_has_one['foreign_key'],$base_create_code);
-                            $base_create_code = str_replace('{{service_name}}',((!empty($value_relation_has_one['service_name'])) ? ucwords($value_relation_has_one['service_name']) : ucwords($value_relation_has_one['name'])),$base_create_code);
-                            
-                            $has_one_code .= $base_create_code;
-                        }
+                    if( $value_relation['type'] == 'has_one' )
+                    {                        
+                        
+                        $base_create_code = file_get_contents(__DIR__.'/../base/service/has_one_create_data.php', FILE_USE_INCLUDE_PATH);
+                        $base_create_code = str_replace('{{name_has_one}}',$value_relation['name'],$base_create_code);
+                        $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        
+                        $has_one_code .= (($i!=0) ? "\t\t":"").$base_create_code;
+                        
                     }
 
                     // belongs to create check data
-                    if( $key_relation == 'belongs_to' )
-                    {
-                        $belongs_to_code = '';
-                        foreach ($value_relation as $key_relation_belongs_to => $value_relation_belongs_to) {
-                            $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_check_create_data.php', FILE_USE_INCLUDE_PATH);
-                            $base_create_code = str_replace('{{name_belongs_to}}',$value_relation_belongs_to['name'],$base_create_code);
-                            $base_create_code = str_replace('{{foregin_key}}',$value_relation_belongs_to['foreign_key'],$base_create_code);
-                            $base_create_code = str_replace('{{service_name}}',((!empty($value_relation_belongs_to['service_name'])) ? ucwords($value_relation_belongs_to['service_name']) : ucwords($value_relation_belongs_to['name'])),$base_create_code);
-                            
-                            $belongs_to_code .= $base_create_code;
-                        }                        
+                    if( $value_relation['type'] == 'belongs_to' )
+                    {                        
+                        
+                        $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_check_create_data.php', FILE_USE_INCLUDE_PATH);
+                        $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
+                        $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        
+                        $belongs_to_code .= (($i!=0) ? "\t\t":"").$base_create_code;
+              
                     }
 
                     // belongs to many create check data
-                    if( $key_relation == 'belongs_to_many' )
+                    if( $value_relation['type'] == 'belongs_to_many' )
                     {
-                        $belongs_to_many_code = '';
-                        $i_belongs_to_many = 0;
-                        foreach ($value_relation as $key_relation_belongs_to_many => $value_relation_belongs_to_many) {
-                            $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_many_create_data.php', FILE_USE_INCLUDE_PATH);
-                            $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation_belongs_to_many['name'],$base_create_code);                            
-                            $base_create_code = str_replace('{{service_name}}',((!empty($value_relation_belongs_to_many['service_name'])) ? ucwords($value_relation_belongs_to_many['service_name']) : ucwords($value_relation_belongs_to_many['name'])),$base_create_code);
-                            
-                            $belongs_to_many_code .= (($i_belongs_to_many!=0) ? "\t\t":"").$base_create_code;
-                            $i_belongs_to_many++;
-                        }                        
+                        
+                        
+                        
+                        $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_many_create_data.php', FILE_USE_INCLUDE_PATH);
+                        $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_create_code);                            
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        
+                        $belongs_to_many_code .= (($i!=0) ? "\t\t":"").$base_create_code;
+                        
                     }
+                    $i++;
                 }
 
                 $code_function = file_get_contents(__DIR__.'/../base/service/'.$function_name, FILE_USE_INCLUDE_PATH);
