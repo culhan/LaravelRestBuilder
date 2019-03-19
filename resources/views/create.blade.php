@@ -31,7 +31,7 @@
     <title>Create Modul</title>
   </head>
   <body>
-
+    <br>
     <div class="container">
         <h4 class="row">
             <span class="col-sm">Detail Modul </span>
@@ -247,6 +247,17 @@
                         '</div>'+
                         '<div class="col-sm">'+
                             '<input type="" class="form-control" placeholder="nama relasi" name="relation['+i+'][name]">'+
+                        '</div>'+
+                    '</div>'+
+                    '';
+                
+                html_relasi_detail += 
+                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                        '<div class="col-sm-2" style="padding-top:5px;">'+
+                            '<label>Nama Model Relasi</label>'+
+                        '</div>'+
+                        '<div class="col-sm">'+
+                            '<input type="" class="form-control" placeholder="nama model relasi, default nama relasi" name="relation['+i+'][model_name]">'+
                         '</div>'+
                     '</div>'+
                     '';

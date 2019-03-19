@@ -205,6 +205,11 @@ class ModelBuilder
                         // function belongs to many
                         $function = file_get_contents(__DIR__.'/../base/model/function_belongs_to_many.php', FILE_USE_INCLUDE_PATH);
                         $function = str_replace('{{belongs_to_many_name}}',UCWORDS($value_relation['name']),$function);
+                        if(!empty($value_relation['model_name'])) {
+                            $function = str_replace('{{belongs_to_many_model_name}}',UCWORDS($value_relation['model_name']),$function);
+                        }else {
+                            $function = str_replace('{{belongs_to_many_model_name}}',UCWORDS($value_relation['name']),$function);
+                        }
                         $function = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$function);
                         $function = str_replace('{{column_belongs_to_many_foreign_key_model}}',$value_relation['foreign_key_model'],$function);
                         $function = str_replace('{{column_belongs_to_many_foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$function);                    
