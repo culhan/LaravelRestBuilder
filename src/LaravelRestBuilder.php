@@ -50,7 +50,8 @@ class LaravelRestBuilder
      */
     public function table()
     {
-        return self::getArrayFile('table', 'storage')+['forbidden_column_name'=>self::$forbidden_column_name];
+        $table = MigrationBuilder::getColumnExist(Request::get('table'));
+        return $table+['forbidden_column_name'=>self::$forbidden_column_name];
     }
 
     /**
@@ -72,6 +73,8 @@ class LaravelRestBuilder
         $data = Request::all();        
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['name']);
+        if(empty($data['column_function'])) $data['column_function'] = [];
+        if(empty($data['relation'])) $data['relation'] = [];
         
         MigrationBuilder::build(
             $data['name'],
@@ -82,6 +85,7 @@ class LaravelRestBuilder
         ControllerBuilder::build(
             $data['name'],
             $data['column'],
+            $data['column_function'],
             $data['route']
         );
         
@@ -92,11 +96,12 @@ class LaravelRestBuilder
             $data['route'],
             $data['relation']
         );
-
+        
         ModelBuilder::build(
             $data['name'],
             $data['table'],
             $data['column'],
+            $data['column_function'],
             $data['route'],
             $data['with_timestamp'],
             $data['with_authstamp'],
@@ -113,6 +118,7 @@ class LaravelRestBuilder
         ResourceBuilder::build(
             $data['name'],
             $data['column'],
+            $data['column_function'],
             $data['relation']
         );
         
@@ -122,12 +128,13 @@ class LaravelRestBuilder
         );
         
         $file_modul = self::getArrayFile('modul', 'storage');
+        $file_table = self::getArrayFile('table', 'storage');
 
         // create list modul file
         FileCreator::create( 'modul', 'storage', '<?php return ' . var_export([$data['name'] => array_except($data,['column'])]+$file_modul, true) . ';' );
         
         // create list table
-        FileCreator::create( 'table', 'storage', '<?php return ' . var_export([$data['table'] => $data['column']], true) . ';' );
+        FileCreator::create( 'table', 'storage', '<?php return ' . var_export([$data['table'] => $data['column']]+$file_table, true) . ';' );
 
         return config('laravelrestbuilder.file');
     }

@@ -26,8 +26,14 @@
         // end list belongs to check create        
 
         // update
-        $result = $this->getSingleData($id)->update($dataRecord);
-        
+        $single_data = $this->getSingleData($id);
+        $result = $single_data->update($dataRecord);
+        if(!$result) {
+            throw new DataEmptyException('no data updated');
+        }else {
+            $result = $single_data;
+        }
+
         // start list has many create
         
         // end list has many create

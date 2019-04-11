@@ -44,7 +44,7 @@ class ServiceBuilder
                 if(!empty($value['validation']))
                 {
                     foreach ($value['validation'] as $key_validation => $value_validation) {
-                        $cols_table_model_validation .= '"'.$key_validation.'"'."\t=>\t".'"'.$value_validation.'"';
+                        $cols_table_model_validation .= '"'.$value_validation['name'].'"'."\t=>\t".'"'.$value_validation['statement'].'"';
                         if( !empty($cols_table_model_validation) )
                         {
                             $cols_table_model_validation .= ",\r\n\t\t\t";
@@ -56,7 +56,11 @@ class ServiceBuilder
                 $has_one_code = '';
                 $belongs_to_code = '';
                 $belongs_to_many_code = '';
-                $i = 0;
+                $belongs_to_many_delete_code = '';
+                $ihas_many_code = 0;
+                $ihas_one_code = 0;
+                $ibelongs_to_code = 0;
+                $ibelongs_to_many = 0;
                 foreach ($relation as $key_relation => $value_relation) {
                     
                     $cols_table_model .= '"'.$value_relation['name'].'"';
@@ -78,10 +82,10 @@ class ServiceBuilder
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/has_many_create_data.php', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace('{{name_has_many}}',$value_relation['name'],$base_create_code);
                         $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);                        
                         
-                        $has_many_code .= (($i!=0) ? "\t\t":"").$base_create_code;
-                        
+                        $has_many_code .= (($ihas_many_code!=0) ? "\t\t":"").$base_create_code;
+                        $ihas_many_code++;
                     }
 
                     // has one create data
@@ -93,8 +97,8 @@ class ServiceBuilder
                         $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
                         $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
                         
-                        $has_one_code .= (($i!=0) ? "\t\t":"").$base_create_code;
-                        
+                        $has_one_code .= (($ihas_one_code!=0) ? "\t\t":"").$base_create_code;
+                        $ihas_one_code++;
                     }
 
                     // belongs to create check data
@@ -106,26 +110,30 @@ class ServiceBuilder
                         $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
                         $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
                         
-                        $belongs_to_code .= (($i!=0) ? "\t\t":"").$base_create_code;
-              
+                        $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
+                        $ibelongs_to_code++;
                     }
 
                     // belongs to many create check data
                     if( $value_relation['type'] == 'belongs_to_many' )
-                    {
-                        
-                        
+                    {                        
                         
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_many_create_data.php', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_create_code);                            
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : '{{service_name}}'),$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                         
-                        $belongs_to_many_code .= (($i!=0) ? "\t\t":"").$base_create_code;
+                        $belongs_to_many_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_create_code;
                         
+                        $base_delete_code = file_get_contents(__DIR__.'/../base/service/belongs_to_many_delete_data.php', FILE_USE_INCLUDE_PATH);
+                        $base_delete_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_delete_code);                            
+                        $base_delete_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_delete_code);                        
+                        
+                        $belongs_to_many_delete_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_delete_code;
+                        $ibelongs_to_many++;
                     }
-                    $i++;
                 }
-
+                
                 $code_function = file_get_contents(__DIR__.'/../base/service/'.$function_name, FILE_USE_INCLUDE_PATH);
                 
                 if( !empty($has_one_code) )
@@ -148,6 +156,11 @@ class ServiceBuilder
                     $code_function = str_replace('// end list belongs to many create',$belongs_to_many_code."\r\n\t\t// end list belongs to many create",$code_function);
                 }
 
+                if( !empty($belongs_to_many_delete_code) )
+                {
+                    $code_function = str_replace('// end list belongs to many delete',$belongs_to_many_delete_code."\r\n\t\t// end list belongs to many delete",$code_function);
+                }
+
                 $code_function = str_replace('{{column}}',substr($cols_table_model, 0, -5),$code_function);
                 $code_function = str_replace('{{column_validation}}',substr($cols_table_model_validation, 0, -5),$code_function);
                 $code_function = str_replace('{{name}}',$value['name'],$code_function);
@@ -164,6 +177,22 @@ class ServiceBuilder
                     $code_function = str_replace('// unlocking function',$unlock_code,$code_function);
                 }
 
+                $param = '';
+                if(!empty($value['param']))
+                {
+                    foreach ($value['param'] as $key_param => $value_param) {
+                        $param .= ',$'.$value_param;
+                    }
+                }
+
+                if(!empty($value['custom_function']))
+                {
+                    $value['custom_function'] = str_replace("\n","\n\t\t",$value['custom_function']);
+                    $code_function = str_replace('// end code',$value['custom_function']."\r\n\t\t// end code",$code_function);
+                }
+
+                $code_function = str_replace('{{param}}',$param,$code_function);
+                
                 $base_service = str_replace('// end list function',$code_function,$base_service);
             }            
         }

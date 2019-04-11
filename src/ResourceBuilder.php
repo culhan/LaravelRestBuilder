@@ -12,10 +12,11 @@ class ResourceBuilder
      *
      * @param [type] $name
      * @param [type] $column
+     * @param [type] $column_function
      * @param [type] $relation
      * @return void
      */
-    static function build( $name, $column, $relation )
+    static function build( $name, $column, $column_function, $relation )
     {
         $resource_file = ucwords($name).'Resource';        
         $base_resource = file_get_contents(__DIR__.'/../base/resource/base.php', FILE_USE_INCLUDE_PATH);
@@ -31,6 +32,16 @@ class ResourceBuilder
                 ])'.",\r\n";
             }
         }
+        
+        foreach ($column_function as $key => $value) {
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+            {
+                $code_column .= (($key!=0) ? "\t\t\t":"").'$this->mergeWhen(\Request::get("show_'.$value['name'].'",1)==1, [
+                    "'.$value['name'].'"    =>  $this->'.$value['name'].',
+                ])'.",\r\n";
+            }
+        }
+        
         $base_resource = str_replace('// end list column',$code_column."\t\t\t"."// end list column",$base_resource);
 
         $i = 0;

@@ -41,17 +41,19 @@ class ColumnBuilder
                 $data[$key_arr] = array_merge($data[$key_arr],[
                     [
                         "name"  =>  "created_time",
-                        "type"  =>  "datetime",
+                        "type"  =>  "timestamp",
+                        "default"   =>  'CURRENT_TIMESTAMP',
+                        "nullable"   =>  0
                     ],
                     [
                         "name"  =>  "modified_time",
-                        "type"  =>  "datetime",
-                        "nullable"   =>  "1"
+                        "type"  =>  "timestamp",
+                        "nullable"   =>  1
                     ],
                     [
                         "name"  =>  "deleted_time",
-                        "type"  =>  "datetime",
-                        "nullable"   =>  "1"
+                        "type"  =>  "timestamp",
+                        "nullable"   =>  1
                     ],
                 ]);            
             }

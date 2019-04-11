@@ -62,6 +62,13 @@ class FileCreator
         $fp = fopen(base_path()."/".$folder."/".$name_file.".php","wb");
         fwrite($fp,$content);
         fclose($fp);
+
+        if( !empty(config('laravelrestbuilder.copy_to')) )
+        {
+            $fp = fopen(base_path().config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php","wb");
+            fwrite($fp,$content);
+            fclose($fp);
+        }
     }
 
     /**

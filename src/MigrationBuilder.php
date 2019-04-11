@@ -175,6 +175,9 @@ class MigrationBuilder
         if ($column['type'] == 'datetime') {
             $where .= ' and data_type = "datetime" ';
         }
+        if ($column['type'] == 'timestamp') {
+            $where .= ' and data_type = "timestamp" ';
+        }
         if ($column['type'] == 'decimal') {
             $where .= ' and data_type = "decimal" ';
         }
@@ -258,7 +261,7 @@ class MigrationBuilder
                     }
                     else
                     {
-                        $code_column = str_replace(';',"\r\n\t\t\t\t".'->default("'.$value['default'].'");',$code_column);
+                        $code_column = str_replace(';',"\r\n\t\t\t\t".'->default(\DB::raw("'.$value['default'].'"));',$code_column);
                     }
                 }
 
@@ -286,4 +289,64 @@ class MigrationBuilder
         return $code_column_text;
     }
 
+    /**
+     * getColumnExist function
+     *
+     * @param [type] $table
+     * @return void
+     */
+    static function getColumnExist( $table )
+    {
+        $check = \DB::select( \DB::raw('
+                                    SELECT *
+                                    FROM INFORMATION_SCHEMA.COLUMNS
+                                    where TABLE_SCHEMA=\''.env('DB_DATABASE').'\'
+                                    AND table_name = \''.$table.'\'
+                                    order by ORDINAL_POSITION ASC'
+                                ));
+
+        if(empty($check)) return [];
+        
+        $return = [];
+        $return[$table] = [];        
+        foreach ($check as $key => $value) {
+            
+            // get type
+            if($value->EXTRA == 'auto_increment') {
+               $type = 'increment'; 
+            }else if ($value->DATA_TYPE == 'int') {
+                $type = "integer";
+            }else if ($value->DATA_TYPE == 'smallint') {
+                $type = "smallInteger";
+            }else if ($value->DATA_TYPE == 'varchar') {
+                $type = "string";
+            }else if ($value->DATA_TYPE == 'datetime') {
+                $type = "datetime";
+            }else if ($value->DATA_TYPE == 'timestamp') {
+                $type = "timestamp";
+            }else if ($value->DATA_TYPE == 'decimal') {
+                $type = "decimal";
+            }else {
+                $type = "unidentified (".$value->DATA_TYPE.")";
+            }
+
+            // get default
+            if ( $value->IS_NULLABLE == 'YES' ) {
+                $nullable = 1;
+            }else {
+                $nullable = 0;
+            }
+            
+            $return[$table][] = [
+                'name' => $value->COLUMN_NAME,
+                'type' => $type,
+                'default' => $value->COLUMN_DEFAULT,
+                'comment' => $value->COLUMN_COMMENT,
+                'nullable' => $nullable,
+                'precision' => $value->NUMERIC_PRECISION,
+                'scale' => $value->NUMERIC_SCALE,
+            ];
+        }
+        return $return;
+    }
 }

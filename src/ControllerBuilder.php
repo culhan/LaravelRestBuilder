@@ -12,10 +12,11 @@ class ControllerBuilder
      *
      * @param [type] $name
      * @param [type] $column
+     * @param [type] $column_function
      * @param [type] $route
      * @return void
      */
-    static function build( $name, $column, $route )
+    static function build( $name, $column, $column_function, $route )
     {
         $name = UCWORDS($name);
         $controller_file_name = $name.'Controller';
@@ -50,7 +51,15 @@ class ControllerBuilder
                 $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
                 $base_controller = str_replace('// end list column',$cols,$base_controller);
             }
-        }        
+        }
+        
+        foreach ($column_function as $key => $value) {
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+            {
+                $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
+                $base_controller = str_replace('// end list column',$cols,$base_controller);
+            }
+        }
         
         FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api', $base_controller );
     }

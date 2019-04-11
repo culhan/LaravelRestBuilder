@@ -1,7 +1,7 @@
                     \DB::raw("(
                         select IFNULL(group_concat(CONCAT('{',                            
 {{column_has_one}}
-                        '}') ),'[]') 
+                        '}') ),'{}') 
                         from {{table_has_one}}
                         -- start list has one join option
                         -- end list has one join option

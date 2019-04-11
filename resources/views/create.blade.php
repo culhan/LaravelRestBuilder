@@ -55,11 +55,14 @@
                     <a class="nav-link" id="tabeloption-tab" data-toggle="tab" href="#tabeloption" role="tab" aria-controls="tabeloption" aria-selected="false">Tabel Option</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" id="kolomfungsi-tab" data-toggle="tab" href="#kolomfungsi" role="tab" aria-controls="route" aria-selected="false">Kolom Fungsi</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="relasi-tab" data-toggle="tab" href="#relasi" role="tab" aria-controls="relasi" aria-selected="false">Relasi Tabel</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="route-tab" data-toggle="tab" href="#route" role="tab" aria-controls="route" aria-selected="false">Route Modul</a>
-                </li>
+                </li>                
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="tabel" role="tabpanel" aria-labelledby="tabel-tab">
@@ -134,13 +137,25 @@
 
                     </figure>
                 </div>
+                <div class="tab-pane fade" id="kolomfungsi" role="tabpanel" aria-labelledby="route-tab">
+                    <!-- route -->
+                    <figure class="highlight">                        
+
+                        <list_function_column>                                                                                        
+                        </list_function_column>
+
+                        <br>                    
+                        <input class="btn btn-primary" type="button" value="Tambah Kolom Fungsi" height='10px' id='add_function_column'>
+
+                    </figure>
+                </div>
             </div>
         </form>
     </div>
 
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
-    Launch demo modal
+        Launch demo modal
     </button>
 
     <!-- Modal -->
@@ -168,19 +183,46 @@
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/2.9.0/jquery.serializejson.min.js"></script>    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>    
+    <script src="<?php echo URL::to('/js/ace.js');?>"></script>
 
     <script>
         jumlah_kolom = 0;
+        jumlah_kolom_fungsi = 0;
         jumlah_relasi = 0;
         jumlah_route = 0;
         index_kolom_terakhir_dibuat = 0;
         objColumn = [];
         objModul = [];
         objForbiddenCOlumn = [];
+        code_editor = [];
 
-        function ubah_nama_ele(ele,i_route,i_ele) {
-            $( '[att*="validation_'+i_route+'_'+i_ele+'"]' ).attr('name', 'route['+i_route+'][validation]['+ele.value+']');
+        function change_route_process(ele,i) {
+            if(ele.value == 'custom_data') {                
+                html_code_php = 
+                    '<div class="mt-3 custom_data_'+i+' ">'+
+                        '<textarea name="route['+i+'][custom_function]" class="d-none">'+
+                            '\\DB::beginTransaction();'+"\n"+
+                            '$single_data = $this->getSingleData(1);'+"\n"+
+                            '\\DB::commit();'+"\n"+
+                            'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+
+                        '</textarea>'+
+                        '<textarea id="route_text_'+i+'">'+
+                            '\\DB::beginTransaction();'+"\n"+
+                            '$single_data = $this->getSingleData(1);'+"\n"+
+                            '\\DB::commit();'+"\n"+
+                            'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+                            
+                        '</textarea>'+
+                    '</div>'
+
+                $(ele).parent().parent().parent().append(html_code_php)
+                
+                eval("code_editor_process_" + i + "= ace.edit('route_text_'+i, {mode: \"ace/mode/php\",maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false})")
+                eval("code_editor_process_" + i + ".getSession().setMode({path:\"ace/mode/php\", inline:true})")
+                eval("code_editor_process_" + i + ".getSession().on('change', function(e) {val_code = code_editor_process_"+i+".getSession().getValue();$( '[name=\"route["+i+"][custom_function]\"]' ).val(val_code);})")
+            }else {
+                $( '.custom_data_'+i ).remove()
+            }
         }
 
         function ubah_type_kolom(data,i) {
@@ -196,68 +238,130 @@
         }
 
         function ubah_type_relasi(data,i) {
-            $( "[class*='has_many_"+i+"']" ).remove()
-            $( "[class*='has_one_"+i+"']" ).remove()
-            $( "[class*='belongs_to_many_"+i+"']" ).remove()
-            $( "[class*='belongs_to_"+i+"']" ).remove()
-            if( data.value == "has_many" || data.value == "has_one" || data.value == "belongs_to" ) {
-                html_relasi_detail = ''
+            data_sebelum = get_data_array(objModul,'relation.'+i+'.type','')
+            data_sesudah = data.value
+                    
+            objModul = $('#modul').serializeJSON()
+            if( data_sebelum == '' || data_sebelum == 'belongs_to_many' || data_sesudah == 'belongs_to_many') {
+                $( "[class*='has_many_"+i+"']" ).remove()
+                $( "[class*='has_one_"+i+"']" ).remove()
+                $( "[class*='belongs_to_many_"+i+"']" ).remove()
+                $( "[class*='belongs_to_"+i+"']" ).remove()
 
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Name </label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][name]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';
+                if( data.value == "has_many" || data.value == "has_one" || data.value == "belongs_to" ) {
+                    html_relasi_detail = ''
 
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Tabel </label>'+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Name </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][name]">'+
+                            '</div>'+
                         '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][table]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';
+                        '';
 
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Foreign Key </label>'+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Tabel </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][table]">'+
+                            '</div>'+
                         '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="ferign key relasi" name="relation['+i+'][foreign_key]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';                
-            }
-            
-            if( data.value == "belongs_to_many" ) {
-                html_relasi_detail = ''
+                        '';
 
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Name </label>'+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Foreign Key </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="ferign key relasi" name="relation['+i+'][foreign_key]">'+
+                            '</div>'+
                         '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama relasi" name="relation['+i+'][name]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';
+                        '';                
+                }
                 
+                if( data.value == "belongs_to_many" ) {
+                    html_relasi_detail = ''
+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Name </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="nama relasi" name="relation['+i+'][name]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+                    
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Nama Model Relasi</label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="nama model relasi, default nama relasi" name="relation['+i+'][model_name]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Tabel </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][table]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+                    
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Foreign Key Model </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="foregin key tabel relasi" name="relation['+i+'][foreign_key_model]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+                    
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Foreign Key Joining Model </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="foregin key joining tabel relasi" name="relation['+i+'][foreign_key_joining_model]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+                    
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Intermediate Tabel </label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="intermediate table" name="relation['+i+'][intermediate_table]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';                
+                }
+
                 html_relasi_detail += 
                     '<div class="row mb-3 '+data.value+'_'+i+'">'+
                         '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Nama Model Relasi</label>'+
+                            '<label>Custom Join </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama model relasi, default nama relasi" name="relation['+i+'][model_name]">'+
+                            '<input type="" class="form-control" placeholder="custom join relasi (ex:left join zw_com_products on (zw_com_products.id=zw_com_order_products.product_id))" name="relation['+i+'][custom_join]">'+
                         '</div>'+
                     '</div>'+
                     '';
@@ -265,103 +369,52 @@
                 html_relasi_detail += 
                     '<div class="row mb-3 '+data.value+'_'+i+'">'+
                         '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Tabel </label>'+
+                            '<label>Custom option </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][table]">'+
+                            '<input type="" class="form-control" placeholder="custom option relasi (ex:and zw_com_products.deleted_by is null and zw_com_products.com_id = \'.user()->com_id.\')" name="relation['+i+'][custom_option]">'+
                         '</div>'+
                     '</div>'+
                     '';
-                
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Foreign Key Model </label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="foregin key tabel relasi" name="relation['+i+'][foreign_key_model]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';
-                
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Foreign Key Joining Model </label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="foregin key joining tabel relasi" name="relation['+i+'][foreign_key_joining_model]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';
-                
-                html_relasi_detail += 
-                    '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Intermediate Tabel </label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<input type="" class="form-control" placeholder="intermediate table" name="relation['+i+'][intermediate_table]">'+
-                        '</div>'+
-                    '</div>'+
-                    '';                
-            }
 
-            html_relasi_detail += 
-                '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                    '<div class="col-sm-2" style="padding-top:5px;">'+
-                        '<label>Custom Join </label>'+
-                    '</div>'+
-                    '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="custom join relasi (ex:left join zw_com_products on (zw_com_products.id=zw_com_order_products.product_id))" name="relation['+i+'][custom_join]">'+
-                    '</div>'+
-                '</div>'+
-                '';
-
-            html_relasi_detail += 
-                '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                    '<div class="col-sm-2" style="padding-top:5px;">'+
-                        '<label>Custom option </label>'+
-                    '</div>'+
-                    '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="custom option relasi (ex:and zw_com_products.deleted_by is null and zw_com_products.com_id = \'.user()->com_id.\')" name="relation['+i+'][custom_option]">'+
-                    '</div>'+
-                '</div>'+
-                '';
-
-            html_relasi_detail += 
-                '<div class="row mb-3 '+data.value+'_'+i+'">'+
-                    '<div class="col-sm-8" style="padding-top:5px;">'+
-                        '<label><b>Kolom Relasi</b></label>'+
-                    '</div>'+                        
-                '</div>'+
-                '';
-
-            html_relasi_detail +=
-                '<div class="container '+data.value+'_'+i+' kolom_relasi_'+data.value+'_'+i+'">'+                    
-                '</div>'+
-                '';
-            
-            html_relasi_detail += "<input class='btn btn-secondary mb-3 "+data.value+'_'+i+"' type='button' value='Tambah Kolom Relasi' height='10px' onclick=\"tambah_kolom_relasi('"+data.value+"',"+i+",0)\">";
-
-            if( data.value == "belongs_to_many" ) {
                 html_relasi_detail += 
                     '<div class="row mb-3 '+data.value+'_'+i+'">'+
                         '<div class="col-sm-8" style="padding-top:5px;">'+
-                            '<label><b>Kolom Tambahan di Intermediate Tabel</b></label>'+
+                            '<label><b>Kolom Relasi</b></label>'+
                         '</div>'+                        
                     '</div>'+
                     '';
 
                 html_relasi_detail +=
-                    '<div class="container '+data.value+'_'+i+' kolom_tambahan_relasi_'+data.value+'_'+i+'">'+                        
+                    '<div class="container '+data.value+'_'+i+' kolom_relasi_'+data.value+'_'+i+'">'+                    
                     '</div>'+
                     '';
                 
-                html_relasi_detail += "<input class='btn btn-secondary "+data.value+'_'+i+"' type='button' value='Tambah Kolom tambahan di Intermediate Tabel' height='10px' onclick=\"tambah_kolom_tambahan_relasi('"+data.value+"',"+i+",0)\">";
-            }            
-            
-            $(data).parent().parent().parent().append(html_relasi_detail);
+                html_relasi_detail += "<input class='btn btn-secondary mb-3 "+data.value+'_'+i+"' type='button' value='Tambah Kolom Relasi' height='10px' onclick=\"tambah_kolom_relasi('"+data.value+"',"+i+",0)\">";
+
+                if( data.value == "belongs_to_many" ) {
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-8" style="padding-top:5px;">'+
+                                '<label><b>Kolom Tambahan di Intermediate Tabel</b></label>'+
+                            '</div>'+                        
+                        '</div>'+
+                        '';
+
+                    html_relasi_detail +=
+                        '<div class="container '+data.value+'_'+i+' kolom_tambahan_relasi_'+data.value+'_'+i+'">'+                        
+                        '</div>'+
+                        '';
+                    
+                    html_relasi_detail += "<input class='btn btn-secondary "+data.value+'_'+i+"' type='button' value='Tambah Kolom tambahan di Intermediate Tabel' height='10px' onclick=\"tambah_kolom_tambahan_relasi('"+data.value+"',"+i+",0)\">";
+                }            
+                
+                $(data).parent().parent().parent().append(html_relasi_detail);
+            }else {
+                if(data_sebelum!=data_sesudah) {               
+                    $( '.'+data_sebelum+'_'+i ).addClass( data_sesudah+'_'+i ).removeClass( data_sebelum+'_'+i )
+                }
+            }
         }
 
         function tambah_kolom_tambahan_relasi(data,irelasi,ikolom) {
@@ -382,6 +435,7 @@
                                 '<option value="string">String</option>'+
                             '</select>'+
                         '</div>'+
+                        '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_tambahan_relasi(\''+data+'\','+irelasi+','+ikolom+')">x</button>'+
                     '</div>'+
                 '';
 
@@ -449,7 +503,7 @@
             $( '.relasi_type_'+nama_relasi ).val('belongs_to').change();
         }
 
-        function tambah_kolom(jumlah_kolom,type) {            
+        function tambah_kolom(jumlah_kolom,type) {
             nama_kolom = jumlah_kolom
             window.jumlah_kolom = jumlah_kolom
             window.jumlah_kolom++
@@ -471,7 +525,7 @@
             html_new_kolom = 
                 '<div class="row '+type+'">'+
                     '<label for="column1" class="col-sm-12">'+
-                        '<b>Column '+jumlah_kolom+'</b>'+
+                        '<b>Kolom '+jumlah_kolom+'</b>'+
                         '<button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeColumn(\''+nama_kolom+'\')" style="margin-right: 15px;">Hapus</button>'+
                         '<div class="btn-group btn-group-sm float-right col-sm-2" role="group">'+
                             button+
@@ -500,6 +554,7 @@
                                     '<option value="smallInteger">Small Integer</option>'+
                                     '<option value="decimal">Decimal</option>'+
                                     '<option value="datetime">Datetime</option>'+
+                                    '<option value="timestamp">Timestamp</option>'+
                                     '<option value="string">String</option>'+
                                     '<option value="text">Text</option>'+
                                 '</select>'+
@@ -539,31 +594,30 @@
         }
 
         function tambah_validasi(i_route,i_ele) {
-            i_ele++
             html_validasi = 
                 '<div class="row mb-3">'+
                     '<div class="col-sm-3" style="padding-top:5px;">'+
                         '<label>'+(i_ele+1)+'.&nbsp;&nbsp;Validasi Parameter</label>'+
                     '</div>'+
                     '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="nama parameter" onkeyup="ubah_nama_ele(this,'+i_route+','+i_ele+')">'+
+                        '<input type="" class="form-control" placeholder="nama parameter" name="route['+i_route+'][validation]['+i_ele+'][name]">'+
                     '</div>'+
                     '<div class="col-sm-1" style="padding-top:5px;">'+
                         '<label>Validasi</label>'+
                     '</div>'+
                     '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="(ex:required|numeric)" name="route['+i_route+'][validation]" att="validation_'+i_route+'_'+i_ele+'">'+
+                        '<input type="" class="form-control" placeholder="(ex:required|numeric)" name="route['+i_route+'][validation]['+i_ele+'][statement]" att="validation_'+i_route+'_'+i_ele+'">'+
                     '</div>'+
+                    '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_validasi('+i_route+','+i_ele+')" att="remove_validation_'+i_route+'_'+i_ele+'">x</button>'+
                 '</div>'+
                 '';
 
             $( ".route_"+i_route ).append(html_validasi)
 
-            $( '[onclick="tambah_validasi('+i_route+','+(i_ele-1)+')"]' ).attr("onclick",'tambah_validasi('+i_route+','+i_ele+')')
+            $( '[onclick="tambah_validasi('+i_route+','+i_ele+')"]' ).attr("onclick",'tambah_validasi('+i_route+','+(i_ele+1)+')')
         }
 
         function tambah_route_parameter(i_route,i_ele) {
-            i_ele++
             html_parameter = 
                 '<div class="row mb-3">'+
                     '<div class="col-sm-3" style="padding-top:5px;">'+
@@ -571,13 +625,14 @@
                     '</div>'+
                     '<div class="col-sm">'+
                         '<input type="" class="form-control" placeholder="nama parameter" name="route['+i_route+'][param]['+i_ele+']">'+
-                    '</div>'+                            
+                    '</div>'+
+                    '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_parameter_route('+i_route+','+i_ele+')">x</button>'+
                 '</div>'+
                 '';
 
             $( ".route_param_"+i_route ).append(html_parameter)
 
-            $( '[onclick="tambah_route_parameter('+i_route+','+(i_ele-1)+')"]' ).attr("onclick",'tambah_route_parameter('+i_route+','+i_ele+')')
+            $( '[onclick="tambah_route_parameter('+i_route+','+i_ele+')"]' ).attr("onclick",'tambah_route_parameter('+i_route+','+(i_ele+1)+')')
         }
 
         function tambah_route(jumlah_route) {
@@ -602,12 +657,13 @@
                             '<label>Proses </label>'+
                         '</div>'+
                         '<div class="col-sm">'+
-                            '<select class="form-control" name="route['+nama_route+'][process]">'+
+                            '<select class="form-control" name="route['+nama_route+'][process]" onchange="change_route_process(this,'+nama_route+')">'+
                                 '<option value="list_data">Mengambil Banyak Data</option>'+
                                 '<option value="single_data">Mengambil Satu Data</option>'+
                                 '<option value="create_data">Menyimpan Data</option>'+
                                 '<option value="update_data">Memperbaharui Data</option>'+
                                 '<option value="delete_data">Menghapus Data</option>'+
+                                '<option value="custom_data">Custom</option>'+
                             '</select>'+
                         '</div>'+
                     '</div>'+
@@ -631,7 +687,7 @@
                     '</div>'+
                     '<div class="container route_param_'+nama_route+'">'+                        
                     '</div>'+
-                    '<input class="btn btn-secondary mb-3" type="button" value="Tambah Parameter" height="10px" onclick="tambah_route_parameter('+nama_route+',-1)">'+
+                    '<input class="btn btn-secondary mb-3" type="button" value="Tambah Parameter" height="10px" onclick="tambah_route_parameter('+nama_route+',0)">'+
                     '<div class="row mb-3">'+
                         '<div class="col-sm-2" style="padding-top:5px;">'+
                             '<label><b>Validasi Data</b></label>'+
@@ -639,7 +695,7 @@
                     '</div>'+
                     '<div class="container route_'+nama_route+'">'+                        
                     '</div>'+
-                    '<input class="btn btn-secondary" type="button" value="Tambah Validasi" height="10px" onclick="tambah_validasi('+nama_route+',-1)">'+
+                    '<input class="btn btn-secondary" type="button" value="Tambah Validasi" height="10px" onclick="tambah_validasi('+nama_route+',0)">'+
                 '</div>'+
                 '';
 
@@ -654,8 +710,83 @@
             build_kolom_tabel(objColumn,objForbiddenCOlumn);
         }
 
+        function tambah_kolom_fungsi(i_kolom_fungsi) {
+            objModul = $('#modul').serializeJSON()
+            nama_kolom_fungsi = jumlah_kolom_fungsi
+            window.jumlah_kolom_fungsi = jumlah_kolom_fungsi
+            window.jumlah_kolom_fungsi++
+            jumlah_kolom_fungsi = window.jumlah_kolom_fungsi
+
+            button = ''
+            if(nama_kolom_fungsi!=0) {
+                $( ".d-none_kolom_fungsi_"+(nama_kolom_fungsi-1) ).removeClass( "d-none" );
+            }
+
+            if(nama_kolom_fungsi > 0) {
+                button = '<button type="button" class="btn btn-success" onclick="moveColumnFunction('+nama_kolom_fungsi+', '+(nama_kolom_fungsi-1)+')">up</button>'
+            }
+
+            html_new_kolom_fungsi = 
+                '<div class="row ">'+
+                    '<label for="column1" class="col-sm-12">'+
+                        '<b>Kolom Fungsi '+jumlah_kolom_fungsi+'</b>'+
+                        '<button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeColumnFunction('+nama_kolom_fungsi+')" style="margin-right: 15px;">Hapus</button>'+
+                        '<div class="btn-group btn-group-sm float-right col-sm-2" role="group">'+
+                            button+
+                            '<button type="button" class="btn btn-info d-none d-none_kolom_fungsi_'+nama_kolom_fungsi+'" onclick="moveColumnFunction('+jumlah_kolom_fungsi+', '+nama_kolom_fungsi+')">down</button>'+
+                        '</div>'+
+                    '</label>'+
+                '</div>'+
+                '<div class="container ">'+
+                    '<div class="row mb-3">'+
+                        '<div class="col-sm-2" style="padding-top:5px;">'+
+                            '<label>Name </label>'+
+                        '</div>'+
+                        '<div class="col-sm">'+
+                            '<input name="column_function['+nama_kolom_fungsi+'][name]" type="text" class="form-control" placeholder="nama kolom">'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="row mb-3">'+
+                        '<div class="col-sm-2" style="padding-top:5px;">'+
+                            '<label>Fungsi </label>'+
+                        '</div>'+
+                        '<div class="col-sm">'+
+                            '<textarea name="column_function['+nama_kolom_fungsi+'][function]" class="d-none"></textarea>'+
+                            '<textarea id="column_function_'+nama_kolom_fungsi+'"></textarea>'+
+                            '<pre>*input ".code." akan di baca kode php</pre>'+
+                        '</div>'+
+                    '</div>'+
+                '</div>'+
+                '';
+
+            $( "list_function_column" ).append(html_new_kolom_fungsi);
+
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('column_function_'+nama_kolom_fungsi, {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"column_function["+nama_kolom_fungsi+"][function]\"]' ).val(val_code);})")
+
+            // code_editor[nama_kolom_fungsi] = ace.edit('column_function_'+nama_kolom_fungsi, {
+            //     mode: "ace/mode/sql",
+            //     maxLines: 30,
+            //     minLines: 5,
+            //     wrap: true,
+            // })
+
+            // code_editor[nama_kolom_fungsi].getSession().on('change', function(e) {
+            //     val_code = code_editor[nama_kolom_fungsi].getSession().getValue()            
+            //     $( '[name="column_function['+nama_kolom_fungsi+'][function]"]' ).val(val_code)
+            // });
+        }
+
+        var delay = (function(){
+            var timer = 0;
+            return function(callback, ms){
+                clearTimeout(timer);
+                timer = setTimeout(callback,ms);
+            };
+        })();
+
         $( document ).ready(function() {
-            
+
             $( "#add_relasi" ).click(function( event ) {
                 tambah_relasi(jumlah_relasi)
                 window.objModul = $('#modul').serializeJSON()
@@ -664,7 +795,12 @@
             $( "#add_route" ).click(function( event ) {
                 tambah_route(jumlah_route)
                 window.objModul = $('#modul').serializeJSON()                
-            });
+            })
+            
+            $( "#add_function_column" ).click(function( event ) {
+                tambah_kolom_fungsi(jumlah_kolom_fungsi)
+                window.objModul = $('#modul').serializeJSON()                
+            })
 
         });
     </script>
@@ -690,11 +826,77 @@
             return obj
         }
 
+        function remove_validasi(iroute, iparameter) {
+            objModul = $('#modul').serializeJSON()
+            splice_multilevel_array(objModul,'route.'+iroute+'.validation.'+iparameter)
+            build_validasi(iroute)
+        }
+
+        function build_validasi(iroute,validation_data) {
+            $( ".route_"+iroute ).html('')
+            if(typeof validation_data === 'undefined') {
+                validation_data = get_data_array(objModul,'route.'+iroute+'.validation',[])
+            }
+            $( "[onclick=\"tambah_validasi("+iroute+","+(Object.keys(validation_data).length+1)+")\"]" ).attr('onclick',"tambah_validasi("+iroute+",0)");
+            i = 0            
+            $.each(validation_data, function( index, value ) {
+                tambah_validasi(iroute,i)
+                $( '[name="route['+iroute+'][validation]['+i+'][name]"]' ).val(value['name'])
+                $( '[name="route['+iroute+'][validation]['+i+'][statement]"]' ).val(value['statement'])
+                i++
+            });
+        }
+
+        function remove_kolom_parameter_route(iroute, iparameter) {
+            objModul = $('#modul').serializeJSON()
+            splice_multilevel_array(objModul,'route.'+iroute+'.param.'+iparameter)
+            build_kolom_parameter_route(iroute)
+        }
+
+        function build_kolom_parameter_route(iroute,parameter_route_data) {
+            $( ".route_param_"+iroute ).html('')
+            if(typeof parameter_route_data === 'undefined') {
+                parameter_route_data = toArray(get_data_array(objModul,'route.'+iroute+'.param',[]))
+            }
+            $( "[onclick=\"tambah_route_parameter("+iroute+","+(parameter_route_data.length+1)+")\"]" ).attr('onclick',"tambah_route_parameter("+iroute+",0)");
+            i = 0            
+            $.each(parameter_route_data, function( index, value ) {
+                tambah_route_parameter(iroute,i)
+                $( '[name="route['+iroute+'][param]['+i+']"]' ).val(value)
+                i++
+            });
+        }
+
+        function removeColumnFunction(i_kolom_fungsi) {
+            objModul = $('#modul').serializeJSON()
+            splice_multilevel_array(objModul,'column_function.'+i_kolom_fungsi)
+            build_kolom_fungsi(objModul)
+        }
+
+        function remove_kolom_tambahan_relasi(data, irelasi, ikolom) {
+            objModul = $('#modul').serializeJSON()
+            splice_multilevel_array(objModul,'relation.'+irelasi+'.column_add_on.'+ikolom)
+            build_kolom_tambahan_relasi_modul(data,irelasi,ikolom)
+        }
+
+        function build_kolom_tambahan_relasi_modul(data,irelasi,ikolom) {
+            $( ".kolom_tambahan_relasi_"+data+"_"+irelasi ).html('')
+            add_on_column_data = toArray(get_data_array(objModul,'relation.'+irelasi+'.column_add_on',[]))
+            $( "[onclick=\"tambah_kolom_tambahan_relasi('"+data+"',"+irelasi+","+(add_on_column_data.length+1)+")\"]" ).attr('onclick',"tambah_kolom_tambahan_relasi('"+data+"',"+irelasi+",0)");
+            i = 0
+            $.each(add_on_column_data, function( index, value ) {
+                tambah_kolom_tambahan_relasi(data,irelasi,i)
+                $( '[name="relation['+irelasi+'][column_add_on]['+i+'][name]"]' ).val(value['name'])
+                $( '[name="relation['+irelasi+'][column_add_on]['+i+'][type]"]' ).val(value['type'])
+                i++
+            });
+        }
+
         function remove_kolom_relasi(data, irelasi, ikolom) {
             objModul = $('#modul').serializeJSON()
             splice_multilevel_array(objModul,'relation.'+irelasi+'.select_column.'+ikolom)
             build_kolom_relasi_select_column_modul(data,irelasi,ikolom)
-        }
+        }        
 
         function build_kolom_relasi_select_column_modul(data,irelasi,ikolom) {
             $( ".kolom_relasi_"+data+"_"+irelasi ).html('')
@@ -709,6 +911,13 @@
                 i++
             });
             // $( "[onclick=\"tambah_kolom_relasi('"+data+"',"+irelasi+","+(i+1)+")\"]" ).attr('onclick',"tambah_kolom_relasi('"+data+"',"+irelasi+","+(i)+")");
+        }
+
+        function moveColumnFunction(old_index, new_index) {
+            objModul = $('#modul').serializeJSON()
+            objModul.column_function = toArray(objModul.column_function)
+            objModul.column_function = move(objModul.column_function, old_index, new_index)
+            build_kolom_fungsi(objModul);
         }
 
         function moveColumn(old_index, new_index) {
@@ -756,9 +965,7 @@
                     if( data instanceof Array ) {
                         data.splice(value_splice,1)
                     }else {
-                        if(data[value_splice]) {
-                            delete data[value_splice]
-                        }
+                        delete data[value_splice]
                     }                    
                 }else {
                     data = data[value_splice]
@@ -791,39 +998,41 @@
         }
 
         function ambil_data_tabel(ele) {
-            $.ajax({
-                type: 'GET',
-                url: '{{url('/')}}/table',
-                jsonpCallback: 'testing',
-                dataType: 'json',
-                success: function(json) {
-                    if(json[ele.value]) {
-                        objColumn = json[ele.value]
-                        objModul['column'] = json[ele.value]
-                        objForbiddenCOlumn = json['forbidden_column_name']
-                        build_kolom_tabel(objModul['column'],objForbiddenCOlumn);
-                    }else {
+            delay(function(){
+                $.ajax({
+                    type: 'GET',
+                    url: '{{url('/')}}/table?table='+ele.value,
+                    jsonpCallback: 'testing',
+                    dataType: 'json',
+                    success: function(json) {
+                        if(json[ele.value]) {
+                            objColumn = json[ele.value]
+                            objModul['column'] = json[ele.value]
+                            objForbiddenCOlumn = json['forbidden_column_name']
+                            build_kolom_tabel(objModul['column'],objForbiddenCOlumn);
+                            build_tabel_option_by_column(objModul['column'])
+                        }else {
+                            objColumn = []
+                            objModul['column'] = []
+                            objForbiddenCOlumn = []
+                            build_kolom_tabel([]);
+                            build_tabel_option_by_column([])
+                        }
+                    },
+                    error: function(e) {
                         objColumn = []
                         objModul['column'] = []
                         objForbiddenCOlumn = []
                         build_kolom_tabel([]);
+                        build_tabel_option_by_column([])
                     }
-                },
-                error: function(e) {
-                    objColumn = []
-                    objModul['column'] = []
-                    objForbiddenCOlumn = []
-                    build_kolom_tabel([]);
-                }
-            });
+                });
+            }, 500);
         }
 
         function build_kolom_tabel(data,forbidden_column_name) {
             $( "list_kolom" ).html('');
-            $( '[name="with_timestamp"]' ).val(0).change();
-            $( '[name="with_authstamp"]' ).val(0).change();
-            $( '[name="with_ipstamp"]' ).val(0).change();
-            $( '[name="with_companystamp"]' ).val(0).change();
+            
             i_build_kolom_tabel = 0
             window.jumlah_kolom = 0
             $.each(data, function( index, value ) {
@@ -836,24 +1045,8 @@
                     tambah_kolom(i_build_kolom_tabel,'d-none');
                     set_value_kolom(i_build_kolom_tabel,value);
                     i_build_kolom_tabel++;
-                }              
-
-                if( value['name'] == 'created_time' ) {
-                    $( '[name="with_timestamp"]' ).val(1).change();
-                }
-
-                if( value['name'] == 'created_by' ) {
-                    $( '[name="with_authstamp"]' ).val(1).change();
-                }
-
-                if( value['name'] == 'created_from' ) {
-                    $( '[name="with_ipstamp"]' ).val(1).change();
-                }
-
-                if( value['name'] == 'com_id' ) {
-                    $( '[name="with_companystamp"]' ).val(1).change();
-                }
-            });
+                }                
+            });            
         }
 
         function set_value_kolom(i,data) {
@@ -881,32 +1074,62 @@
         }
 
         function ambil_data_modul(ele) {
-            $.ajax({
-                type: 'GET',
-                url: '{{url('/')}}/modul',
-                jsonpCallback: 'testing',
-                dataType: 'json',
-                success: function(json) {
-                    if(json[ele.value])
-                    {
-                        objModul = json[ele.value]
-                        build_semua_kolom(objModul)
-                    }else {
+            delay(function(){
+                $.ajax({
+                    type: 'GET',
+                    url: '{{url('/')}}/modul',
+                    jsonpCallback: 'testing',
+                    dataType: 'json',
+                    success: function(json) {
+                        if(json[ele.value])
+                        {
+                            objModul = json[ele.value]
+                            build_semua_kolom(objModul)
+                        }else {
+                            objModul = []
+                            build_semua_kolom([],'')
+                        }
+                    },
+                    error: function(e) {
                         objModul = []
                         build_semua_kolom([],'')
                     }
-                },
-                error: function(e) {
-                    objModul = []
-                    build_semua_kolom([],'')
-                }
-            });
+                });
+            }, 500);
         }
 
         function build_semua_kolom(json) {
+            build_tabel_option(json);
             build_kolom_tabel_modul(json);
             build_kolom_relasi_modul(json);
             build_kolom_route_modul(json);
+            build_kolom_fungsi(json);
+        }
+        
+        function build_tabel_option_by_column(data) {
+            $( '[name="with_timestamp"]' ).val(0).change();
+            $( '[name="with_authstamp"]' ).val(0).change();
+            $( '[name="with_ipstamp"]' ).val(0).change();
+            $( '[name="with_companystamp"]' ).val(0).change();
+
+            $.each(data, function( index, value ) {
+                if(value['name'] == 'created_time') $( '[name="with_timestamp"]' ).val(1).change();                
+                if(value['name'] == 'created_by') $( '[name="with_authstamp"]' ).val(1).change();                
+                if(value['name'] == 'created_from') $( '[name="with_ipstamp"]' ).val(1).change();                
+                if(value['name'] == 'com_id') $( '[name="with_companystamp"]' ).val(1).change();                
+            });
+        }
+
+        function build_tabel_option(data) {
+            $( '[name="with_timestamp"]' ).val(0).change();
+            $( '[name="with_authstamp"]' ).val(0).change();
+            $( '[name="with_ipstamp"]' ).val(0).change();
+            $( '[name="with_companystamp"]' ).val(0).change();
+
+            if(data.with_timestamp) $( '[name="with_timestamp"]' ).val(data.with_timestamp).change();
+            if(data.with_authstamp) $( '[name="with_authstamp"]' ).val(data.with_authstamp).change();
+            if(data.with_ipstamp) $( '[name="with_ipstamp"]' ).val(data.with_ipstamp).change();
+            if(data.with_companystamp) $( '[name="with_companystamp"]' ).val(data.with_companystamp).change();
         }
 
         function build_kolom_tabel_modul(data) {
@@ -932,6 +1155,10 @@
                     if( value_relasi['table'] )
                     {
                         $( '[name="relation['+jumlah_relasi_builded+'][table]"]' ).val(value_relasi['table']);
+                    }
+                    if( value_relasi['model_name'] )
+                    {
+                        $( '[name="relation['+jumlah_relasi_builded+'][model_name]"]' ).val(value_relasi['model_name']);
                     }
                     if( value_relasi['foreign_key'] )
                     {
@@ -1055,24 +1282,32 @@
                     $( '[name="route['+jumlah_route_builded+'][process]"]' ).val(value_route['process']).change();
                     $( '[name="route['+jumlah_route_builded+'][method]"]' ).val(value_route['method']);
                     
-                    jumlah_route_param_builded = -1 
-                    $( 'route_param_'+jumlah_route_builded ).html('')
-                    $.each(value_route['param'], function( index_route_param, value_route_param ) {
-                        tambah_route_parameter(jumlah_route_builded,jumlah_route_param_builded)
-                        jumlah_route_param_builded++
-                        $( '[name="route['+jumlah_route_builded+'][param]['+jumlah_route_param_builded+']"]' ).val(value_route_param);
-                    })
-
-                    jumlah_route_validasi_builded = -1 
-                    $( 'route_'+jumlah_route_builded ).html('')
-                    $.each(value_route['validation'], function( index_route_validasi, value_route_validasi ) {
-                        tambah_validasi(jumlah_route_builded,jumlah_route_validasi_builded)
-                        jumlah_route_validasi_builded++
-                        $( '[onkeyup="ubah_nama_ele(this,'+jumlah_route_builded+','+jumlah_route_validasi_builded+')"]' ).val(index_route_validasi).keyup();
-                        $( '[name="route['+jumlah_route_builded+'][validation]['+index_route_validasi+']"]' ).val(value_route_validasi);
-                    })
-
+                    build_kolom_parameter_route(jumlah_route_builded,value_route['param'])
+                    build_validasi(jumlah_route_builded,value_route['validation'])                    
+                    
+                    if( value_route['process'] == 'custom_data' )
+                    {
+                        $( '[name="route['+jumlah_route_builded+'][custom_function]"]' ).val(value_route['custom_function'])
+                        eval("code_editor_process_" + jumlah_route_builded + ".setValue($( '[name=\"route["+jumlah_route_builded+"][custom_function]\"]' ).val())")
+                    }
+                    
                     jumlah_route_builded++
+                })
+            }
+        }
+
+        function build_kolom_fungsi(data) {
+            $( "list_function_column" ).html('')
+            jumlah_kolom_fungsi_builded = 0
+            window.jumlah_kolom_fungsi = 0
+            if(get_data_array(data,'column_function')) {
+                $.each(data['column_function'], function( index_column_function, value_column_function ) {   
+                    tambah_kolom_fungsi(jumlah_kolom_fungsi_builded)
+                    $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][name]"]' ).val(value_column_function['name']);                    
+                    $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][function]"]' ).val(value_column_function['function']);
+                    eval("code_editor_" + nama_kolom_fungsi + ".setValue($( '[name=\"column_function["+jumlah_kolom_fungsi_builded+"][function]\"]' ).val())")
+
+                    jumlah_kolom_fungsi_builded++
                 })
             }
         }

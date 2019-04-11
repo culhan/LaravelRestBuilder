@@ -1,7 +1,7 @@
                     \DB::raw("(
                         select IFNULL(group_concat(CONCAT('{',                            
 {{column_belongs_to}}
-                        '}') ),'[]')
+                        '}') ),'{}')
                         from {{table_belongs_to}}
                         -- start list belongs to join option
                         -- end list belongs to join option

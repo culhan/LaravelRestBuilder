@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Models;
-use KhanCode\LaravelBaseRest\BaseModel;
+// use KhanCode\LaravelBaseRest\BaseModel;
 
 class {{Name}} extends BaseModel
 {

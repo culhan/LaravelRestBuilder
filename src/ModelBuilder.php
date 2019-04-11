@@ -13,6 +13,7 @@ class ModelBuilder
      * @param [type] $name_model
      * @param [type] $table
      * @param [type] $column
+     * @param [type] $column_function
      * @param [type] $route
      * @param [type] $with_timestamp
      * @param [type] $with_authstamp
@@ -21,15 +22,14 @@ class ModelBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name_model, $table, $column, $route, $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $relation )
+    static function build( $name_model, $table, $column, $column_function = [], $route, $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $relation )
     {
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
         $base_model = file_get_contents(__DIR__.'/../base/model/base.php', FILE_USE_INCLUDE_PATH);
         $base_model = str_replace('{{Name}}',$name,$base_model);        
 
-        if( $with_timestamp == 1 )
-        {
+        if( $with_timestamp == 1 ) {
             $option_timestamp = file_get_contents(__DIR__.'/../base/model/option_query_timestamp.php', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list query option',$option_timestamp,$base_model);
 
@@ -37,8 +37,7 @@ class ModelBuilder
             $base_model = str_replace('// end list option',$option_timestamp,$base_model);
         }
 
-        if( $with_authstamp == 1 )
-        {
+        if( $with_authstamp == 1 ) {
             $option_authstamp = file_get_contents(__DIR__.'/../base/model/option_query_authstamp.php', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list query option',$option_authstamp,$base_model);
 
@@ -52,8 +51,7 @@ class ModelBuilder
             $base_model = str_replace('// end list option',$option_authstamp,$base_model);
         }
 
-        if( $with_companystamp == 1 )
-        {
+        if( $with_companystamp == 1 ) {
             $option_companystamp = file_get_contents(__DIR__.'/../base/model/option_query_companystamp.php', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list query option',$option_companystamp,$base_model);
             
@@ -61,8 +59,7 @@ class ModelBuilder
             $base_model = str_replace('// end list creating option',$option_companystamp,$base_model);
         }
         
-        if( $with_ipstamp == 1 )
-        {
+        if( $with_ipstamp == 1 ) {
             $option_ipstamp = file_get_contents(__DIR__.'/../base/model/option_creating_ipstamp.php', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list creating option',$option_ipstamp,$base_model);
             $option_ipstamp = file_get_contents(__DIR__.'/../base/model/option_updating_ipstamp.php', FILE_USE_INCLUDE_PATH);
@@ -71,7 +68,7 @@ class ModelBuilder
 
         $cols_table_model = "";        
         $fillable_table_model = "";        
-        foreach ($column as $key => $value) {            
+        foreach ($column as $key => $value) {
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
             {
                 $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\"".'{{table}}.'.$value['name']."\",\r\n";
@@ -82,6 +79,14 @@ class ModelBuilder
                 $fillable_table_model .= "\r\n";
             }
         }
+
+        foreach ($column_function as $key_column_function => $value_column_function) {
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) )
+            {                
+                $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\DB::raw(\"".str_replace("\n","\n\t\t\t\t\t",$value_column_function['function'])." as ".$value_column_function['name']."\"),\r\n";
+            }
+        }
+
 
         // fillable
         $option_fillable = file_get_contents(__DIR__.'/../base/model/option_fillable.php', FILE_USE_INCLUDE_PATH);
@@ -211,12 +216,31 @@ class ModelBuilder
                             $function = str_replace('{{belongs_to_many_model_name}}',UCWORDS($value_relation['name']),$function);
                         }
                         $function = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$function);
+                        $function = str_replace('{{belongs_to_many_intermediate_table}}',$value_relation['intermediate_table'],$function);
+                        
                         $function = str_replace('{{column_belongs_to_many_foreign_key_model}}',$value_relation['foreign_key_model'],$function);
                         $function = str_replace('{{column_belongs_to_many_foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$function);                    
                         $base_model = str_replace('// end list relation function',$function,$base_model);
 
                         // column belongs to many
                         $belongs_to_many_query = file_get_contents(__DIR__.'/../base/model/query_column_belongs_to_many.php', FILE_USE_INCLUDE_PATH);
+                        $value_relation['select_column'] = array_merge($value_relation['select_column'],[
+                            [
+                                "name" => $value_relation['foreign_key_joining_model'],
+                                "column"    => $value_relation['intermediate_table'].'.'.$value_relation['foreign_key_joining_model'],
+                                "type"  =>  "integer",
+                            ]
+                        ]);
+                        if( !empty($value_relation['column_add_on']) )
+                        {
+                            foreach ($value_relation['column_add_on'] as $key_add_on => $value_add_on) {
+                                $value_relation['select_column'][] = [
+                                    "name" => $value_add_on['name'],
+                                    "column"    => $value_relation['intermediate_table'].'.'.$value_add_on['name'],
+                                    "type"  =>  $value_add_on['type'],
+                                ];
+                            }
+                        }
                         $column_belongs_to_many = self::generateColumnRelation($value_relation['select_column']);
                         
                         $belongs_to_many_query = str_replace('{{column_belongs_to_many}}',"".$column_belongs_to_many,$belongs_to_many_query);

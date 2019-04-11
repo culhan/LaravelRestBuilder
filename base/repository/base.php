@@ -4,7 +4,7 @@ namespace App\Http\Repositories;
 use Request;
 use App\Http\Models\{{Name}};
 use App\Exceptions\DataEmptyException;
-use KhanCode\LaravelBaseRest\BaseRepository;
+// use KhanCode\LaravelBaseRest\BaseRepository;
 
 /**
  * code for system logic
