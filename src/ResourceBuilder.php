@@ -16,40 +16,40 @@ class ResourceBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name, $column, $column_function, $relation )
+    static function build( $name, $column, $column_function, $relation, $hidden )
     {
         $resource_file = ucwords($name).'Resource';        
         $base_resource = file_get_contents(__DIR__.'/../base/resource/base.php', FILE_USE_INCLUDE_PATH);
+        $base_column = file_get_contents(__DIR__.'/../base/resource/column.php', FILE_USE_INCLUDE_PATH);
+        $base_column_with_json = file_get_contents(__DIR__.'/../base/resource/column_with_json.php', FILE_USE_INCLUDE_PATH);
 
         $base_resource = str_replace('{{Name}}',$name,$base_resource);
 
         $code_column = '';
+        $hidden = array_flip($hidden);
+        $jumlah_column = 0;
         foreach ($column as $key => $value) {
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[$value['name']]) )
             {
-                $code_column .= (($key!=0) ? "\t\t\t":"").'$this->mergeWhen(\Request::get("show_'.$value['name'].'",1)==1, [
-                    "'.$value['name'].'"    =>  $this->'.$value['name'].',
-                ])'.",\r\n";
+                $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").str_replace('{{name}}', $value['name'], $base_column);
+                $jumlah_column++;
             }
         }
         
         foreach ($column_function as $key => $value) {
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
             {
-                $code_column .= (($key!=0) ? "\t\t\t":"").'$this->mergeWhen(\Request::get("show_'.$value['name'].'",1)==1, [
-                    "'.$value['name'].'"    =>  $this->'.$value['name'].',
-                ])'.",\r\n";
+                $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").( empty($value['json'])?str_replace('{{name}}', $value['name'], $base_column):str_replace('{{name}}', $value['name'], $base_column_with_json) );
+                $jumlah_column++;
             }
         }
         
         $base_resource = str_replace('// end list column',$code_column."\t\t\t"."// end list column",$base_resource);
-
+        
         $i = 0;
         $code_relation = '';
-        foreach ($relation as $key => $value_relation) {
-            $code_relation .= (($i!=0) ? "\t\t\t":"").'$this->mergeWhen(\Request::get("show_'.$value_relation['name'].'",1)==1, [
-                "'.$value_relation['name'].'"    =>  json_decode($this->'.$value_relation['name'].'),
-            ])'.",\r\n";                
+        foreach ($relation as $key => $value) {
+            $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace('{{name}}', $value['name'], $base_column_with_json);                
             $i++;
         }
         $base_resource = str_replace('// end list relation',$code_relation."\t\t\t"."// end list relation",$base_resource);

@@ -1,0 +1,1 @@
+$table->bigInteger('{{name}}',false,true);

@@ -1,4 +1,7 @@
 <?php
+// File ini ini di  buat dengan Laravel Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
 namespace App\Http\Repositories;
 
 use Request;
@@ -30,7 +33,7 @@ class {{Name}}Repository extends BaseRepository
      * @param  array  $sortableAndSearchableColumn [description]
      * @return [type]                              [description]
      */
-    public function getIndexData(array $sortableAndSearchableColumn)
+    public function getIndexData(array $sortableAndSearchableColumn = [], array $relationColumn = [])
     {
         $this->model::validate(Request::all(), [
             'per_page'  =>  ['numeric'],
@@ -39,6 +42,7 @@ class {{Name}}Repository extends BaseRepository
         $data = $this->model
             ->getAll()
             ->setSortableAndSearchableColumn($sortableAndSearchableColumn)
+            ->setRelationColumn($relationColumn)
             ->search()
             ->sort()
             ->distinct()
@@ -46,7 +50,8 @@ class {{Name}}Repository extends BaseRepository
             ->paginate(Request::get('per_page'));
 
         $data->sortableAndSearchableColumn = $sortableAndSearchableColumn;
-            
+        $data->relationColumn = $relationColumn;
+        
         if($data->total() == 0) throw new DataEmptyException(trans('validation.attributes.dataNotExist',['attr' => self::$module]));
 
         return $data;
@@ -68,5 +73,7 @@ class {{Name}}Repository extends BaseRepository
 
         return $return;
     }
-    
+
+    // start custom code    
+    // end custom code
 }

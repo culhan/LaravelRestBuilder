@@ -1,12 +1,10 @@
 /**
      * [{{name}} description]
-     * @param  [type] $locale [description]
-     * @param  [type] $id     [description]
      * @return [type]         [description]
      */
-    public function {{name}}($locale{{param}})
+    public function {{name}}({{param}})
     {
-        return $this->service->{{name}}(Request::all(){{param}});
+        return $this->service->{{name}}(Request::all(){{param_function}});
     }
 
     // end list function

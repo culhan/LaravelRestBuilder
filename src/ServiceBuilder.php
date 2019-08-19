@@ -62,17 +62,19 @@ class ServiceBuilder
                 $ibelongs_to_code = 0;
                 $ibelongs_to_many = 0;
                 foreach ($relation as $key_relation => $value_relation) {
-                    
+                    if( empty($value_relation['simpan_data']) ) {
+                        continue;
+                    }
                     $cols_table_model .= '"'.$value_relation['name'].'"';
                     if( !empty($cols_table_model) )
                     {
                         $cols_table_model .= ",\r\n\t\t\t";
                     }                    
-                    $cols_table_model_validation .= '"'.$value_relation['name'].'"'."\t=>\t".'""';
-                    if( !empty($cols_table_model_validation) )
-                    {
-                        $cols_table_model_validation .= ",\r\n\t\t\t";
-                    }
+                    // $cols_table_model_validation .= '"'.$value_relation['name'].'"'."\t=>\t".'""';
+                    // if( !empty($cols_table_model_validation) )
+                    // {
+                    //     $cols_table_model_validation .= ",\r\n\t\t\t";
+                    // }
                     
 
                     // has many create data
@@ -82,7 +84,7 @@ class ServiceBuilder
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/has_many_create_data.php', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace('{{name_has_many}}',$value_relation['name'],$base_create_code);
                         $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);                        
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);                        
                         
                         $has_many_code .= (($ihas_many_code!=0) ? "\t\t":"").$base_create_code;
                         $ihas_many_code++;
@@ -95,7 +97,7 @@ class ServiceBuilder
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/has_one_create_data.php', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace('{{name_has_one}}',$value_relation['name'],$base_create_code);
                         $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                         
                         $has_one_code .= (($ihas_one_code!=0) ? "\t\t":"").$base_create_code;
                         $ihas_one_code++;
@@ -108,7 +110,7 @@ class ServiceBuilder
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_check_create_data.php', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
                         $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                         
                         $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
                         $ibelongs_to_code++;
@@ -127,7 +129,7 @@ class ServiceBuilder
                         
                         $base_delete_code = file_get_contents(__DIR__.'/../base/service/belongs_to_many_delete_data.php', FILE_USE_INCLUDE_PATH);
                         $base_delete_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_delete_code);                            
-                        $base_delete_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : ucwords($value_relation['name'])),$base_delete_code);                        
+                        $base_delete_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_delete_code);                        
                         
                         $belongs_to_many_delete_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_delete_code;
                         $ibelongs_to_many++;
@@ -165,7 +167,19 @@ class ServiceBuilder
                 $code_function = str_replace('{{column_validation}}',substr($cols_table_model_validation, 0, -5),$code_function);
                 $code_function = str_replace('{{name}}',$value['name'],$code_function);
                 $code_function = str_replace('{{Name}}',UCWORDS($value['name']),$code_function);                
-                $code_function = str_replace('{{Modul_name}}',UCWORDS($name),$code_function);
+                $code_function = str_replace('{{Modul_name}}',UCWORDS($name),$code_function);                
+
+                if(!empty($value['custom_function']))
+                {
+                    // $value['custom_function'] = str_replace("\n","\n\t\t",$value['custom_function']);
+                    $code_function = str_replace('// end code',$value['custom_function']."\r\n\t\t// end code",$code_function);
+                }
+                
+                if(!empty($value['system_function']))
+                {
+                    // $value['system_function'] = str_replace("\n","\n\t\t",$value['system_function']);
+                    $code_function = str_replace('// end code',$value['system_function']."\r\n\t\t// end code",$code_function);
+                }
 
                 // check lock 
                 if(!empty($value['lock']))
@@ -178,21 +192,27 @@ class ServiceBuilder
                 }
 
                 $param = '';
+                $param_function = '';
                 if(!empty($value['param']))
                 {
                     foreach ($value['param'] as $key_param => $value_param) {
-                        $param .= ',$'.$value_param;
+                        if($key_param!=0) {
+                            $param .= ',';
+                        }
+                        $param .= '$'.$value_param;
+                        $param_function .= ',$'.$value_param;
                     }
                 }
 
-                if(!empty($value['custom_function']))
-                {
-                    $value['custom_function'] = str_replace("\n","\n\t\t",$value['custom_function']);
-                    $code_function = str_replace('// end code',$value['custom_function']."\r\n\t\t// end code",$code_function);
-                }
-
                 $code_function = str_replace('{{param}}',$param,$code_function);
+                $code_function = str_replace('{{param_function}}',$param_function,$code_function);
                 
+                $value['custom_code_before'] = (!empty($value['custom_code_before'])) ? $value['custom_code_before'] : '';
+                $value['custom_code_after'] = (!empty($value['custom_code_after'])) ? $value['custom_code_after'] : '';
+                
+                $code_function = str_replace('{{custom_code_before}}',$value['custom_code_before'],$code_function);
+                $code_function = str_replace('{{custom_code_after}}',$value['custom_code_after'],$code_function);
+
                 $base_service = str_replace('// end list function',$code_function,$base_service);
             }            
         }

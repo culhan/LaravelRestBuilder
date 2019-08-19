@@ -1,10 +1,8 @@
 /**
      * [{{name}} description]
-     * @param  [type] $locale [description]
-     * @param  [type] $id     [description]
      * @return [type]         [description]
      */
-    public function {{name}}($locale{{param}})
+    public function {{name}}({{param}})
     {
         return (new App\Http\Resources\DeletedResource($this->service->{{name}}($id)));
     }

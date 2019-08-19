@@ -42,5 +42,25 @@ class Helper
         $column = (empty($funct[0]) ? '':$funct[0]);            
         $format = (empty($funct[1]) ? '"%d-%b-%Y"':$funct[1]);            
 		return 'DATE_FORMAT('.$column.', '.$format.')';
-	}
+    }
+    
+    /**
+     * str_lreplace function
+     *
+     * @param [type] $search
+     * @param [type] $replace
+     * @param [type] $subject
+     * @return void
+     */
+    static function str_lreplace($search, $replace, $subject)
+    {
+        $pos = strrpos($subject, $search);
+
+        if($pos !== false)
+        {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+
+        return $subject;
+    }
 }

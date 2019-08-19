@@ -18,12 +18,15 @@ class FileCreator
      * @param string $content
      * @return void
      */
-    static function create( $name_file, $folder, $content = "some text here" )
+    static function create( $name_file, $folder, $content = "some text here", $type = 'modul', $copy = true )
     {
+        $folder = config('laravelrestbuilder.copy_to')."/".$folder;        
         if ( file_exists(base_path()."/".$folder."/".$name_file.".php") )
         {
             self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
-            config(['laravelrestbuilder.file'   =>  self::$file]);
+            // if( !empty(config('laravelrestbuilder.copy_to')) && $copy){
+            //     self::$file['updated'][] = base_path()."/".config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php";
+            // }
             
             $old_file = self::getFile($name_file, $folder);
             $custom_code = [];
@@ -41,34 +44,54 @@ class FileCreator
                     $old_file = preg_replace('#'.preg_quote('// start custom code'.$this_custom_code.'// end custom code')."#", " ", $old_file, 1);
                 }
 
-                $index = 0;
+                $index = 0;                
                 $content = preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use ($custom_code,&$index) {
                     if(!empty($custom_code[$index]))
-                    {
-                        $custom_code[$index] = substr($custom_code[$index], 0, -10);
+                    {                        
+                        // hapus \r\n
+                        $custom_code[$index] = substr($custom_code[$index], 0, -6);                        
                         $return = $m[0].$custom_code[$index];
                         $index++;
                         return $return;
                     }
                     return "// start custom code";
                 }, $content);
+
+                // if(strpos($folder, 'app/Http/Repositories') !== false) {
+                //     dd( $custom_code[0], substr($custom_code[0], 0, -4) );
+                // }
             }
         }
         else
         {
             self::createPath(base_path()."/".$folder);
-            self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
+            if($type == 'migration') {
+                self::$file['migration'][] = base_path()."/".$folder."/".$name_file.".php";
+                // if( !empty(config('laravelrestbuilder.copy_to')) && $copy){
+                //     self::$file['migration'][] = base_path()."/".config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php";
+                // }
+            }else {
+                self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
+                // if( !empty(config('laravelrestbuilder.copy_to')) && $copy){
+                //     self::$file['created'][] = base_path()."/".config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php";
+                // }
+            }
         }
+
+        config(['laravelrestbuilder.file'   =>  self::$file]);
+
         $fp = fopen(base_path()."/".$folder."/".$name_file.".php","wb");
         fwrite($fp,$content);
         fclose($fp);
 
-        if( !empty(config('laravelrestbuilder.copy_to')) )
-        {
-            $fp = fopen(base_path().config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php","wb");
-            fwrite($fp,$content);
-            fclose($fp);
-        }
+        // if( !empty(config('laravelrestbuilder.copy_to')) && $copy)
+        // {
+        //     $fp = fopen(base_path().config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php","wb");
+        //     fwrite($fp,$content);
+        //     fclose($fp);
+        // }
+
+        return self::$file;
     }
 
     /**

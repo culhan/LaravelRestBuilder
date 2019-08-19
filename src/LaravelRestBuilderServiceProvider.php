@@ -63,15 +63,21 @@ class LaravelRestBuilderServiceProvider extends ServiceProvider
             __DIR__.'/../config/laravelrestbuilder.php' => config_path('laravelrestbuilder.php'),
         ], 'laravelrestbuilder.config');
 
+        if( config('laravelrestbuilder.build_active') ) {
+            $this->loadMigrationsFrom(__DIR__.'/../src/Migration');
+        }
+
         // Publishing the views.
         /*$this->publishes([
             __DIR__.'/../resources/views' => base_path('resources/views/vendor/khancode'),
         ], 'laravelrestbuilder.views');*/
 
         // Publishing assets.
-        /*$this->publishes([
-            __DIR__.'/../resources/assets' => public_path('vendor/khancode'),
-        ], 'laravelrestbuilder.views');*/
+        if( config('laravelrestbuilder.build_active') ) {
+            $this->publishes([
+                __DIR__.'/../resources/assets' => public_path('vendor/khancode'),
+            ], 'laravelrestbuilder.assets');
+        }
 
         // Publishing the translation files.
         /*$this->publishes([

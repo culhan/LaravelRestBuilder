@@ -1,10 +1,9 @@
 /**
      * [{{name}} description]
-     * @param  [type] $id   [description]
      * @param  [type] $data [description]
      * @return [type]       [description]
      */
-    public function {{name}}($id,$data)
+    public function {{name}}($data{{param_function}})
     {
         $dataRecord = array_only($data,[
             {{column}}
@@ -18,8 +17,8 @@
 
         \DB::beginTransaction();
 
-        // start custom code
-        // end custom code
+        // custom code before
+        {{custom_code_before}}
 
         // start list belongs to check create
         
@@ -42,8 +41,8 @@
         
         // end list belongs to many create
         
-        // start custom code
-        // end custom code
+        // custom code after
+        {{custom_code_after}}
 
         \DB::commit();
 

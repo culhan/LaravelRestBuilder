@@ -1,7 +1,7 @@
                     \DB::raw("(
                         select concat('[',IFNULL(group_concat(CONCAT('{',
 {{column_belongs_to_many}}                                
-                        '}')),''),']') 
+                        '}') {{custom_order}} ),''),']') 
                         from {{belongs_to_many_intermediate_table}}
                         left join {{belongs_to_many_table}} on ({{belongs_to_many_table}}.id = {{belongs_to_many_intermediate_table}}.{{foreign_key_joining_model}})                            
                         -- start list belongs to many join option

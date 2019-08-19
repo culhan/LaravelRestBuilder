@@ -1,12 +1,10 @@
 /**
      * [{{name}} description]
-     * @param  [type] $locale [description]
-     * @param  [type] $id     [description]
      * @return [type]         [description]
      */
-    public function {{name}}($locale{{param}})
+    public function {{name}}({{param}})
     {
-        $data = $this->service->{{name}}($id,Request::all());
+        $data = $this->service->{{name}}(Request::all(){{param_function}});
         return new App\Http\Resources\{{Modul_name}}Resource($data);
     }
 

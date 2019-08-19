@@ -5,10 +5,12 @@
      */
     public function {{name}}($id)
     {
+        // locking function
+        
         \DB::beginTransaction();
 
-        // start custom code
-        // end custom code
+        // custom code before
+        {{custom_code_before}}
 
         $result = $this->repository->getSingleData($id);
 
@@ -18,10 +20,12 @@
 
         $return = $result->delete();
         
-        // start custom code
-        // end custom code
+        // custom code after
+        {{custom_code_after}}        
 
         \DB::commit();
+
+        // unlocking function
 
         return $return;
     }

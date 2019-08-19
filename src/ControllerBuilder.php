@@ -16,7 +16,7 @@ class ControllerBuilder
      * @param [type] $route
      * @return void
      */
-    static function build( $name, $column, $column_function, $route )
+    static function build( $name, $column, $column_function, $route, $relation )
     {
         $name = UCWORDS($name);
         $controller_file_name = $name.'Controller';
@@ -25,18 +25,28 @@ class ControllerBuilder
 
         $list_file = scandir(__DIR__.'/../base/controller', SCANDIR_SORT_DESCENDING);
         foreach ($route as $key => $value) {
+            if($value['name'] == 'system_data') {
+                continue;
+            }
             $function_name = 'function_'.$value['process'].'.php';
             if(in_array($function_name,$list_file))
             {
                 $param = '';
+                $param_function = '';
                 if(!empty($value['param']))
                 {
                     foreach ($value['param'] as $key_param => $value_param) {
-                        $param .= ',$'.$value_param;
+                        if($key_param!=0) {
+                            $param .= ',';
+                        }
+                        $param .= '$'.$value_param;
+                        $param_function .= ',$'.$value_param;
                     }
                 }
+                
                 $code_function = file_get_contents(__DIR__.'/../base/controller/'.$function_name, FILE_USE_INCLUDE_PATH);
                 $code_function = str_replace('{{param}}',$param,$code_function);
+                $code_function = str_replace('{{param_function}}',$param_function,$code_function);
                 $code_function = str_replace('{{name}}',$value['name'],$code_function);
                 $code_function = str_replace('{{Name}}',UCWORDS($value['name']),$code_function);                
                 $code_function = str_replace('{{Modul_name}}',UCWORDS($name),$code_function);                
@@ -59,6 +69,11 @@ class ControllerBuilder
                 $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
                 $base_controller = str_replace('// end list column',$cols,$base_controller);
             }
+        }
+
+        foreach ($relation as $key => $value) {
+            $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list relation column";
+            $base_controller = str_replace('// end list relation column',$cols,$base_controller);
         }
         
         FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api', $base_controller );

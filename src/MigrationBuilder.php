@@ -3,9 +3,10 @@
 namespace KhanCode\LaravelRestBuilder;
 
 use Illuminate\Support\Facades\Schema;
+use KhanCode\LaravelRestBuilder\Models\SystemTables;
 
 class MigrationBuilder
-{
+{    
 
     /**
      * create migration
@@ -20,6 +21,15 @@ class MigrationBuilder
      */
     static function build( $name, $table, array $column )
     {
+        $table_exist = SystemTables::where('name',$table)->first();
+
+        if( $table_exist == NULL ) {
+            // create new table
+            SystemTables::create([
+                'name'  =>  $table
+            ])->id;
+        }
+
         // jika table belum di buat
         if( !Schema::hasTable($table) )
         {
@@ -59,13 +69,51 @@ class MigrationBuilder
             foreach ($list_column_var as $key_column => $value_column) {                
                 $column_check_change = self::checkColumnChange($value_column,$table);
                 if(!$column_check_change) {
+                    if( !empty($list_column_var[$key_column-1]) ) $value_column['after'] = $list_column_var[$key_column-1]['name'];
                     $check_for_change_column[] = $value_column;
                 }
-            }
+            }            
             
             // check perbedaan nya antara table yg akan di drop            
             $check_for_drop_column = self::checkColumnForDrop($column_exist,$table);         
             
+            // check for change to timestamp, dbal laravel not supported
+            // The following column types can not be "changed": 
+            // char, double, enum, mediumInteger, timestamp, tinyInteger, ipAddress, json, jsonb, macAddress, mediumIncrements, morphs, nullableMorphs, nullableTimestamps, softDeletes, timeTz, timestampTz, timestamps, timestampsTz, unsignedMediumInteger, unsignedTinyInteger, uuid.
+            $unableChanged = [
+                "char",
+                "double",
+                "enum",
+                "mediumInteger",
+                "timestamp",
+                "tinyInteger",
+                "ipAddress",
+                "json",
+                "jsonb",
+                "macAddress",
+                "mediumIncrements",
+                "morphs",
+                "nullableMorphs",
+                "nullableTimestamps",
+                "softDeletes",
+                "timeTz",
+                "timestampTz",
+                "timestamps",
+                "timestampsTz",
+                "unsignedMediumInteger",
+                "unsignedTinyInteger",
+                "uuid",
+            ];
+            $unableChanged = array_flip($unableChanged);
+            foreach ($check_for_change_column as $key_check_for_change_column => $value_check_for_change_column) {
+                if( !empty($unableChanged[$value_check_for_change_column['type']]) ) {
+                    $check_for_drop_column[] = $value_check_for_change_column;
+                    unset($check_for_change_column[$key_check_for_change_column]);
+                    $check_for_add_column[] = $value_check_for_change_column;
+                }
+            }
+
+            // excute for build
             if( !empty($check_for_drop_column) || !empty($check_for_add_column) || !empty($check_for_change_column) )
             {
                 $migration_file_name = date('Y_m_d_His').'_update_'.$name.'_table'.date('His');
@@ -73,28 +121,38 @@ class MigrationBuilder
                 $base_migration = file_get_contents(__DIR__.'/../base/migration/update_migration.php', FILE_USE_INCLUDE_PATH);
                 $base_migration = str_replace('{{migration_name}}',$migration_class_name,$base_migration);
                 $base_migration = str_replace('{{table}}',$table,$base_migration);
-
-                $code_column_text = '';
-                $code_column = file_get_contents(__DIR__.'/../base/migration/drop_column.php', FILE_USE_INCLUDE_PATH);
+                
+                $code_column_drop_text = '';
+                $code_column_drop = file_get_contents(__DIR__.'/../base/migration/drop_column.php', FILE_USE_INCLUDE_PATH);
                 
                 if(!empty($check_for_drop_column))
                 {
                     foreach ($check_for_drop_column as $key => $value) {
-                        $code_column = str_replace('{{name}}',$value['name'],$code_column);
-                        $code_column_text .= (($key != 0) ? "\t\t\t":"").$code_column.(($key != (count($column)+1)) ? "\r\n":"");
+                        $code_column_for_drop = str_replace('{{name}}',$value['name'],$code_column_drop);
+                        $code_column_drop_text .= (($key != 0) ? "\t\t\t":"").$code_column_for_drop.(($key != (count($column)+1)) ? "\r\n":"");
                     }
-                    $base_migration = str_replace('// end list droped column',$code_column_text."\t\t\t// end list droped column",$base_migration);
+                    
+                    $base_migration = str_replace('// end list droped column',$code_column_drop_text."\t\t\t// end list droped column",$base_migration);
                 }
                 
-                $code_column_text = self::generateMigrationColumn($check_for_add_column,'add');                
-                $code_column_text .= self::generateMigrationColumn($check_for_change_column,'alter');
+                $code_column_text = '';
+                if( !empty($check_for_change_column) ) {
+                    $code_column_text .= self::generateMigrationColumn($check_for_change_column,'alter');
+                }
+                $code_column_text .= self::generateMigrationColumn($check_for_add_column,'add'); 
+
+                // if(count($check_for_change_column)+count($check_for_add_column) > 1) {
+                //     $code_column_text .= "\t\t\t";
+                // }
+                
                 if(!empty($code_column_text)) $base_migration = str_replace('// end list new column',$code_column_text."\t\t\t// end list new column",$base_migration);
             }
         }
+        
         if(!empty($base_migration))
         {            
             // create migration file
-            FileCreator::create( $migration_file_name, 'database/migrations', $base_migration );
+            return FileCreator::create( $migration_file_name, 'database/migrations', $base_migration, 'migration' );
         }
     }
 
@@ -159,6 +217,11 @@ class MigrationBuilder
      */
     static function checkColumnChange( $column, $table )
     {
+        if(empty($column['type']))
+        {
+            throw new \Exception('data type for column'.$column['name'].' does not avilable yet');
+        }
+
         $where = '';
         if($column['type'] == 'increment'){
             $where .= ' and extra = "auto_increment" ';
@@ -168,6 +231,9 @@ class MigrationBuilder
         }
         if ($column['type'] == 'smallInteger') {
             $where .= ' and data_type = "smallint" ';
+        }
+        if ($column['type'] == 'tinyInteger') {
+            $where .= ' and data_type = "tinyInt" ';
         }
         if ($column['type'] == 'string') {
             $where .= ' and data_type = "varchar" ';
@@ -181,27 +247,45 @@ class MigrationBuilder
         if ($column['type'] == 'decimal') {
             $where .= ' and data_type = "decimal" ';
         }
+        if ($column['type'] == 'char') {
+            $where .= ' and data_type = "char" ';
+        }
+        if ($column['type'] == 'text') {
+            $where .= ' and data_type = "text" ';
+        }
+        if ($column['type'] == 'time') {
+            $where .= ' and data_type = "time" ';
+        }
+        if ($column['type'] == 'bigint') {
+            $where .= ' and data_type = "bigint" ';
+        }
+        if ($column['type'] == 'date') {
+            $where .= ' and data_type = "date" ';
+        }
         
         if(empty($where))
         {
             throw new \Exception('data type '.$column['type'].' does not avilable yet');
         }
 
-        if ( !empty($column['nullable']) ) {
-            $where .= ' and is_nullable = "YES" ';
-        }else {
-            $where .= ' and is_nullable = "NO" ';
-        }
-        
-        if ( isset($column['default']) ) {
-            if( strtolower($column['default']) == 'null')
-            {
-                $where .= ' and column_default is NULL ';
+        // untuk increment tidak mungkin null dan default tidak ada
+        if( $column['type'] != 'increment' ) {
+            if ( !empty($column['nullable']) ) {
+                $where .= ' and is_nullable = "YES" ';
             }else {
-                $where .= ' and column_default = "'.$column['default'].'" ';
+                $where .= ' and is_nullable = "NO" ';
             }
-        }else {
-            $where .= ' and column_default is null ';
+            
+            if ( isset($column['default']) ) {
+                if( strtolower($column['default']) == 'null')
+                {
+                    $where .= ' and column_default is NULL ';
+                }else {
+                    $where .= ' and column_default = "'.$column['default'].'" ';
+                }
+            }else {
+                $where .= ' and column_default is null ';
+            }
         }
 
         if ( !empty($column['comment']) ) {
@@ -234,6 +318,7 @@ class MigrationBuilder
     {
         $list_file = scandir(__DIR__.'/../base/migration', SCANDIR_SORT_DESCENDING);
         $code_column_text = '';
+        
         foreach ($column as $key => $value) {
             $file_name_column = 'column_'.$value['type'].'.php';            
             if(in_array($file_name_column,$list_file))
@@ -246,40 +331,48 @@ class MigrationBuilder
                     $code_column = str_replace('{{precision}}',(empty($value['precision']) ? 8:$value['precision']),$code_column);
                     $code_column = str_replace('{{scale}}',(empty($value['scale']) ? 2:$value['scale']),$code_column);
                 }   
-                             
-                if(!empty($value['nullable'])) {
-                    $code_column = str_replace(';',"\r\n\t\t\t\t".'->nullable();',$code_column);
-                }else {
-                    $code_column = str_replace(';',"\r\n\t\t\t\t".'->nullable(false);',$code_column);
-                }
-
-                if(isset($value['default'])) 
-                {
-                    if(strtolower($value['default'])=='null')
-                    {
-                        $code_column = str_replace(';',"\r\n\t\t\t\t".'->default(NULL);',$code_column);
-                    }
-                    else
-                    {
-                        $code_column = str_replace(';',"\r\n\t\t\t\t".'->default(\DB::raw("'.$value['default'].'"));',$code_column);
-                    }
-                }
-
-                if(!empty($value['comment'])) $code_column = str_replace(';',"\r\n\t\t\t\t".'->comment("'.$value['comment'].'");',$code_column);
                 
+                // untuk increment tidak mungkin null dan default tidak ada
+                if($value['type'] != 'increment') {
+                    if(!empty($value['nullable'])) {
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->nullable();',$code_column);
+                    }else {
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->nullable(false);',$code_column);
+                    }
+
+                    $value['default'] = isset($value['default']) ? $value['default'] : "null";
+                }
+                $value['comment'] = isset($value['comment']) ? $value['comment'] : "null";
+
+                // utk increment tidak ada default
+                if($value['type'] != 'increment') {
+                    if(strtolower($value['default'])=='null') {
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default(NULL);',$code_column);
+                    }else {
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default(\DB::raw("'.$value['default'].'"));',$code_column);
+                    }
+                }
+
+                if(strtolower($value['comment'])=='null') {
+                    $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->comment(NULL);',$code_column);
+                }else {
+                    $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->comment(\DB::raw("'.$value['comment'].'"));',$code_column);
+                }
+
                 if($migration_type == 'alter') {
-                    $code_column = str_replace(';',"\r\n\t\t\t\t".'->change();',$code_column);
+                    if($value['type'] != 'timestamp') {                        
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->change();',$code_column);
+                    }
                 }
                 
                 if($migration_type == 'add') {
                     if(!empty($value['after'])) {
-                        $code_column = str_replace(';',"\r\n\t\t\t\t".'->after("'.$value['after'].'");',$code_column);
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->after("'.$value['after'].'");',$code_column);
                     }else {
-                        $code_column = str_replace(';',"\r\n\t\t\t\t".'->first();',$code_column);
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->first();',$code_column);
                     }
                 }
-
-                $code_column_text .= (($key != 0) ? "\t\t\t":"").$code_column.(($key != (count($column)+1)) ? "\r\n":"");
+                $code_column_text .= (($key > 0) ? "\t\t\t":"").$code_column.(($key != (count($column)+1)) ? "\r\n":"");
             }
             else {
                 throw new DataEmptyException('File '.$value['type'].' Type tidak di temukan');
@@ -298,7 +391,7 @@ class MigrationBuilder
     static function getColumnExist( $table )
     {
         $check = \DB::select( \DB::raw('
-                                    SELECT *
+                                    SELECT *,CONVERT(cast(CONVERT(column_comment USING latin1) AS BINARY) USING utf8) as column_comment
                                     FROM INFORMATION_SCHEMA.COLUMNS
                                     where TABLE_SCHEMA=\''.env('DB_DATABASE').'\'
                                     AND table_name = \''.$table.'\'
@@ -326,6 +419,18 @@ class MigrationBuilder
                 $type = "timestamp";
             }else if ($value->DATA_TYPE == 'decimal') {
                 $type = "decimal";
+            }else if ($value->DATA_TYPE == 'char') {
+                $type = "char";
+            }else if ($value->DATA_TYPE == 'tinyint') {
+                $type = "tinyInteger";
+            }else if ($value->DATA_TYPE == 'text') {
+                $type = "text";
+            }else if ($value->DATA_TYPE == 'time') {
+                $type = "time";
+            }else if ($value->DATA_TYPE == 'bigint') {
+                $type = "bigint";
+            }else if ($value->DATA_TYPE == 'date') {
+                $type = "date";
             }else {
                 $type = "unidentified (".$value->DATA_TYPE.")";
             }
@@ -348,5 +453,111 @@ class MigrationBuilder
             ];
         }
         return $return;
+    }
+
+    /**
+     * redorder column
+     *
+     * @param array $column
+     * @param [type] $table
+     * @return void
+     */
+    static function reorderColumn(array $column,$table) {
+
+        $nowHis = date('His');
+        $migration_file_name = date('Y_m_d_His').'_reorder_'.$table.'_table'.$nowHis;
+        $migration_class_name = ucfirst(camel_case('reorder_'.$table.'_table'.$nowHis));
+        $base_migration = file_get_contents(__DIR__.'/../base/migration/reorder_migration.php', FILE_USE_INCLUDE_PATH);
+        $base_migration = str_replace('{{migration_name}}',$migration_class_name,$base_migration);
+
+        $templatesQueryRaw = "\DB::statement(\"ALTER TABLE {{table}} MODIFY {{column}} {{type}} {{null}} {{extra}} {{default}} {{ordinal_position}}\");\n";
+        
+        $queryResult = "";
+        $same_order = true;
+        foreach ($column as $key => $value) {
+            $dataColumn = \DB::select( \DB::raw('
+                SELECT *,CONVERT(cast(CONVERT(column_comment USING latin1) AS BINARY) USING utf8) as column_comment
+                FROM INFORMATION_SCHEMA.COLUMNS
+                where TABLE_SCHEMA=\''.env('DB_DATABASE').'\'
+                AND table_name = \''.$table.'\'
+                AND column_name = \''.$value['name'].'\''
+            ));
+
+            if( empty($dataColumn[0]) ) {
+                return;
+            }
+
+            if($key+1 != $dataColumn[0]->ORDINAL_POSITION) {
+                $same_order = false;
+            }
+
+            $type = $dataColumn[0]->COLUMN_TYPE;
+            
+            $default = "default NULL";
+            if( !empty($dataColumn[0]->COLUMN_DEFAULT) ) {
+                $allowed_string = [
+                    "CURRENT_USER",
+                    "CURRENT_TIME",
+                    "CURRENT_TIMESTAMP",
+                    "CURRENT_DATE",
+                    "CURTIME",
+                ];
+                $allowed_string = array_flip($allowed_string);
+                if( !is_float($dataColumn[0]->COLUMN_DEFAULT) && 
+                    !is_numeric($dataColumn[0]->COLUMN_DEFAULT) && 
+                    !is_int($dataColumn[0]->COLUMN_DEFAULT) && 
+                    empty($allowed_string[$dataColumn[0]->COLUMN_DEFAULT]) 
+                ) {
+                    $dataColumn[0]->COLUMN_DEFAULT = "'".$dataColumn[0]->COLUMN_DEFAULT."'";
+                }
+                $default = "default ".$dataColumn[0]->COLUMN_DEFAULT;
+            }
+
+            $null = "NULL";
+            if( $dataColumn[0]->IS_NULLABLE == 'NO' ) {
+                $null = "NOT NULL";                
+            }
+
+            if( $null == "NOT NULL" && $default == "default NULL") {
+                $default = "";
+            }
+
+            $extra = $dataColumn[0]->EXTRA;
+            
+            if($key == 0) {
+                $ordinal_position = 'FIRST';
+            }else {
+                $ordinal_position = 'AFTER '.$column[$key-1]['name'];
+            }
+
+            $queryResult = str_replace([
+                "{{table}}",
+                "{{column}}",
+                "{{type}}",
+                "{{null}}",
+                "{{extra}}",
+                "{{default}}",
+                "{{ordinal_position}}",
+            ],
+            [
+                $table,
+                $value['name'],
+                $type,
+                $null,
+                $extra,
+                $default,
+                $ordinal_position,
+            ],$templatesQueryRaw);
+
+            $base_migration = str_replace('// end DB Statement',$queryResult."\t\t// end DB Statement",$base_migration);
+        }
+        
+        // create reorder jika beda
+        if( !$same_order ) {
+            
+            // create migration file
+            return FileCreator::create( $migration_file_name, 'database/migrations', $base_migration, 'migration' );
+        }
+                
     }
 }
