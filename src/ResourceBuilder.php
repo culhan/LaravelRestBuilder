@@ -19,9 +19,9 @@ class ResourceBuilder
     static function build( $name, $column, $column_function, $relation, $hidden )
     {
         $resource_file = ucwords($name).'Resource';        
-        $base_resource = file_get_contents(__DIR__.'/../base/resource/base.php', FILE_USE_INCLUDE_PATH);
-        $base_column = file_get_contents(__DIR__.'/../base/resource/column.php', FILE_USE_INCLUDE_PATH);
-        $base_column_with_json = file_get_contents(__DIR__.'/../base/resource/column_with_json.php', FILE_USE_INCLUDE_PATH);
+        $base_resource = file_get_contents(__DIR__.'/../base/resource/base.stub', FILE_USE_INCLUDE_PATH);
+        $base_column = file_get_contents(__DIR__.'/../base/resource/column.stub', FILE_USE_INCLUDE_PATH);
+        $base_column_with_json = file_get_contents(__DIR__.'/../base/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
 
         $base_resource = str_replace('{{Name}}',$name,$base_resource);
 

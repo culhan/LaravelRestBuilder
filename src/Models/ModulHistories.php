@@ -6,7 +6,7 @@ use KhanCode\LaravelBaseRest\BaseModel;
 
 class ModulHistories extends BaseModel
 {
-    public $connection = "laravelrestbuilder_mysql";
+    // public $connection = "laravelrestbuilder_mysql";
 
     public $table = "modul_histories";
 
@@ -51,6 +51,7 @@ class ModulHistories extends BaseModel
                 ])
                 // start list query option
                 ->whereNull("modul_histories.deleted_at")
+                ->where('project_id',config('laravelrestbuilder.project_id'))
                 // end list query option
                 ;
     }
@@ -74,6 +75,8 @@ class ModulHistories extends BaseModel
             if(auth()->guard('laravelrestbuilder_auth')->check()) $model->created_by = auth()->guard('laravelrestbuilder_auth')->id();
 
             $model->created_from = $_SERVER['REMOTE_ADDR'];
+
+            $model->project_id = config('laravelrestbuilder.project_id');
 
             // end list creating option  
 

@@ -27,6 +27,12 @@
     <!-- Custom styles for this template-->
     <link href="{{url('/')}}/vendor/khancode/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="{{url('/')}}/vendor/khancode/css/loading.css" rel="stylesheet">
+    
+    <style>
+      .scroll-to-top{
+        z-index:10;
+      }
+    </style>
 
     <style>
         figure.highlight {
@@ -159,6 +165,20 @@
 
       <!-- Divider -->
       <hr class="sidebar-divider my-0">      
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <i class="fas fa-fw fa-cog"></i>
+          <span>Project</span>
+        </a>
+        <div id="collapseOne" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Modul :</h6>
+            <a class="collapse-item" href="{{url('/')}}/project">List</a>
+            <a class="collapse-item" href="{{url('/')}}/createProject">Create</a>
+          </div>
+        </div>
+      </li>
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
@@ -350,14 +370,27 @@
 
             <div class="topbar-divider d-none d-sm-block"></div>
 
+            <li class="nav-item dropdown no-arrow mx-1" style="margin: auto;">
+              <select class="form-control" name="select_project">                  
+                  @foreach($projects as $project)
+                    @if($project->id == session('project')['id'])
+                      <option value={{$project->id}} selected>{{$project->name}}</option>
+                    @else
+                      <option value={{$project->id}}>{{$project->name}}</option>
+                    @endif
+                  @endforeach
+              </select>              
+            </li>
+                        
             <!-- Nav Item - User Information -->
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{$user->name}}</span>
                 <img class="img-profile rounded-circle" src="https://img.icons8.com/material-rounded/48/000000/user-male-circle.png">
-              </a>
-              <!-- Dropdown - User Information -->
-              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">                
+              </a>              
+              
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">          
+                <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                   <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                   Logout
@@ -382,7 +415,9 @@
             @elseif( isset($data['tambah_modul']) )
                 <a href="{{url('/')}}/create" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah modul</a>
             @elseif( isset($data['tambah_tabel']) )
-                <a href="{{url('/')}}/create" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah tabel</a>
+                <a href="{{url('/')}}/createTable" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah tabel</a>
+                @elseif( isset($data['tambah_project']) )
+                <a href="{{url('/')}}/createProject" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah project</a>
             @endif
           </div>
           @endif
@@ -475,7 +510,38 @@
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
     <!-- Custom scripts for all pages-->
     <script src="{{url('/')}}/vendor/khancode/js/sb-admin-2.min.js"></script>
+    <!-- script modul table -->
+    <script src="{{url('/')}}/vendor/khancode/js/modul-table.js"></script>
     
+    <script>
+      function arrayUnique(array) {
+          var a = array.concat();
+          for(var i=0; i<a.length; ++i) {
+              for(var j=i+1; j<a.length; ++j) {
+                  if(a[i] === a[j])
+                      a.splice(j--, 1);
+              }
+          }
+
+          return a;
+      }
+
+      function array_flip( trans )
+      {
+          var key, tmp_ar = {};
+
+          for ( key in trans )
+          {
+              if ( trans.hasOwnProperty( key ) )
+              {
+                  tmp_ar[trans[key]] = key;
+              }
+          }
+
+          return tmp_ar;
+      }
+    </script>
+
     @yield('script_add_on')
 
     <!-- set nav active -->
@@ -506,7 +572,13 @@
       function replaceString(data,replace_with,subject) {
         regex = new RegExp(data, "igm");
         return subject.replace(regex, replace_with);
-      }
+      }      
+    </script>
+
+    <script>
+      $( '[name="select_project"]' ).on('change', function() {
+          window.location.replace('{{url('/')}}/setProject/'+this.value+'?previous={{Request::url()}}');          
+      });
     </script>
 </body>
 

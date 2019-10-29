@@ -29,6 +29,12 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('endpoint/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@endpoint');
                 Route::get('getEnv', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@getEnv');
                 Route::post('saveEnv', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@saveEnv');
+                Route::get('project', 'KhanCode\LaravelRestBuilder\ProjectBuilder@get');
+                Route::post('project', 'KhanCode\LaravelRestBuilder\ProjectBuilder@create');
+                Route::get('listProject', 'KhanCode\LaravelRestBuilder\ProjectBuilder@projects');
+                Route::get('updateProject/{id}', 'KhanCode\LaravelRestBuilder\ProjectBuilder@updateProjects');
+                Route::get('createProject', 'KhanCode\LaravelRestBuilder\ProjectBuilder@createProject');
+                Route::get('setProject/{id}', 'KhanCode\LaravelRestBuilder\ProjectBuilder@setProject');
             });
         });
     });

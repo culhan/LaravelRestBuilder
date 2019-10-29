@@ -138,7 +138,7 @@ table .fa-close {
     cursor: pointer;
 }
 .ace_editor {
-    min-height:120px;
+    min-height:520px;
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
@@ -172,7 +172,7 @@ table .fa-close {
 
     <div class="tab-content" id="myTabTopContent">
         <div class="atas tab-pane fade active show" id="top-tab-content-default" role="tabpanel" aria-labelledby="top-tab">
-            <div class="d-flex justify-content-center rotate-n-15" style="padding-top: 100px;padding-bottom: 100px;">
+            <div class="d-flex justify-content-center" style="padding-top: 100px;padding-bottom: 100px;">
                 <i class="fas fa-laugh-wink fa-10x" style="color:#c2c0c0a8"></i>
             </div>
         </div>

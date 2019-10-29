@@ -5,10 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateEndpointTable extends Migration {
 
-	public function __construct() {
-		config(['database.connections.laravelrestbuilder_mysql'   =>  config('laravelrestbuilder.database')]);
-	}
-
 	/**
 	 * Run the migrations.
 	 *
@@ -16,9 +12,10 @@ class CreateEndpointTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::connection('laravelrestbuilder_mysql')->create('endpoint', function(Blueprint $table)
+		Schema::create('endpoint', function(Blueprint $table)
 		{
 			$table->increments('id', true);
+			$table->integer('project_id',false,true);
 			$table->string('name')->index();			
 			$table->string('url')->index();
             $table->integer('position',false,true);
@@ -51,7 +48,7 @@ class CreateEndpointTable extends Migration {
 	 */
 	public function down()
 	{		
-		Schema::connection('laravelrestbuilder_mysql')->drop('endpoint');
+		Schema::drop('endpoint');
 	}
 
 }

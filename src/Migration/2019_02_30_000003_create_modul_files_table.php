@@ -5,10 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateModulFilesTable extends Migration {
 
-	public function __construct() {
-		config(['database.connections.laravelrestbuilder_mysql'   =>  config('laravelrestbuilder.database')]);
-	}
-
 	/**
 	 * Run the migrations.
 	 *
@@ -16,10 +12,12 @@ class CreateModulFilesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::connection('laravelrestbuilder_mysql')->create('modul_files', function(Blueprint $table)
+		Schema::create('modul_files', function(Blueprint $table)
 		{
 			$table->increments('id', true);
+			$table->integer('project_id',false,true);
 			$table->string('name')->index();
+			$table->text('code');
             $table->integer('modul_id',false,true);
             $table->softDeletes();
 			$table->string('created_by')
@@ -46,7 +44,7 @@ class CreateModulFilesTable extends Migration {
 	 */
 	public function down()
 	{		
-		Schema::connection('laravelrestbuilder_mysql')->drop('modul_files');
+		Schema::drop('modul_files');
 	}
 
 }

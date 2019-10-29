@@ -5,9 +5,9 @@
      */
     public function {{name}}($data{{param_function}})
     {
-        $this->model::validate($data, [
-            {{column_validation}}
-        ]);
+        $dataRecord = $data;
+        
+        {{data-validation}}
 
         // start code
         // end code

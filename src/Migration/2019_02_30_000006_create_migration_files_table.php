@@ -5,10 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateMigrationFilesTable extends Migration {
 
-	public function __construct() {
-		config(['database.connections.laravelrestbuilder_mysql'   =>  config('laravelrestbuilder.database')]);
-	}
-
 	/**
 	 * Run the migrations.
 	 *
@@ -16,9 +12,10 @@ class CreateMigrationFilesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::connection('laravelrestbuilder_mysql')->create('migration_files', function(Blueprint $table)
+		Schema::create('migration_files', function(Blueprint $table)
 		{
 			$table->increments('id', true);
+			$table->integer('project_id',false,true);
 			$table->string('name')->index();
 			$table->integer('system_table_id',false,true);
 			$table->text('column');
@@ -47,7 +44,7 @@ class CreateMigrationFilesTable extends Migration {
 	 */
 	public function down()
 	{		
-		Schema::connection('laravelrestbuilder_mysql')->drop('migration_files');
+		Schema::drop('migration_files');
 	}
 
 }

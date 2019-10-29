@@ -6,7 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Users extends Authenticatable
 {
-    public $connection = "laravelrestbuilder_mysql";
+    // public $connection = "laravelrestbuilder_mysql";
 
     public $table = "users";
 

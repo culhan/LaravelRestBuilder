@@ -4,8 +4,9 @@ namespace KhanCode\LaravelRestBuilder;
 
 use Request;
 use Session;
-use \KhanCode\LaravelRestBuilder\Models\Users;
 use Illuminate\Support\Facades\Hash;
+use \KhanCode\LaravelRestBuilder\Models\Users;
+use \KhanCode\LaravelRestBuilder\Models\Projects;
 
 class Auth
 {
@@ -67,8 +68,16 @@ class Auth
             Session::flash('flash_message', 'No Data Match!');            
             return $this->login();
         }
+        
+        $first_project = Projects::first();
 
         auth()->guard('laravelrestbuilder_auth')->login($user);
+        
+        if( empty($first_project) ) {
+            return redirect('/createProject');
+        }
+
+        session(['project' => $first_project->toArray()]);        
         
         return redirect('/list');
     }

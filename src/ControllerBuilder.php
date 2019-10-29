@@ -16,11 +16,11 @@ class ControllerBuilder
      * @param [type] $route
      * @return void
      */
-    static function build( $name, $column, $column_function, $route, $relation )
+    static function build( $name, $column, $column_function, $route, $relation, $hidden )
     {
         $name = UCWORDS($name);
         $controller_file_name = $name.'Controller';
-        $base_controller = file_get_contents(__DIR__.'/../base/controller/controller.php', FILE_USE_INCLUDE_PATH);
+        $base_controller = file_get_contents(__DIR__.'/../base/controller/controller.stub', FILE_USE_INCLUDE_PATH);
         $base_controller = str_replace('{{name}}',$name,$base_controller);
 
         $list_file = scandir(__DIR__.'/../base/controller', SCANDIR_SORT_DESCENDING);
@@ -28,7 +28,7 @@ class ControllerBuilder
             if($value['name'] == 'system_data') {
                 continue;
             }
-            $function_name = 'function_'.$value['process'].'.php';
+            $function_name = 'function_'.$value['process'].'.stub';
             if(in_array($function_name,$list_file))
             {
                 $param = '';
@@ -55,8 +55,9 @@ class ControllerBuilder
         }
         
         $cols = '';
+        $hidden = array_flip($hidden);        
         foreach ($column as $key => $value) {
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[ $value['name'] ]) )
             {
                 $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
                 $base_controller = str_replace('// end list column',$cols,$base_controller);
@@ -74,6 +75,11 @@ class ControllerBuilder
         foreach ($relation as $key => $value) {
             $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list relation column";
             $base_controller = str_replace('// end list relation column',$cols,$base_controller);
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+            {
+                $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
+                $base_controller = str_replace('// end list column',$cols,$base_controller);
+            }
         }
         
         FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api', $base_controller );

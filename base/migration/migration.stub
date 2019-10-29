@@ -16,9 +16,15 @@ class {{migration_name}} extends Migration
         Schema::create('{{table}}', function (Blueprint $table) {
             // start list column
             // end list column
+
+            // start list new index
+            // end list new index
+            
             $table->charset = 'utf8';
             $table->collation = 'utf8_unicode_ci';
         });
+
+        // raw statement
     }
 
     /**

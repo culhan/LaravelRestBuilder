@@ -19,14 +19,37 @@ class FileCreator
      * @return void
      */
     static function create( $name_file, $folder, $content = "some text here", $type = 'modul', $copy = true )
-    {
+    {        
         $folder = config('laravelrestbuilder.copy_to')."/".$folder;        
         if ( file_exists(base_path()."/".$folder."/".$name_file.".php") )
-        {
-            self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
-            // if( !empty(config('laravelrestbuilder.copy_to')) && $copy){
-            //     self::$file['updated'][] = base_path()."/".config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php";
-            // }
+        {           
+            // check files code
+            $data_modul_files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::where([
+                    'name'  =>  base_path()."/".$folder."/".$name_file.".php",
+                    'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                ])->first();
+                        
+            if(!empty($data_modul_files)){
+
+                // jika ada dan sama maka kembali
+                if( $content == $data_modul_files->code ) {
+                    return;
+                }
+
+                $data_modul_files->update([                    
+                    'code'  =>  $content,
+                ]);
+            }else {
+
+                // jika tidak ada maka di buat
+                \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
+                    'name'  =>  base_path()."/".$folder."/".$name_file.".php",
+                    'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                    'code'  =>  $content,
+                ]);
+            }
+
+            self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";                        
             
             $old_file = self::getFile($name_file, $folder);
             $custom_code = [];
@@ -72,9 +95,10 @@ class FileCreator
                 // }
             }else {
                 self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
-                // if( !empty(config('laravelrestbuilder.copy_to')) && $copy){
-                //     self::$file['created'][] = base_path()."/".config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php";
-                // }
+                \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
+                    'name'  =>  base_path()."/".$folder."/".$name_file.".php",
+                    'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                ]);
             }
         }
 

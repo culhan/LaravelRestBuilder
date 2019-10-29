@@ -16,12 +16,20 @@ class {{migration_name}} extends Migration
         Schema::table('{{table}}', function (Blueprint $table) {
             // start list droped column
             // end list droped column
+
+            // start list droped index
+            // end list droped index
         });
 
         Schema::table('{{table}}', function (Blueprint $table) {
             // start list new column
             // end list new column
+
+            // start list new index
+            // end list new index
         });
+
+        // raw statement
     }
 
     /**

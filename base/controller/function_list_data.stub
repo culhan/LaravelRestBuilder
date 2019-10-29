@@ -10,12 +10,14 @@
             ],[
                 // start list relation column
                 // end list relation column
-            ]{{param_function}});
+            ],Request::all(){{param_function}});
         
         return (App\Http\Resources\{{Modul_name}}Resource::collection($data))
                 ->additional([
                     'sortableAndSearchableColumn' =>    $data->sortableAndSearchableColumn,
-                    'relationColumn'    =>  $data->relationColumn
+                    'relationColumn'    =>  $data->relationColumn,
+                    'status'    => 200,
+                    'error' => 0
                 ]);
     }
 

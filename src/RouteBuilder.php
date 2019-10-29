@@ -17,7 +17,7 @@ class RouteBuilder
     static function build( $name, $route )
     {
         $route_file = $name;        
-        $base_route = file_get_contents(__DIR__.'/../base/route/base.php', FILE_USE_INCLUDE_PATH);
+        $base_route = file_get_contents(__DIR__.'/../base/route/base.stub', FILE_USE_INCLUDE_PATH);
         $route_code = '<?php'."\r\n";
         foreach ($route as $key => $value) {
             if($value['process'] == 'system_data') {
@@ -62,7 +62,7 @@ class RouteBuilder
             }
         }
         
-        $system_route = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/routes/api.php', FILE_USE_INCLUDE_PATH);        
+        $system_route = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/routes/api.php', FILE_USE_INCLUDE_PATH);
         
         if (strpos($system_route, "include '".$route_file.".php';") === false) {
             // $system_route = str_replace('// include file route',"include '".$route_file.".php';\r\n\r\n// include file route",$system_route);

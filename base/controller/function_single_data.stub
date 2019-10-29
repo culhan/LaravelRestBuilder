@@ -4,7 +4,7 @@
      */
     public function {{name}}({{param}})
     {
-        $data = $this->service->get{{Name}}Data($id);
+        $data = $this->service->get{{Name}}Data($id,Request::all());
         return new App\Http\Resources\{{Modul_name}}Resource($data);
     }
 

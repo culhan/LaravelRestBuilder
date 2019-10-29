@@ -3,7 +3,7 @@
 @if (array_has($data,'name'))
     @section('title', 'Update Table '.Arr::get($data, 'name', ''))
 @else
-    @section('title', 'Update Table ')
+    @section('title', 'Create Table ')
 @endif
 
 @section('content')
@@ -25,6 +25,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="tabeloption-tab" data-toggle="tab" href="#tabeloption" role="tab" aria-controls="tabeloption" aria-selected="false">Tabel Option</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="listindex-tab" data-toggle="tab" href="#listindex" role="tab" aria-controls="route" aria-selected="false">Index</a>
                 </li>                                
             </ul>
             <div class="tab-content" id="myTabContent">
@@ -54,10 +57,12 @@
                                             <div class="input-group">
                                                 <select class="form-control" onchange="ubah_type_kolom_modul_table(this)" name="column_sementara[type]">
                                                     <option value="increment">Increment</option>
+                                                    <option value="bigIncrement">Big Increment</option>
                                                     <option value="integer" selected="selected">Integer</option>
                                                     <option value="bigint">Big Integer</option>
                                                     <option value="smallInteger">Small Integer</option>
                                                     <option value="tinyInteger">Tiny Integer</option>
+                                                    <option value="boolean">Boolean</option>
                                                     <option value="decimal">Decimal</option>
                                                     <option value="datetime">Datetime</option>
                                                     <option value="date">Date</option>
@@ -153,13 +158,56 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Company stamp</label>
-                            <select class="form-control" id="with_companystamp" name="with_companystamp">
+                            <select class="form-control" id="with_companystamp" name="with_companystamp" onchange="companyStampChange(this)">
                                 <option value=0>no</option>                
                                 <option value=1>yes</option>
                             </select>
                         </div>
                     </figure>
-                </div>                
+                </div>
+                <div class="tab-pane fade" id="listindex" role="tabpanel" aria-labelledby="listindex-tab">
+                    <!-- relasi -->
+                    <figure class="highlight">
+
+                        <div class="container mb-4">
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Name </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input type="" class="form-control" placeholder="nama index" name="index_sementara[name]">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse" data-target=".index_column" aria-expanded="true" aria-controls="index_column"><b>Kolom</b></label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm index_column collapse show" style="">
+                                <div class="container index_column_sementara"></div>
+                                <input class="btn btn-secondary mb-3" type="button" value="Tambah Kolom" height="10px" onclick="tambah_index_column_parameter(0)">
+                            </div>
+
+                        </div>
+
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_index" type="button" value="Tambah Index" height="10px" onclick="tambah_list_index_table()">
+                            <input class="btn btn-primary d-none" id="edit_index" type="button" value="Edit Index" height="10px" onclick="edit_list_index_table()">
+                        </div>
+
+                        <listindex_table>
+                        </listindex_table>
+                        <!-- <list_relasi class="d-none">
+                        </list_relasi> -->
+
+                        <!-- <br> -->
+                        <!-- <input class="btn btn-primary" type="button" value="Tambah Relasi" height='10px' id='add_relasi'> -->
+
+                    </figure>
+                </div>
             </div>
         </form>
     </div>    
@@ -243,127 +291,6 @@
         objModul = [];
         objForbiddenCOlumn = [];
         code_editor = [];
-
-        function ubah_type_kolom(data,i) {
-            if(data.value == 'decimal') {
-                html_decimal_detail = 
-                    '<input type="" class="form-control" placeholder="precision (default = 8)" name="column['+i+'][precision]">'+
-                    '<input type="" class="form-control" placeholder="scale (default = 2)" name="column['+i+'][scale]">';
-                $(data).parent().append(html_decimal_detail);
-            }else {
-                $( "[name='column["+i+"][precision]']" ).remove()
-                $( "[name='column["+i+"][scale]']" ).remove()
-            }
-        }
-
-        function ubah_type_kolom_modul_table(data) {
-            if(data.value == 'decimal') {
-                html_decimal_detail = 
-                    '<input type="" class="form-control" placeholder="precision (default = 8)" name="column_sementara[precision]">'+
-                    '<input type="" class="form-control" placeholder="scale (default = 2)" name="column_sementara[scale]">';
-                $(data).parent().append(html_decimal_detail);
-            }else {
-                $( "[name='column_sementara[precision]']" ).remove()
-                $( "[name='column_sementara[scale]']" ).remove()
-            }
-        }
-
-        function tambah_kolom(jumlah_kolom,type) {
-            nama_kolom = jumlah_kolom
-            window.jumlah_kolom = jumlah_kolom
-            window.jumlah_kolom++
-            jumlah_kolom = window.jumlah_kolom
-
-            if(typeof type === 'undefined') {
-                type = ''
-                window.index_kolom_terakhir_dibuat = jumlah_kolom
-                if(nama_kolom!=0) {
-                    $( ".d-none_"+(nama_kolom-1) ).removeClass( "d-none" );
-                }
-            }
-
-            button = ''
-            if(jumlah_kolom != 1) {
-                button = '<button type="button" class="btn btn-success" onclick="moveColumn('+nama_kolom+', '+(nama_kolom-1)+')">up</button>'
-            }            
-
-            html_new_kolom = 
-                '<div class="row_modul_table_'+nama_kolom+' d-none">'+
-                    '<div class="row '+type+'">'+
-                        '<label for="column1" class="col-sm-12">'+
-                            '<b>Kolom '+jumlah_kolom+'</b>'+
-                            '<button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeColumn(\''+nama_kolom+'\')" style="margin-right: 15px;">Hapus</button>'+
-                            '<div class="btn-group btn-group-sm float-right col-sm-2" role="group">'+
-                                button+
-                                '<button type="button" class="btn btn-info d-none d-none_'+nama_kolom+'" onclick="moveColumn('+(nama_kolom+1)+', '+nama_kolom+')">down</button>'+
-                            '</div>'+
-                        '</label>'+
-                    '</div>'+
-                    '<div class="container '+type+'">'+
-                        '<div class="row mb-3">'+
-                            '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Name </label>'+
-                            '</div>'+
-                            '<div class="col-sm">'+
-                                '<input name="column['+nama_kolom+'][name]" type="text" class="form-control" placeholder="nama kolom">'+
-                            '</div>'+
-                        '</div>'+
-                        '<div class="row mb-3">'+
-                            '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Type </label>'+
-                            '</div>'+
-                            '<div class="col-sm">'+
-                                '<div class="input-group">'+
-                                    '<select class="form-control" onchange="ubah_type_kolom(this,'+nama_kolom+')" name="column['+nama_kolom+'][type]">'+
-                                        '<option value="increment">Increment</option>'+
-                                        '<option value="integer" selected="selected">Integer</option>'+
-                                        '<option value="bigint">Big Integer</option>'+
-                                        '<option value="smallInteger">Small Integer</option>'+
-                                        '<option value="tinyInteger">Tiny Integer</option>'+
-                                        '<option value="decimal">Decimal</option>'+
-                                        '<option value="datetime">Datetime</option>'+
-                                        '<option value="date">Date</option>'+
-                                        '<option value="timestamp">Timestamp</option>'+
-                                        '<option value="string">String</option>'+
-                                        '<option value="char">Char</option>'+
-                                        '<option value="text">Text</option>'+
-                                        '<option value="time">Time</option>'+                                        
-                                    '</select>'+
-                                '</div>'+
-                            '</div>'+
-                        '</div>'+
-                        '<div class="row mb-3">'+
-                            '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Default </label>'+
-                            '</div>'+
-                            '<div class="col-sm">'+
-                                '<textarea class="form-control" name="column['+nama_kolom+'][default]" rows="2"></textarea>'+                                
-                            '</div>'+
-                        '</div>'+
-                        '<div class="row mb-3">'+
-                            '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Comment </label>'+
-                            '</div>'+
-                            '<div class="col-sm">'+
-                                '<textarea class="form-control" name="column['+nama_kolom+'][comment]" rows="2"></textarea>'+
-                            '</div>'+
-                        '</div>'+
-                        '<div class="row mb-3">'+
-                            '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Nullable </label>'+
-                            '</div>'+
-                            '<div class="col-sm">'+
-                                '<select class="form-control" name="column['+nama_kolom+'][nullable]">'+
-                                    '<option value="1">Yes</option>'+
-                                    '<option value="0">No</option>'+
-                                '</select>'+
-                            '</div>'+
-                        '</div>'+
-                    '</div>'+
-                '</div>'+
-            '';            
-            $( "list_kolom" ).append(html_new_kolom);
-        }
 
         function tambah_kolom_click() {
             objModul = $('#modul').serializeJSON()
@@ -489,25 +416,31 @@
                             objColumn = json[ele.value]
                             objModul['column'] = json[ele.value]
                             objForbiddenCOlumn = json['forbidden_column_name']
+                            storage_parameter.update('list_index',json['list_index'])
                             build_kolom_tabel(objModul['column'],objForbiddenCOlumn);
                             build_tabel_option_by_column(objModul['column'])
                             build_modul_tabel(objModul['column'],objForbiddenCOlumn);
+                            build_list_index_tabel(json['list_index'])
                         }else {
                             objColumn = []
                             objModul['column'] = []
                             objForbiddenCOlumn = []
+                            storage_parameter.update('list_index',[])
                             build_kolom_tabel([]);
                             build_tabel_option_by_column([])
                             build_modul_tabel([]);
+                            build_list_index_tabel([])
                         }
                     },
                     error: function(e) {
                         objColumn = []
                         objModul['column'] = []
                         objForbiddenCOlumn = []
+                        storage_parameter.update('list_index',[])
                         build_kolom_tabel([]);
                         build_tabel_option_by_column([])
                         build_modul_tabel([]);
+                        build_list_index_tabel([])
                     }
                 });
             }, 500);
@@ -530,43 +463,19 @@
                     i_build_kolom_tabel++;
                 }                
             });            
-        }
-
-        function set_value_kolom(i,data) {
-            $( '[name="column['+i+'][name]"]' ).val(data['name']);
-            if(data['type']) {
-                $( '[name="column['+i+'][type]"]' ).val(data['type']).change();
-            }
-            if(data['precision']) {
-                $( '[name="column['+i+'][precision]"]' ).val(data['precision']);
-            }
-            if(data['scale']) {
-                $( '[name="column['+i+'][scale]"]' ).val(data['scale']);
-            }
-            if(data['default']) {
-                $( '[name="column['+i+'][default]"]' ).val(data['default']);
-            }
-            if(data['comment']) {
-                $( '[name="column['+i+'][comment]"]' ).val(data['comment']);
-            }
-            if(data['nullable']) {
-                $( '[name="column['+i+'][nullable]"]' ).val(data['nullable']).change();
-            }else {
-                $( '[name="column['+i+'][nullable]"]' ).val('0').change();
-            }
         }        
         
         function build_tabel_option_by_column(data) {
-            $( '[name="with_timestamp"]' ).val(0).change();
-            $( '[name="with_authstamp"]' ).val(0).change();
-            $( '[name="with_ipstamp"]' ).val(0).change();
-            $( '[name="with_companystamp"]' ).val(0).change();
+            $( '[name="with_timestamp"]' ).val(0)
+            $( '[name="with_authstamp"]' ).val(0)
+            $( '[name="with_ipstamp"]' ).val(0)
+            $( '[name="with_companystamp"]' ).val(0)
 
             $.each(data, function( index, value ) {
-                if(value['name'] == 'created_time') $( '[name="with_timestamp"]' ).val(1).change();                
-                if(value['name'] == 'created_by') $( '[name="with_authstamp"]' ).val(1).change();                
-                if(value['name'] == 'created_from') $( '[name="with_ipstamp"]' ).val(1).change();                
-                if(value['name'] == 'com_id') $( '[name="with_companystamp"]' ).val(1).change();                
+                if(value['name'] == 'created_time') $( '[name="with_timestamp"]' ).val(1)
+                if(value['name'] == 'created_by') $( '[name="with_authstamp"]' ).val(1)
+                if(value['name'] == 'created_from') $( '[name="with_ipstamp"]' ).val(1)
+                if(value['name'] == 'com_id') $( '[name="with_companystamp"]' ).val(1)
             });
         }
 
@@ -574,12 +483,12 @@
             $( '[name="with_timestamp"]' ).val(0).change();
             $( '[name="with_authstamp"]' ).val(0).change();
             $( '[name="with_ipstamp"]' ).val(0).change();
-            $( '[name="with_companystamp"]' ).val(0).change();
+            $( '[name="with_companystamp"]' ).val(0)
             
             if(data.with_timestamp) $( '[name="with_timestamp"]' ).val(data.with_timestamp).change();
             if(data.with_authstamp) $( '[name="with_authstamp"]' ).val(data.with_authstamp).change();
             if(data.with_ipstamp) $( '[name="with_ipstamp"]' ).val(data.with_ipstamp).change();
-            if(data.with_companystamp) $( '[name="with_companystamp"]' ).val(data.with_companystamp).change();
+            if(data.with_companystamp) $( '[name="with_companystamp"]' ).val(data.with_companystamp)
            
         }
 
@@ -828,6 +737,10 @@
 
             removeColumn(i)
             build_modul_tabel(objColumn,objForbiddenCOlumn)
+
+            if(column_sementara['name'] == 'com_id') {
+                $( "#with_companystamp" ).val(0)
+            }
         }
 
         function moveColumnModulTable(i,y) {
@@ -968,6 +881,14 @@
                     
                     $( "#modal_1 .modal-body" ).html(html)
                     $( "#launch_modal_1" ).click()
+                },
+                error:function (data) {                    
+                    if( data.responseJSON ) {
+                        $( "#modal_1 .modal-body" ).html(data.responseJSON.message)
+                    }else {
+                        $( "#modal_1 .modal-body" ).html('Tidak ada perubahan')
+                    }
+                    $( "#launch_modal_1" ).click()
                 }
             });
         }
@@ -978,4 +899,44 @@
             $( '.'+($(ele).attr('name')).replace(/[\[\]']+/g,'') ).html('api/'+ele.value+objModul['name']+'/')
         }        
     </script>
+
+    <script>
+        function companyStampChange(ele) {
+            if( ele.value == 1 ) {
+                has_company_column = 0
+                $.each(objColumn, function( e, v ) {
+                    if(v.name == 'com_id') {
+                        has_company_column = e
+                    }   
+                })
+                if(!has_company_column) {
+                    tambah_kolom_click();
+                    $( "[name='column["+(index_kolom_terakhir_dibuat-1)+"][name]']" ).val('com_id').change()
+                    $( "[name='column["+(index_kolom_terakhir_dibuat-1)+"][type]']" ).val('integer').change()
+                    
+                    storage_parameter.add('hidden','com_id')
+
+                    objModul = $('#modul').serializeJSON()
+                    objColumn = objModul['column']
+                    build_modul_tabel(objColumn,objForbiddenCOlumn)
+                    
+                    moveColumnModulTable(index_kolom_terakhir_dibuat-1,1)
+                }
+            }else {
+                
+                index_company_column = false
+                $.each(objColumn, function( e, v ) {
+                    if(v.name == 'com_id') {
+                        index_company_column = e
+                    }   
+                })
+
+                if(index_company_column && objColumn[index_company_column]) {                    
+                    removeColumnModulTable(String(index_company_column))
+                }
+            }
+        }
+    </script>
+
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-index.js');?>"></script>
 @endsection

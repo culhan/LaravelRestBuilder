@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateSystemTablesTable extends Migration {
+class CreateProjectsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -11,13 +11,21 @@ class CreateSystemTablesTable extends Migration {
 	 * @return void
 	 */
 	public function up()
-	{                
-		Schema::create('system_tables', function(Blueprint $table)
+	{
+		Schema::create('projects', function(Blueprint $table)
 		{
 			$table->increments('id', true);
-			$table->integer('project_id',false,true);
-			$table->string('name')->index();                        
-            $table->softDeletes();
+			$table->string('name')->index();
+            $table->string('folder');
+            $table->string('db_host')
+                ->default('localhost');
+            $table->string('db_port')
+                ->default('3306');
+            $table->string('db_name');
+            $table->string('db_username')
+                ->default('root');
+            $table->string('db_password');
+			$table->softDeletes();
 			$table->string('created_by')
 				->nullable(false);
 			$table->string('modified_by')
@@ -42,7 +50,7 @@ class CreateSystemTablesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('system_tables');
+		Schema::drop('projects');
 	}
 
 }

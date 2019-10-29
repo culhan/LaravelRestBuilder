@@ -4,11 +4,11 @@ namespace KhanCode\LaravelRestBuilder\Models;
 
 use KhanCode\LaravelBaseRest\BaseModel;
 
-class Moduls extends BaseModel
+class Projects extends BaseModel
 {
     // public $connection = "laravelrestbuilder_mysql";
 
-    public $table = "moduls";
+    public $table = "projects";
 
     public $timestamps = true;
             
@@ -47,10 +47,10 @@ class Moduls extends BaseModel
     public function scopeGetAll($query)
     {
         return $query->select([
-                    "moduls.*",					
+                    "projects.*",					
                 ])
                 // start list query option
-                ->whereNull("moduls.deleted_at")
+                ->whereNull("projects.deleted_at")
                 ->where('project_id',config('laravelrestbuilder.project_id'))
                 // end list query option
                 ;
@@ -75,8 +75,6 @@ class Moduls extends BaseModel
             if(auth()->guard('laravelrestbuilder_auth')->check()) $model->created_by = auth()->guard('laravelrestbuilder_auth')->id();
 
             $model->created_from = $_SERVER['REMOTE_ADDR'];
-
-            $model->project_id = config('laravelrestbuilder.project_id');
 
             // end list creating option  
 

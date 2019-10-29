@@ -5,10 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 
 class CreateModulHistoriesTable extends Migration {
 
-	public function __construct() {
-		config(['database.connections.laravelrestbuilder_mysql'   =>  config('laravelrestbuilder.database')]);
-	}
-
 	/**
 	 * Run the migrations.
 	 *
@@ -16,9 +12,10 @@ class CreateModulHistoriesTable extends Migration {
 	 */
 	public function up()
 	{                
-		Schema::connection('laravelrestbuilder_mysql')->create('modul_histories', function(Blueprint $table)
+		Schema::create('modul_histories', function(Blueprint $table)
 		{
 			$table->increments('id', true);
+			$table->integer('project_id',false,true);
 			$table->string('name')->index();
             $table->text('detail');
             $table->integer('modul_id',false,true);
@@ -47,7 +44,7 @@ class CreateModulHistoriesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::connection('laravelrestbuilder_mysql')->drop('modul_histories');
+		Schema::drop('modul_histories');
 	}
 
 }

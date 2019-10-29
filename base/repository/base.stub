@@ -7,7 +7,7 @@ namespace App\Http\Repositories;
 use Request;
 use App\Http\Models\{{Name}};
 use App\Exceptions\DataEmptyException;
-// use KhanCode\LaravelBaseRest\BaseRepository;
+use KhanCode\LaravelBaseRest\BaseRepository;
 
 /**
  * code for system logic
@@ -30,17 +30,21 @@ class {{Name}}Repository extends BaseRepository
 
     /**
      * [getIndexData description]
-     * @param  array  $sortableAndSearchableColumn [description]
-     * @return [type]                              [description]
+     *
+     * @param   array  $sortableAndSearchableColumn  [$sortableAndSearchableColumn description]
+     * @param   array  $relationColumn               [$relationColumn description]
+     * @param   array  $data_filter                  [$data_filter description]
+     *
+     * @return  [type]                               [return description]
      */
-    public function getIndexData(array $sortableAndSearchableColumn = [], array $relationColumn = [])
+    public function getIndexData(array $sortableAndSearchableColumn = [], array $relationColumn = [], array $data_filter = [])
     {
         $this->model::validate(Request::all(), [
             'per_page'  =>  ['numeric'],
         ]);
 
         $data = $this->model
-            ->getAll()
+            ->getAll($data_filter)
             ->setSortableAndSearchableColumn($sortableAndSearchableColumn)
             ->setRelationColumn($relationColumn)
             ->search()
@@ -59,13 +63,16 @@ class {{Name}}Repository extends BaseRepository
 
     /**
      * [getSingleData description]
-     * @param  [type] $id [description]
-     * @return [type]     [description]
+     *
+     * @param   [type] $id           [$id description]
+     * @param   array  $data_filter  [$data_filter description]
+     *
+     * @return  [type]               [return description]
      */
-    public function getSingleData($id)
+    public function getSingleData( $id, array $data_filter = [] )
     {
         $return = $this->model
-                ->getAll()
+                ->getAll($data_filter)
                 ->where($this->model->getKeyName(),$id)
                 ->first();
 

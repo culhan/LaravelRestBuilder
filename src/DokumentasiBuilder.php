@@ -7,6 +7,7 @@ use Request;
 use Session;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelRestBuilder\Models\Endpoint;
 
 class DokumentasiBuilder
@@ -22,6 +23,7 @@ class DokumentasiBuilder
                 'data'  =>  [
                     'tambah_dokumentasi' =>   1
                 ],
+                'projects'   =>  Projects::get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
             ]);
     }

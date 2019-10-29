@@ -1,10 +1,4 @@
-// check data {{name_belongs_to}}
-        if(!empty($data['{{foregin_key}}']))
-        {
-            {{service_name}}Service::getSingleData($data['{{foregin_key}}']);
-        }
-
-        // create data {{name_belongs_to}}
+// create data {{name_belongs_to}}
         if(array_has($data,'{{name_belongs_to}}'))
         {
             $this->{{service_name}}Service = New {{service_name}}Service;

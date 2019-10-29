@@ -5,13 +5,11 @@
      */
     public function {{name}}($data{{param_function}})
     {
-        $dataRecord = array_only($data,[
-            {{column}}
-        ]);
+        $dataRecord = $data;
 
-        $this->model::validate($dataRecord, [
-            {{column_validation}}
-        ]);
+        {{data-filter}}
+
+        {{data-validation}}
 
         // locking function
 

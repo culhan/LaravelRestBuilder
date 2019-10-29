@@ -1,0 +1,3 @@
+$dataRecord = array_only($dataRecord,[
+            {{column}}
+        ]);

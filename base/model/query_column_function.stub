@@ -1,0 +1,5 @@
+\DB::raw("(CASE WHEN (".array_get($data, "show_{{column_function_name}}", 1)." = 0)
+                           THEN NULL
+                           ELSE 
+                           ". \DB::raw("{{function_query}}")."
+                    END) as '{{column_function_name}}' "),

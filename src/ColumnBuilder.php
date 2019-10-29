@@ -15,22 +15,26 @@ class ColumnBuilder
     static function build( $data, $key_arr )
     {
         // remove kolom yg berada di forbidden
+        $has_company_stamp = 0;
         foreach ($data[$key_arr] as $key => $value) {
             if( !empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) ) {
                 unset($data[$key_arr][$key]);
+            }
+            if( $value['name'] == 'com_id' ) {
+                $has_company_stamp = 1;
             }
         }
 
         if(!empty($data['with_companystamp']))
         {        
-            if( $data['with_companystamp'] == 1 )
-            {         
-                $data[$key_arr] = array_merge($data[$key_arr],[
+            if( $data['with_companystamp'] == 1 && empty($has_company_stamp) )
+            {   
+                array_splice( $data[$key_arr], 1, 0, [
                     [
                         "name"  =>  "com_id",
                         "type"  =>  "integer",
-                    ],
-                ]);  
+                    ] 
+                ]);                 
             }
         }
 
@@ -104,7 +108,9 @@ class ColumnBuilder
                 ]);
             }
         }
-
+        
+        $data['list_index'] = empty($data['list_index']) ? [] : $data['list_index'];
+        
         return $data;
     }
 }

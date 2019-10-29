@@ -6,7 +6,7 @@ use KhanCode\LaravelBaseRest\BaseModel;
 
 class Endpoint extends BaseModel
 {
-    public $connection = "laravelrestbuilder_mysql";
+    // public $connection = "laravelrestbuilder_mysql";
 
     public $table = "endpoint";
 
@@ -61,6 +61,7 @@ class Endpoint extends BaseModel
                 ])
                 // start list query option
                 ->whereNull("endpoint.deleted_at")
+                ->where('project_id',config('laravelrestbuilder.project_id'))
                 // end list query option
                 ;
     }
@@ -96,6 +97,7 @@ class Endpoint extends BaseModel
 
             $model->created_from = $_SERVER['REMOTE_ADDR'];
 
+            $model->project_id = config('laravelrestbuilder.project_id');
             // end list creating option  
 
         });

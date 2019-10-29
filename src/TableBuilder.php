@@ -6,6 +6,7 @@ use DB;
 use Request;
 use Session;
 use Illuminate\Support\Facades\Hash;
+use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelRestBuilder\Models\SystemTables;
 use KhanCode\LaravelRestBuilder\Models\MigrationFiles;
 
@@ -23,10 +24,17 @@ class TableBuilder
         $data = Request::all();        
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['table']);
+        
+        $return = MigrationBuilder::build( $data['name'], $data['table'], $data['column'], $data['list_index'] );
 
-        $return = MigrationBuilder::build( $data['name'], $data['table'], $data['column'] );
+        $data_system_table = SystemTables::where('name',$data['table'])->first();
+        if(empty($data_system_table)) {
+            $data_system_table = SystemTables::create([
+                'name'  =>  $data['table']
+            ]);
+        }
 
-        $data['id'] = SystemTables::where('name',$data['table'])->first()->id;        
+        $data['id'] = $data_system_table->id;
 
         // hanya akan migrate 1
         if( !empty($return) ) {
@@ -37,24 +45,35 @@ class TableBuilder
             ]);
         }
 
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        if( !empty(config('laravelrestbuilder.copy_to')) ) {
+            $migration_result = \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);
+        }else {
+            $migration_result = \Artisan::call('migrate',['--force' => true]);
+        }        
+
         // reorder column, use manual query generator
         $reorder = MigrationBuilder::reorderColumn( $data['column'], $data['table'] );
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
 
         // hanya akan migrate 1
-        if( !empty($reorder) ) {
+        if( !empty($reorder) ) {            
+            $return = $reorder;
             MigrationFiles::create([
                 'name'  =>  $reorder['migration'][0],
                 'system_table_id'   =>  $data['id'],
                 'column'    =>  json_encode($data['column']),
             ]);
         }
-
+        
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
         if( !empty(config('laravelrestbuilder.copy_to')) ) {
-            $migration_result = \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations']);
+            $migration_result = \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);
         }else {
-            $migration_result = \Artisan::call('migrate',[]);
+            $migration_result = \Artisan::call('migrate',['--force' => true]);
         }
-
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+        
         DB::commit();
         
         return $return;            
@@ -69,6 +88,7 @@ class TableBuilder
     {        
         return view('khancode::createTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
+            'projects'   =>  Projects::get(),
             'data'=>[
                 'simpan_api'    =>  1,                
             ]+SystemTables::find($id)->toArray()
@@ -84,6 +104,7 @@ class TableBuilder
     {
         return view('khancode::createTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
+            'projects'   =>  Projects::get(),
             'data'=>[
                 'simpan_api'    =>  1
             ],
@@ -99,6 +120,7 @@ class TableBuilder
     {
         return view('khancode::listTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
+            'projects'   =>  Projects::get(),
             'data'=>[
                 'tambah_tabel'    =>  1
             ],

@@ -1,5 +1,7 @@
 <?php
-
+// File ini ini di  buat dengan Laravel Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
 namespace App\Http\Controllers\Api;
 
 use App;
@@ -22,4 +24,6 @@ class {{name}}Controller extends Controller
     
     // end list function
 
+    // start custom code    
+    // end custom code
 }

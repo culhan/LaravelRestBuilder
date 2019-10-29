@@ -1,7 +1,10 @@
 <?php
-
+// File ini ini di  buat dengan Laravel Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
 namespace App\Http\Models;
-// use KhanCode\LaravelBaseRest\BaseModel;
+
+use KhanCode\LaravelBaseRest\BaseModel;
 
 class {{Name}} extends BaseModel
 {
@@ -13,12 +16,18 @@ class {{Name}} extends BaseModel
 
     /**
      * [scopeGetAll description]
-     * @param  [type] $query [description]
-     * @return [type]        [description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
      */
-    public function scopeGetAll($query)
+    public function scopeGetAll($query, $data = [])
     {
-        return $query->select([
+        return $query
+                // start raw join query
+                // end raw join query
+                ->select([
                     {{column}}
                 ])
                 // start list query option
@@ -30,6 +39,9 @@ class {{Name}} extends BaseModel
     
     // end list relation function
 
+    // start custom code    
+    // end custom code
+    
     /**
      * [boot description]
      * @return [type] [description]

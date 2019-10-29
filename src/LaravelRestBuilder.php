@@ -2,15 +2,17 @@
 
 namespace KhanCode\LaravelRestBuilder;
 
+use Arr;
 use Request;
 use Session;
 use Illuminate\Support\Facades\Hash;
 use \KhanCode\LaravelRestBuilder\Models\Users;
+use KhanCode\LaravelRestBuilder\Models\Projects;
 
 class LaravelRestBuilder
 {
     static $forbidden_column_name = [
-        "com_id"    => 'com_id',
+        // "com_id"    => 'com_id',
         "created_time"  => 'created_time',
         "modified_time" => 'modified_time',
         "deleted_time"  => 'deleted_time',
@@ -40,7 +42,7 @@ class LaravelRestBuilder
      * Undocumented function
      */
     public function __construct() {
-        $this->setLaravelrestbuilderConnection();
+        
     }
 
     /**
@@ -51,6 +53,7 @@ class LaravelRestBuilder
     public function list() {                
         return view('khancode::list', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
+            'projects'   =>  Projects::get(),
             'data'  =>  [
                 'tambah_modul' =>   1
             ],
@@ -91,8 +94,9 @@ class LaravelRestBuilder
             ->get();
         
         $data['draw'] = request('draw');
-        $data['recordsTotal'] = $model->count();
+        $data['recordsTotal'] = $model->getAll()->count();
         $data['recordsFiltered'] = $model
+            ->getAll()
             ->setSortableAndSearchableColumn(['name'=>'name'])
             ->search()            
             ->count();
@@ -111,6 +115,7 @@ class LaravelRestBuilder
             'data'=>[
                 'simpan_api'    =>  1
             ],
+            'projects'   =>  Projects::get(),
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
         ]);
     }
@@ -127,6 +132,7 @@ class LaravelRestBuilder
                 'id'    =>  $id,
                 'simpan_api'    =>  1
             ],
+            'projects'   =>  Projects::get(),
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
         ]);
     }
@@ -136,10 +142,17 @@ class LaravelRestBuilder
      *
      * @return void
      */
-    public function table()
-    {
-        $table = MigrationBuilder::getColumnExist(Request::get('table'));
-        return $table+['forbidden_column_name'=>self::$forbidden_column_name];
+    public function table($tab_name = '')
+    {        
+        // set external db
+        self::setLaravelrestbuilderConnection();
+
+        $table_name = Request::get('table',$tab_name);
+
+        $table = MigrationBuilder::getColumnExist($table_name);
+        $table['column'] = isset($table[$table_name]) ? $table[$table_name]:[];
+        $index = MigrationBuilder::getIndexExist($table_name);
+        return $index+$table+['forbidden_column_name'=>self::$forbidden_column_name];
     }
 
     /**
@@ -147,9 +160,58 @@ class LaravelRestBuilder
      *
      * @return void
      */
-    public function setLaravelrestbuilderConnection()
-    {
-        config(['database.connections.laravelrestbuilder_mysql'   =>  config('laravelrestbuilder.database')]);
+    static function setLaravelrestbuilderConnection()
+    {            
+        config(['database.connections.mysql'   =>  [
+            'driver' => 'mysql',
+            'host' => Arr::get(session('project'),'db_host','localhost'),
+            'port' => Arr::get(session('project'),'db_port','3306'),
+            'database' => Arr::get(session('project'),'db_name',env('DB_DATABASE')),
+            'username' => Arr::get(session('project'),'db_username',env('DB_DATABASE')),
+            'password' => Arr::get(session('project'),'db_password',env('DB_DATABASE')),
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+        ] 
+        ]);
+        
+        \DB::purge('mysql');
+        \DB::reconnect('mysql');        
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    static function setDefaultLaravelrestbuilderConnection()
+    {            
+        config(['database.connections.mysql'   =>  [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => env('DB_STRICT', true),
+            'engine' => null,
+            'options' => array_filter([
+                \PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]),
+        ] 
+        ]);
+        
+        \DB::purge('mysql');
+        \DB::reconnect('mysql');        
     }
 
     /**
@@ -163,7 +225,11 @@ class LaravelRestBuilder
             ->where('id',$id)
             ->first();
 
-        return $data;
+        $detail = json_decode($data->detail);        
+
+        return ($data->toArray())+[
+            'table' =>  $this->table($detail->table)
+        ];
     }
 
     /**
@@ -173,15 +239,23 @@ class LaravelRestBuilder
      */
     public function middleware()
     {
-        $kernel = (array) app()->{'Illuminate\Contracts\Http\Kernel'};
-        foreach ($kernel as $key => $value) {
-            $key = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $key);
-            if($key == '*routeMiddleware') {
-                $middleware = $value;
-            }
-        }
+        $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/Http/Kernel.stub');
+        $list = $this->get_string_between($file,'$routeMiddleware = [','];');
+        eval('$routeMiddleware = ['.$list.'];');        
+        
+        return array_values( array_flip($routeMiddleware) );
+    }
 
-        return array_values(array_flip($middleware));
+    /**
+     * 
+     */
+    public function get_string_between($string, $start, $end){
+        $string = ' ' . $string;
+        $ini = strpos($string, $start);
+        if ($ini == 0) return '';
+        $ini += strlen($start);
+        $len = strpos($string, $end, $ini) - $ini;
+        return substr($string, $ini, $len);
     }
 
     /**
@@ -192,19 +266,19 @@ class LaravelRestBuilder
     {                
 
         $data = Request::all();
-
+        
         if( !empty($data['id']) ) {
             \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
                 'name' => [
                         'required', 
-                        \Illuminate\Validation\Rule::unique('laravelrestbuilder_mysql.moduls','name')->ignore($data['id'])
+                        \Illuminate\Validation\Rule::unique('moduls','name')->where('project_id',config('laravelrestbuilder.project_id'))->ignore($data['id'])
                     ],
             ]);
-        }else {
+        }else {            
             \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
                 'name' => [
                         'required', 
-                        \Illuminate\Validation\Rule::unique('laravelrestbuilder_mysql.moduls','name')
+                        \Illuminate\Validation\Rule::unique('moduls','name')->where('project_id',config('laravelrestbuilder.project_id'))
                     ],
             ]);
         }
@@ -215,6 +289,37 @@ class LaravelRestBuilder
         if(empty($data['relation'])) $data['relation'] = [];
         if(empty($data['hidden'])) $data['hidden'] = [];
         
+        // save to moduls table
+        $detail_data = json_encode( array_except($data,['column']) );
+
+        // update modul
+        if( !empty($data['id']) ) {
+
+            $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']);
+            if( $detail_data != $old_data->detail_data ) {            
+                $old_data->update([
+                    'name'  =>  $data['name'],
+                    'detail'    =>  $detail_data,
+                ]);
+
+                \KhanCode\LaravelRestBuilder\Models\ModulHistories::create([
+                    'name'  =>  $data['name'],
+                    'detail'    =>  $detail_data,
+                    'modul_id'  =>  $data['id'],
+                ]);
+            }
+        }else {
+            // create modul
+            $modul = \KhanCode\LaravelRestBuilder\Models\Moduls::create([
+                'name'  =>  $data['name'],
+                'detail'    =>  $detail_data,
+            ]);
+
+            $data['id'] = $modul->id;
+        }
+
+        config(['laravelrestbuilder.modul'   =>  $data]);
+
         TableBuilder::buildMigration();
         
         ControllerBuilder::build(
@@ -222,7 +327,8 @@ class LaravelRestBuilder
             $data['column'],
             $data['column_function'],
             $data['route'],
-            $data['relation']
+            $data['relation'],
+            $data['hidden']
         );
         
         ServiceBuilder::build(
@@ -245,8 +351,10 @@ class LaravelRestBuilder
             $data['with_ipstamp'],
             $data['with_companystamp'],
             $data['custom_filter'],
+            $data['custom_join'],
             $data['relation'],
-            $data['hidden']
+            $data['hidden'],
+            $data['with_company_restriction']
         );        
 
         RepositoryBuilder::build(
@@ -275,44 +383,17 @@ class LaravelRestBuilder
         
         // create list table
         // FileCreator::create( 'table', 'storage', '<?php return ' . var_export([$data['table'] => $data['column']]+$file_table, true) . ';' );
-
-        // save to moduls table
-        $detail_data = json_encode( array_except($data,['column']) );
-
-        if( !empty($data['id']) ) {
-
-            $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']);
-            if( $detail_data != $old_data->detail_data ) {            
-                $old_data->update([
-                    'name'  =>  $data['name'],
-                    'detail'    =>  $detail_data,
-                ]);
-
-                \KhanCode\LaravelRestBuilder\Models\ModulHistories::create([
-                    'name'  =>  $data['name'],
-                    'detail'    =>  $detail_data,
-                    'modul_id'  =>  $data['id'],
-                ]);
-            }
-        }else {
-            $modul = \KhanCode\LaravelRestBuilder\Models\Moduls::create([
-                'name'  =>  $data['name'],
-                'detail'    =>  $detail_data,
-            ]);
-
-            $data['id'] = $modul->id;
-        }
         
         // save new file to files table
-        if( !empty(config('laravelrestbuilder.file.created')) ) {
-            foreach (config('laravelrestbuilder.file.created') as $key => $value) {
-                \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
-                    'name'  =>  $value,
-                    'modul_id'    =>  $data['id'],
-                ]);             
-            }
-        }
-
+        // if( !empty(config('laravelrestbuilder.file.created')) ) {
+        //     foreach (config('laravelrestbuilder.file.created') as $key => $value) {
+        //         \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
+        //             'name'  =>  $value,
+        //             'modul_id'    =>  $data['id'],
+        //         ]);             
+        //     }
+        // }
+        
         return [
             'data'  =>  \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id'])
         ]+config('laravelrestbuilder.file');
@@ -327,8 +408,8 @@ class LaravelRestBuilder
      */
     static function getArrayFile( $name_file, $folder )
     {
-        if (file_exists(base_path()."/".$folder."/".$name_file.".php")) 
-            return include(base_path()."/".$folder."/".$name_file.".php");
+        if (file_exists(base_path()."/".$folder."/".$name_file.".stub")) 
+            return include(base_path()."/".$folder."/".$name_file.".stub");
 
         return [];
     }

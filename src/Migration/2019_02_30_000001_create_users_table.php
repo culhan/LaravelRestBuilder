@@ -5,11 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersTable extends Migration
-{
-    public function __construct() {
-		config(['database.connections.laravelrestbuilder_mysql'   =>  config('laravelrestbuilder.database')]);
-    }
-    
+{   
     /**
      * Run the migrations.
      *
@@ -17,7 +13,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {        
-        Schema::connection('laravelrestbuilder_mysql')->create('users', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
@@ -46,6 +42,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::connection('laravelrestbuilder_mysql')->dropIfExists('users');
+        Schema::dropIfExists('users');
     }
 }

@@ -1,0 +1,6 @@
+// check data {{name_belongs_to}}
+        if(!empty($data['{{foregin_key}}']))
+        {
+            {{service_name}}Service::getSingleData($data['{{foregin_key}}']);
+        }
+        
