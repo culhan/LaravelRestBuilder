@@ -39,8 +39,8 @@ class ControllerBuilder
                         if($key_param!=0) {
                             $param .= ',';
                         }
-                        $param .= '$'.$value_param;
-                        $param_function .= ',$'.$value_param;
+                        $param .= ((!empty($value_param['class'])) ? $value_param['class']:'').' $'.((!empty($value_param['name'])) ? $value_param['name']:$value_param);
+                        $param_function .= ',$'.((!empty($value_param['name'])) ? $value_param['name']:$value_param);
                     }
                 }
                 

@@ -181,6 +181,20 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapseTwo">
+          <i class="fas fa-fw fa-cog"></i>
+          <span>Authentication User</span>
+        </a>
+        <div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Authentication User :</h6>
+            <a class="collapse-item" href="{{url('/')}}/authentication_user/list">List</a>
+            <a class="collapse-item" href="{{url('/')}}/authentication_user/create">Create</a>
+          </div>
+        </div>
+      </li>      
+
+      <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
           <i class="fas fa-fw fa-cog"></i>
           <span>Moduls</span>

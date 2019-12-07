@@ -4,6 +4,7 @@ namespace KhanCode\LaravelRestBuilder;
 
 use Illuminate\Support\Facades\Schema;
 use KhanCode\LaravelRestBuilder\Models\SystemTables;
+use KhanCode\LaravelRestBuilder\Exceptions\DataEmptyException;
 
 class MigrationBuilder
 {    
@@ -628,7 +629,7 @@ class MigrationBuilder
                 }
                 $code_column_text .= (($key > 0) ? "\t\t\t":"").$code_column.(($key != (count($column)+1)) ? "\r\n":"");
             }
-            else {
+            else {                
                 throw new DataEmptyException('File '.$value['type'].' Type tidak di temukan');
             }
         }

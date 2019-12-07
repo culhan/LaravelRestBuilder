@@ -13,14 +13,16 @@
 
         // locking function
 
+        // start list belongs to check create
+        
+        // end list belongs to check create        
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+
         \DB::beginTransaction();
 
         // custom code before
         {{custom_code_before}}
-
-        // start list belongs to check create
-        
-        // end list belongs to check create        
 
         // create
         $result = $this->model->create($dataRecord);

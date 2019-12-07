@@ -2,9 +2,10 @@
                            THEN NULL
                            ELSE 
                            ". \DB::raw("(
-                                select IFNULL(group_concat(CONCAT('{',                            
+                                    select IFNULL(group_concat(CONCAT('{',                            
 {{column_belongs_to}}
-                                '}') {{custom_order}} ),'{}')
+                                    '}') {{custom_order}} 
+                                ),'{}')
                                 from {{table_belongs_to}}
                                 -- start list belongs to join option
                                 -- end list belongs to join option

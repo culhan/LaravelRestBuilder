@@ -7,7 +7,11 @@
     {
         $dataRecord = $data;
         
+        {{data-filter}}
+        
         {{data-validation}}
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
 
         // start code
         // end code

@@ -34,8 +34,8 @@ class RouteBuilder
             {
                 $param = '';
                 foreach ($value['param'] as $key_param => $value_param) {                    
-                    if( strpos( $value['prefix'], '{'.$value_param.'}' ) === false ) {
-                        $param .= '/{'.$value_param.'}';                        
+                    if( strpos( $value['prefix'], '{'.((!empty($value_param['name'])) ? $value_param['name']:$value_param).'}' ) === false && empty($value_param['class']) ) {
+                        $param .= '/{'.((!empty($value_param['name'])) ? $value_param['name']:$value_param).'}';                        
                     }                    
                 }
                 $route_code = str_replace('{{param}}',$param,$route_code);

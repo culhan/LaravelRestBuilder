@@ -26,6 +26,9 @@
                     <a class="nav-link" id="listindex-tab" data-toggle="tab" href="#listindex" role="tab" aria-controls="route" aria-selected="false">Index</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" id="listcast-tab" data-toggle="tab" href="#listcast" role="tab" aria-controls="route" aria-selected="false">Cast</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="kolomfungsi-tab" data-toggle="tab" href="#kolomfungsi" role="tab" aria-controls="route" aria-selected="false">Kolom Fungsi</a>
                 </li>
                 <li class="nav-item">
@@ -33,6 +36,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="route-tab" data-toggle="tab" href="#route" role="tab" aria-controls="route" aria-selected="false">System Modul</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="repository-tab" data-toggle="tab" href="#repository" role="tab" aria-controls="repository" aria-selected="false">Repository</a>
                 </li>                
             </ul>
             <div class="tab-content" id="myTabContent">
@@ -184,7 +190,15 @@
                             <input class="d-none" name="with_company_restriction" value="0">
                             <div class="form-check form-check-inline with-check col-md">
                                 <input class="form-check-input" type="checkbox" id="with_company_restriction" name="with_company_restriction" value="1">
-                            </div>                        
+                            </div> 
+                        </div>
+                        <div class="form-group">
+                            <label>Authenticable</label>
+                            <input class="d-none" name="with_authenticable" value="0">
+                            <div class="form-check form-check-inline with-check col-md">
+                                <input class="form-check-input" type="checkbox" id="with_authenticable" name="with_authenticable" value="1">
+                            </div> 
+                        </div>                       
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Custom Join</label>
                             <textarea name="custom_join" class="d-none"></textarea>
@@ -239,6 +253,42 @@
 
                         <!-- <br> -->
                         <!-- <input class="btn btn-primary" type="button" value="Tambah Relasi" height='10px' id='add_relasi'> -->
+
+                    </figure>
+                </div>
+                <div class="tab-pane fade" id="listcast" role="tabpanel" aria-labelledby="listcast-tab">
+                    <!-- relasi -->
+                    <figure class="highlight">
+
+                        <div class="container mb-4">
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Kolom </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input type="" class="form-control autocomplete_column" placeholder="kolom cast" name="cast_sementara[column]">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Tipe Data </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input type="" class="form-control autocomplete_data_cast" placeholder="Tipe Data" name="cast_sementara[data_type]">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_cast" type="button" value="Tambah Cast" height="10px" onclick="tambah_list_cast_table()">
+                            <input class="btn btn-primary d-none" id="edit_cast" type="button" value="Edit Cast" height="10px" onclick="edit_list_cast_table()">
+                        </div>
+
+                        <listcast_table>
+                        </listcast_table>
 
                     </figure>
                 </div>
@@ -340,8 +390,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <custom></custom>                            
-                            
+
                             <div class="row mb-3 route_advanced_middleware">
                                 <div class="col-sm" style="padding-top:5px;">
                                     <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_middleware_route_sementara" aria-expanded="true" aria-controls="route_middleware_route_sementara"><b>Middleware</b></label>
@@ -350,39 +399,28 @@
                             <div class="container route_middleware_route_sementara collapse">
                             </div>
 
+                            <div class="row mb-3 route_traits_top">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_traits" aria-expanded="true" aria-controls="route_traits"><b>Traits</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm route_traits collapse">
+                                <div class="container route_traits_sementara">
+                                </div>
+                                <input class="btn btn-secondary mb-3" type="button" value="Tambah Traits" height="10px" onclick="tambah_traits('traits_sementara',0)">
+                            </div>
+
                             <div class="row mb-3 route_advanced_param">
                                 <div class="col-sm" style="padding-top:5px;">
                                     <label data-toggle="collapse" class="list-collapse" data-target=".route_parameter_tambahan" aria-expanded="true" aria-controls="route_parameter_tambahan"><b>Route Parameter</b></label>
                                 </div>
                             </div>
                             <div class="col-sm route_parameter_tambahan">
-                                <div class="container route_param_route_sementara">
-                                    <div class="row mb-3">
-                                        <div class="col-sm-3" style="padding-top:5px;">
-                                            <label>1.&nbsp;&nbsp;Nama</label>
-                                        </div>
-                                        <div class="col-sm">
-                                            <input type="" class="form-control" placeholder="nama parameter" name="route_sementara[param][0]">
-                                        </div>
-                                        <button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_parameter_route('route_sementara',0)">
-                                            x
-                                        </button>
-                                    </div>
+                                <div class="container route_param_route_sementara">                                    
                                 </div>
                                 <input class="btn btn-secondary mb-3" type="button" value="Tambah Parameter" height="10px" onclick="tambah_route_parameter('route_sementara',1)">
                             </div>
 
-                            <div class="row mb-3 route_advanced_validation">
-                                <div class="col-sm" style="padding-top:5px;">
-                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_validasi" aria-expanded="true" aria-controls="route_validasi"><b>Validasi Data</b></label>
-                                </div>
-                            </div>
-                            <div class="col-sm route_validasi collapse">
-                                <div class="container route_route_sementara">
-                                </div>
-                                <input class="btn btn-secondary mb-3" type="button" value="Tambah Validasi" height="10px" onclick="tambah_validasi('route_sementara',0)">
-                            </div>
-                            
                             <data-filter style="display:none">
                                 <div class="row mb-3">
                                     <div class="col-sm" style="padding-top:5px;">
@@ -394,7 +432,30 @@
                                     <input class="btn btn-secondary mb-3" type="button" value="Tambah Parameter" height="10px" onclick="tambah_data_filter_parameter(0)">
                                     <input class="btn btn-secondary mb-3" type="button" value="Import Semua Kolom" height="10px" onclick="tambah_data_import_semua()">
                                 </div>
-                            </data-filter>
+                            </data-filter>                            
+
+                            <div class="row mb-3 route_advanced_validation">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_validasi" aria-expanded="true" aria-controls="route_validasi"><b>Validasi Data</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm route_validasi collapse">
+                                <div class="container form-group">
+                                    <label>Advanced Validasi</label>                                    
+                                    <div class="form-check form-check-inline with-check col-md">
+                                        <input class="form-check-input" type="checkbox" id="with_advanced_validation" name="route_sementara[advanced_validation]" onchange="to_advanced_validation(this)">
+                                    </div> 
+                                </div>
+                                <div class="container route_route_sementara normal_validation">
+                                </div>
+                                <input class="btn btn-secondary mb-3 normal_validation" type="button" value="Tambah Validasi" height="10px" onclick="tambah_validasi('route_sementara',0)">
+                                <div class="container advanced_validation" style="display:none">
+                                    <textarea name="route_sementara[advanced_validation_code]" class="d-none" data-editor="php" rows="10">$this->model::validate($dataRecord, ["nama_param"	=>	"validasi"]);</textarea>
+                                    <textarea id="route_sementara_advanced_validation_code">$this->model::validate($dataRecord, ["nama_param"	=>	"validasi"]);</textarea>
+                                </div>
+                            </div>
+                            
+                            <custom></custom>             
                             
                         </div>
 
@@ -417,15 +478,124 @@
 
                     </figure>
                 </div>
-                <div class="tab-pane fade" id="kolomfungsi" role="tabpanel" aria-labelledby="route-tab">
+                <div class="tab-pane fade" id="kolomfungsi" role="tabpanel" aria-labelledby="kolomfungsi-tab">
                     <!-- route -->
                     <figure class="highlight">                        
 
-                        <list_function_column>                                                                                        
+                        <!-- <list_function_column>                                                                                        
                         </list_function_column>
 
                         <br>                    
-                        <input class="btn btn-primary" type="button" value="Tambah Kolom Fungsi" height='10px' id='add_function_column'>
+                        <input class="btn btn-primary" type="button" value="Tambah Kolom Fungsi" height='10px' id='add_function_column'> -->
+
+                        <div class="row ">
+                            <label for="column1" class="col-sm-12">
+                                <b>Kolom Fungsi</b>
+                                <!-- <button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeColumnFunction('+nama_kolom_fungsi+')" style="margin-right: 15px;">Hapus</button> -->
+                                <!-- <div class="btn-group btn-group-sm float-right col-sm-2" role="group">
+                                    button
+                                    <button type="button" class="btn btn-info d-none d-none_kolom_fungsi_'+nama_kolom_fungsi+'" onclick="moveColumnFunction('+jumlah_kolom_fungsi+', '+nama_kolom_fungsi+')">down</button>
+                                </div> -->
+                            </label>
+                        </div>
+                        <div class="container ">
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Name </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input name="column_function_sementara[name]" type="text" class="form-control" placeholder="nama kolom">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Sql Query</label>
+                                </div>
+                                <div class="col-sm">
+                                    <textarea name="column_function_sementara[function]" class="d-none"></textarea>
+                                    <textarea id="column_function_sementara"></textarea>
+                                    <pre>*input ".code." akan di baca kode php</pre>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Response Code</label>
+                                </div>
+                                <div class="col-sm">
+                                    <textarea name="column_function_sementara[response_code]" class="d-none"></textarea>
+                                    <textarea id="column_function_sementara_response_code"></textarea>
+                                    <pre>php code untuk response</pre>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Json </label>
+                                </div>
+                                <div class="col-sm">
+                                    <div class="form-check form-check-inline with-check">
+                                        <input class="form-check-input" type="checkbox" name="column_function_sementara[json]" value="1">
+                                    </div>
+                                </div>
+                            </div>              
+                        </div>
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_column_function" type="button" value="Tambah column function" height="10px" onclick="tambah_list_column_function_table()">
+                            <input class="btn btn-primary d-none" id="edit_column_function" type="button" value="Edit column function" height="10px" onclick="edit_list_column_function_table()">
+                            <input class="ml-1 btn btn-primary d-none" id="edit_simpan_column_function" type="button" value="Ubah Kolom Fungsi & Simpan" height="10px" onclick="edit_simpan_column_function_table()">
+                            <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_column_function_sementara()">
+                        </div>
+
+                        <listcolumn_function_table>
+                        </listcolumn_function_table>
+
+                    </figure>
+                </div>
+                <div class="tab-pane fade" id="repository" role="tabpanel" aria-labelledby="repository-tab">
+                    <!-- route -->
+                    <figure class="highlight">
+                        <div class="row ">
+                            <label for="column1" class="col-sm-12">
+                                <b>Repository Function</b>                                
+                            </label>
+                        </div>
+                        <div class="container ">
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Name </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input name="repository_sementara[name]" type="text" class="form-control" placeholder="nama fungsi">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse" data-target=".repository_param" aria-expanded="true" aria-controls="repository_param"><b>Parameter</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm repository_param collapse show" style="">
+                                <div class="container repository_param_sementara"></div>
+                                <input class="btn btn-secondary mb-3" type="button" value="Tambah Parameter" height="10px" onclick="tambah_repository_parameter(0)">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Code</label>
+                                </div>
+                                <div class="col-sm">
+                                    <textarea name="repository_sementara[code]" class="d-none"></textarea>
+                                    <textarea id="repository_sementara_code"></textarea>
+                                    <pre>*input ".code." akan di baca kode php</pre>
+                                </div>
+                            </div>                                          
+                        </div>
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_repository" type="button" value="Tambah repository function" height="10px" onclick="tambah_list_repository_table()">
+                            <input class="btn btn-primary d-none" id="edit_repository" type="button" value="Edit repository function" height="10px" onclick="edit_list_repository_table()">                            
+                            <input class="ml-1 btn btn-primary d-none" id="edit_simpan_repository" type="button" value="Ubah Repository & Simpan" height="10px" onclick="edit_simpan_repository_table()">
+                            <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_repository_sementara()">
+                        </div>
+
+                        <listrepository_table>
+                        </listrepository_table>
 
                     </figure>
                 </div>
@@ -728,10 +898,10 @@
                     eval("code_editor_custom_code_before_" + i + ".setOptions({mode: \"ace/mode/phpinline\", maxLines: 30, minLines: 5, wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
                     eval("code_editor_custom_code_before_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
                     eval("code_editor_custom_code_before_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_before_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_before]\"]' ).val(val_code);})")
-                    
+                                        
                     eval("code_editor_custom_code_after_" + i + "= ace.edit('route_custom_code_after_'+i, {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
                     eval("code_editor_custom_code_after_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
-                    eval("code_editor_custom_code_after_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_after_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_after]\"]' ).val(val_code);})")                
+                    eval("code_editor_custom_code_after_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_after_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_after]\"]' ).val(val_code);})")
                 }                
             }
 
@@ -758,11 +928,7 @@
                 $( ".lock_"+i ).switcher();
             }
 
-            if( ele.value == 'create_data' || ele.value == 'update_data' || ele.value == 'create_update_data') {
-                $( 'data-filter' ).show()
-            }else {
-                $( 'data-filter' ).hide()
-            }
+            $( 'data-filter' ).show()            
         }
 
         function show_hide_key(i) {
@@ -950,6 +1116,18 @@
                 }
 
                 if( data.value == "belongs_to" ) {
+                    
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Check Data Repository Function</label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="default getSingleData" name="relation['+i+'][check_data_function]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+
                     html_relasi_detail += 
                         '<div class="row mb-3 '+data.value+'_'+i+'">'+
                             '<div class="col-sm-2" style="padding-top:5px;">'+
@@ -1243,6 +1421,26 @@
             $( '[onclick="tambah_validasi('+i_route+','+i_ele+')"]' ).attr("onclick",'tambah_validasi('+i_route+','+(i_ele+1)+')')
         }
 
+        function tambah_traits(i_route,i_ele) {            
+            i_route = "'"+i_route+"'"
+
+            html_traits = 
+            '<div class="row mb-3">'+
+                '<div class="col-sm-3" style="padding-top:5px;">'+
+                    '<label>'+(i_ele+1)+'.&nbsp;&nbsp;Traits</label>'+
+                '</div>'+
+                '<div class="col-sm">'+
+                    '<input type="" class="form-control" placeholder="path traits" name="route_sementara[traits]['+i_ele+'][path]">'+
+                '</div>'+                
+                '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_traits('+i_route+','+i_ele+')" att="remove_traits_'+i_route+'_'+i_ele+'">x</button>'+
+            '</div>'+
+            '';
+
+            $( ".route_"+i_route.replace(/\'/g,'') ).append(html_traits)            
+
+            $( '[onclick="tambah_traits('+i_route+','+i_ele+')"]' ).attr("onclick",'tambah_traits('+i_route+','+(i_ele+1)+')')
+        }
+
         function tambah_route_parameter(i_route,i_ele) {
             if( typeof i_route == "string") {
                 i_route = "'"+i_route+"'"
@@ -1252,10 +1450,18 @@
                     '<div class="col-sm-3" style="padding-top:5px;">'+
                         '<label>'+(i_ele+1)+'.&nbsp;&nbsp;Nama</label>'+
                     '</div>'+
-                    '<div class="col-sm">'+
-                        '<input type="" class="form-control" placeholder="nama parameter" name="route_sementara[param]['+i_ele+']">'+
+                    '<div class="col-sm-9">'+
+                        '<input type="" class="form-control route_sementara[param][name]" placeholder="nama parameter" name="route_sementara[param]['+i_ele+'][name]">'+
                     '</div>'+
-                    '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_parameter_route('+i_route+','+i_ele+')">x</button>'+
+                    '<div class="col-sm-3" style="padding-top:5px;">'+
+                        '<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Class</label>'+
+                    '</div>'+
+                    '<div class="col-sm-9">'+                        
+                        '<input class="form-control class_param_'+i_ele+'" type="" name="route_sementara[param]['+i_ele+'][class]">'+
+                    '</div>'+
+                    '<div class="col-sm-12">'+
+                        '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_parameter_route('+i_route+','+i_ele+')">x</button>'+
+                    '</div>'+
                 '</div>'+
                 '';
 
@@ -1428,88 +1634,7 @@
             objColumn.splice(index_kolom_terakhir_dibuat, 0, {});
             objModul["column"] = objColumn
             build_kolom_tabel(objColumn,objForbiddenCOlumn);
-        }
-
-        function tambah_kolom_fungsi(i_kolom_fungsi) {
-            objModul = $('#modul').serializeJSON()
-            nama_kolom_fungsi = jumlah_kolom_fungsi
-            window.jumlah_kolom_fungsi = jumlah_kolom_fungsi
-            window.jumlah_kolom_fungsi++
-            jumlah_kolom_fungsi = window.jumlah_kolom_fungsi
-
-            button = ''
-            if(nama_kolom_fungsi!=0) {
-                $( ".d-none_kolom_fungsi_"+(nama_kolom_fungsi-1) ).removeClass( "d-none" );
-            }
-
-            if(nama_kolom_fungsi > 0) {
-                button = '<button type="button" class="btn btn-success" onclick="moveColumnFunction('+nama_kolom_fungsi+', '+(nama_kolom_fungsi-1)+')">up</button>'
-            }
-
-            html_new_kolom_fungsi = 
-                '<div class="row ">'+
-                    '<label for="column1" class="col-sm-12">'+
-                        '<b>Kolom Fungsi '+jumlah_kolom_fungsi+'</b>'+
-                        '<button type="button" class="btn btn-danger float-right col-sm-1 btn-sm" onclick="removeColumnFunction('+nama_kolom_fungsi+')" style="margin-right: 15px;">Hapus</button>'+
-                        '<div class="btn-group btn-group-sm float-right col-sm-2" role="group">'+
-                            button+
-                            '<button type="button" class="btn btn-info d-none d-none_kolom_fungsi_'+nama_kolom_fungsi+'" onclick="moveColumnFunction('+jumlah_kolom_fungsi+', '+nama_kolom_fungsi+')">down</button>'+
-                        '</div>'+
-                    '</label>'+
-                '</div>'+
-                '<div class="container ">'+
-                    '<div class="row mb-3">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Name </label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<input name="column_function['+nama_kolom_fungsi+'][name]" type="text" class="form-control" placeholder="nama kolom">'+
-                        '</div>'+
-                    '</div>'+
-                    '<div class="row mb-3">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Sql Query</label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<textarea name="column_function['+nama_kolom_fungsi+'][function]" class="d-none"></textarea>'+
-                            '<textarea id="column_function_'+nama_kolom_fungsi+'"></textarea>'+
-                            '<pre>*input ".code." akan di baca kode php</pre>'+
-                        '</div>'+
-                    '</div>'+
-                    '<div class="row mb-3">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Response Code</label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<textarea name="column_function['+nama_kolom_fungsi+'][response_code]" class="d-none"></textarea>'+
-                            '<textarea id="column_function_'+nama_kolom_fungsi+'_response_code"></textarea>'+
-                            '<pre>php code untuk response</pre>'+
-                        '</div>'+
-                    '</div>'+
-                    '<div class="row mb-3">'+
-                        '<div class="col-sm-2" style="padding-top:5px;">'+
-                            '<label>Json </label>'+
-                        '</div>'+
-                        '<div class="col-sm">'+
-                            '<div class="form-check form-check-inline with-check">'+
-                                '<input class="form-check-input" type="checkbox" name="column_function['+nama_kolom_fungsi+'][json]">'+
-                            '</div>'+
-                        '</div>'+
-                    '</div>'+                    
-                '</div>'+
-                '';
-
-            $( "list_function_column" ).append(html_new_kolom_fungsi);
-
-            $( "[name='column_function["+nama_kolom_fungsi+"][json]']" ).switcher();
-
-            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('column_function_'+nama_kolom_fungsi, {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
-            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"column_function["+nama_kolom_fungsi+"][function]\"]' ).val(val_code);})")
-
-            eval("code_editor_" + nama_kolom_fungsi + "_response_code= ace.edit('column_function_'+nama_kolom_fungsi+'_response_code', {mode: \"ace/mode/php\",maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
-            eval("code_editor_" + nama_kolom_fungsi + "_response_code.getSession().setMode({path:\"ace/mode/php\", inline:true})")            
-            eval("code_editor_" + nama_kolom_fungsi + "_response_code.getSession().on('change', function(e) {val_code_response_code = code_editor_"+nama_kolom_fungsi+"_response_code.getSession().getValue();$( '[name=\"column_function["+nama_kolom_fungsi+"][response_code]\"]' ).val(val_code_response_code);})")
-        }
+        }        
 
         var delay = (function(){
             var timer = 0;
@@ -1537,10 +1662,16 @@
 
             $( "#with_company_restriction" ).switcher();
 
-            $( "[name=\"route_sementara[process]\"]" ).change()            
+            $( "#with_authenticable" ).switcher();
+
+            $( "#with_advanced_validation" ).switcher();
+
+            $( "[name=\"route_sementara[process]\"]" ).change()
+
+            $( "[name=\"route_sementara[prefix]\"]" ).change()
             
             $( "[name=\"relation[relation_sementara][type]\"]" ).change();
-
+            
             // $( "#add_relasi" ).click(function( event ) {
             //     tambah_relasi(jumlah_relasi)
             //     window.objModul = $('#modul').serializeJSON()
@@ -1551,10 +1682,10 @@
             //     window.objModul = $('#modul').serializeJSON()                
             // })
             
-            $( "#add_function_column" ).click(function( event ) {
-                tambah_kolom_fungsi(jumlah_kolom_fungsi)
-                window.objModul = $('#modul').serializeJSON()                
-            })
+            // $( "#add_function_column" ).click(function( event ) {
+            //     tambah_kolom_fungsi(jumlah_kolom_fungsi)
+            //     window.objModul = $('#modul').serializeJSON()                
+            // })
 
             nama_kolom_fungsi = 'custom_filter'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_filter', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
@@ -1564,6 +1695,11 @@
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_join', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")            
             
+            nama_kolom_fungsi = 'route_sementara_advanced_validation_code'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('route_sementara_advanced_validation_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"route_sementara[advanced_validation_code]\"]' ).val(val_code);})")
+
             @if (!empty($data['id']) )
                 ambil_data_modul({{$data['id']}})
             @endif            
@@ -1603,6 +1739,13 @@
                 splice_multilevel_array(objModul,'route.'+iroute+'.validation.'+iparameter)
             }
             build_validasi(iroute)
+        }
+
+        function remove_traits(iroute, iparameter) {
+            objModul = $('#modul').serializeJSON()
+
+            splice_multilevel_array(objModul,'route_sementara.traits.'+iparameter)
+            build_traits(iroute)
         }
 
         function remove_kolom_parameter_route(iroute, iparameter) {
@@ -1657,6 +1800,20 @@
                 });
             }            
         }
+
+        function build_traits(iroute,traits_data) {            
+            $( ".route_"+iroute.replace(/\'/g,'') ).html('')
+            if(typeof traits_data === 'undefined') {
+                traits_data = get_data_array(objModul,'route_sementara.traits',[])
+            }
+            $( "[onclick=\"tambah_traits('"+iroute+"',"+(Object.keys(traits_data).length+1)+")\"]" ).attr('onclick',"tambah_traits('"+iroute+"',0)");
+            i = 0            
+            $.each(traits_data, function( index, value ) {
+                tambah_traits(iroute,i)
+                $( '[name="route_sementara[traits]['+i+'][path]"]' ).val(value['path'])                
+                i++
+            });           
+        }
         
         function build_kolom_parameter_route(iroute,parameter_route_data) {
             if( typeof iroute == "string") {                
@@ -1668,8 +1825,17 @@
                 i = 0            
                 $.each(parameter_route_data, function( index, value ) {
                     tambah_route_parameter(iroute,i)
-                    $( '[name="route_sementara[param]['+i+']"]' ).val(value)
-                    i++
+                    
+                    if( value.name ) {
+                        $( '[name="route_sementara[param]['+i+'][name]"]' ).val(value.name)
+                    }else {
+                        $( '[name="route_sementara[param]['+i+'][name]"]' ).val(value)
+                    }
+
+                    if( value['class'] )
+                        $( '[name="route_sementara[param]['+i+'][class]"]' ).val(value.class)                    
+                    
+                    i++                    
                 });
 
             }else{
@@ -1715,11 +1881,11 @@
             }
         }
 
-        function removeColumnFunction(i_kolom_fungsi) {
-            objModul = $('#modul').serializeJSON()
-            splice_multilevel_array(objModul,'column_function.'+i_kolom_fungsi)
-            build_kolom_fungsi(objModul)
-        }
+        // function removeColumnFunction(i_kolom_fungsi) {
+        //     objModul = $('#modul').serializeJSON()
+        //     splice_multilevel_array(objModul,'column_function.'+i_kolom_fungsi)
+        //     build_kolom_fungsi(objModul)
+        // }
 
         function remove_kolom_tambahan_relasi(data, irelasi, ikolom) {
             objModul = $('#modul').serializeJSON()
@@ -1765,12 +1931,12 @@
             // $( "[onclick=\"tambah_kolom_relasi('"+data+"',"+irelasi+","+(i+1)+")\"]" ).attr('onclick',"tambah_kolom_relasi('"+data+"',"+irelasi+","+(i)+")");
         }
 
-        function moveColumnFunction(old_index, new_index) {
-            objModul = $('#modul').serializeJSON()
-            objModul.column_function = toArray(objModul.column_function)
-            objModul.column_function = move(objModul.column_function, old_index, new_index)
-            build_kolom_fungsi(objModul);
-        }
+        // function moveColumnFunction(old_index, new_index) {
+        //     objModul = $('#modul').serializeJSON()
+        //     objModul.column_function = toArray(objModul.column_function)
+        //     objModul.column_function = move(objModul.column_function, old_index, new_index)
+        //     build_kolom_fungsi(objModul);
+        // }
 
         function moveColumn(old_index, new_index) {
             objModul = $('#modul').serializeJSON()
@@ -1938,7 +2104,7 @@
             
             build_tabel_option(dataDetail);
             build_kolom_tabel_modul(dataDetail);           
-            build_kolom_fungsi(dataDetail);
+            // build_kolom_fungsi(dataDetail);
             
             build_route_tabel(dataDetail['route'])
             build_relation_tabel(dataDetail['relation'])            
@@ -1950,10 +2116,17 @@
             objModul['column'] = data['table']['column']
             objForbiddenCOlumn = data['table']['forbidden_column_name']
             storage_parameter.update('list_index',data['table']['list_index'])
-            build_kolom_tabel(objModul['column'],objForbiddenCOlumn);
+            storage_parameter.update('column_function',objModul['column_function'])
+            storage_parameter.update('casts',objModul['casts'])
+            storage_parameter.update('repositories',objModul['repositories'])
+
+            build_kolom_tabel(objModul['column'],objForbiddenCOlumn)
             build_tabel_option_by_column(objModul['column'])
-            build_modul_tabel(objModul['column'],objForbiddenCOlumn);
+            build_modul_tabel(objModul['column'],objForbiddenCOlumn)
             build_list_index_tabel(data['table']['list_index'])
+            build_list_column_function_tabel(objModul['column_function'])
+            build_list_cast_tabel(objModul['casts'])
+            build_list_repository_tabel(objModul['repositories'])
         }
         
         function build_tabel_option_by_column(data) {
@@ -1980,6 +2153,7 @@
             $( '[name="with_ipstamp"]' ).val(0).change();
             $( '[name="with_companystamp"]' ).val(0)            
             $( '[name="with_company_restriction"]' ).prop('checked',false).change();
+            $( '[name="with_authenticable"]' ).prop('checked',false).change();
             $( '[name="custom_filter"]' ).val('');
             eval("code_editor_custom_filter.setValue('')")
             eval("code_editor_custom_filter.clearSelection()")
@@ -1992,6 +2166,9 @@
             
             if(!data.with_company_restriction) data.with_company_restriction = 0;
             if(data.with_company_restriction == 1) $( '[name="with_company_restriction"]' ).prop('checked',true).change();
+
+            if(!data.with_authenticable) data.with_authenticable = 0;
+            if(data.with_authenticable == 1) $( '[name="with_authenticable"]' ).prop('checked',true).change();
 
             if(data.custom_filter) {
                 $( '[name="custom_filter"]' ).val(data.custom_filter);
@@ -2050,6 +2227,9 @@
             }
             if( value_relasi['relation_key'] ) {
                 $( '[name="relation['+jumlah_relasi_builded+'][relation_key]"]' ).val(value_relasi['relation_key']);
+            }
+            if( value_relasi['check_data_function'] ) {
+                $( '[name="relation['+jumlah_relasi_builded+'][check_data_function]"]' ).val(value_relasi['check_data_function']);
             }
             if( value_relasi['custom_join'] ) {
                 fillCodeEditor( 'relation_custom_join_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_join]", value_relasi['custom_join'] );                
@@ -2144,25 +2324,25 @@
             }
         }
 
-        function build_kolom_fungsi(data) {
-            $( "list_function_column" ).html('')
-            jumlah_kolom_fungsi_builded = 0
-            window.jumlah_kolom_fungsi = 0
-            if(get_data_array(data,'column_function')) {
-                $.each(data['column_function'], function( index_column_function, value_column_function ) {   
-                    tambah_kolom_fungsi(jumlah_kolom_fungsi_builded)
-                    $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][name]"]' ).val(value_column_function['name']);                    
-                    $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][function]"]' ).val(value_column_function['function']);
-                    eval("code_editor_" + nama_kolom_fungsi + ".setValue($( '[name=\"column_function["+jumlah_kolom_fungsi_builded+"][function]\"]' ).val())")
-                    eval("code_editor_" + nama_kolom_fungsi + ".clearSelection()")
+        // function build_kolom_fungsi(data) {
+        //     $( "list_function_column" ).html('')
+        //     jumlah_kolom_fungsi_builded = 0
+        //     window.jumlah_kolom_fungsi = 0
+        //     if(get_data_array(data,'column_function')) {
+        //         $.each(data['column_function'], function( index_column_function, value_column_function ) {   
+        //             tambah_kolom_fungsi(jumlah_kolom_fungsi_builded)
+        //             $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][name]"]' ).val(value_column_function['name']);                    
+        //             $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][function]"]' ).val(value_column_function['function']);
+        //             eval("code_editor_" + nama_kolom_fungsi + ".setValue($( '[name=\"column_function["+jumlah_kolom_fungsi_builded+"][function]\"]' ).val())")
+        //             eval("code_editor_" + nama_kolom_fungsi + ".clearSelection()")
 
-                    if( value_column_function['json'] ) {
-                        $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][json]"]' ).prop('checked',true).change()
-                    }
-                    jumlah_kolom_fungsi_builded++
-                })
-            }
-        }
+        //             if( value_column_function['json'] ) {
+        //                 $( '[name="column_function['+jumlah_kolom_fungsi_builded+'][json]"]' ).prop('checked',true).change()
+        //             }
+        //             jumlah_kolom_fungsi_builded++
+        //         })
+        //     }
+        // }
     </script>
 
     <script>
@@ -2517,7 +2697,10 @@
             delete objModul['route']
             delete objModul['relation']
             delete objModul['route_sementara']
-            delete objModul['column_sementara']            
+            delete objModul['column_sementara']
+            delete objModul['column_function_sementara']
+            delete objModul['index_sementara']
+            delete objModul['repository_sementara']
 
             $.ajax({
                 url: '{{url('/')}}/build',
@@ -2597,13 +2780,15 @@
                 regExp = /\{([^}]+)\}/g;
                 matches = txt.match(regExp);                        
 
+                param_current_data = $('#modul').serializeJSON().route_sementara.param
+                
                 param_current = []
-                $( '[name^="route_sementara[param]["]' ).each(function(e,v){
-                    if( prefix_param.indexOf(v.value) == -1 ) {
-                        param_current.push( v.value )
-                    }
-                })                                 
-
+                param_current_class = []
+                $.each(param_current_data, function( index_param_current, value_param_current ) {
+                    param_current.push(value_param_current.name)                    
+                    param_current_class.push(value_param_current.class)                    
+                })
+                
                 $( ".route_param_route_sementara" ).html('')
                 $( "[onclick^=\"tambah_route_parameter('route_sementara'\"]" ).attr('onclick',"tambah_route_parameter('route_sementara',0)");
                 $( ".route_parameter_tambahan " ).collapse('show')
@@ -2617,17 +2802,21 @@
                 }
                 
                 $.each(prefix_param, function( index_param, value_param ) {
-                    index_current = param_current.indexOf(value_param)
+                    index_current = param_current.indexOf(value_param)                    
                     if( index_current > -1 ) {
                         param_current.splice(index_current, 1);
                     }
                 })
-
+                
                 param_route_list = arrayUnique(prefix_param.concat(param_current))
                 
                 $.each(param_route_list, function( index_param, value_param ) {
                     tambah_route_parameter('route_sementara',(index_param*1))
-                    $( "[name='route_sementara[param]["+index_param+"]']" ).val(value_param).change()
+                    $( "[name='route_sementara[param]["+index_param+"][name]']" ).val(value_param).change()
+
+                    if( param_current_class[index_param] ) {
+                        $( "[name='route_sementara[param]["+index_param+"][class]']" ).val(param_current_class[index_param])
+                    }
                 })
 
             },500)
@@ -2772,6 +2961,18 @@
             $( "[onclick^=\"tambah_route_parameter('route_sementara'\"]" ).attr('onclick',"tambah_route_parameter('route_sementara',0)");
             $( "[onclick^=\"tambah_validasi('route_sementara'\"]" ).attr('onclick',"tambah_validasi('route_sementara',0)");
             $( "[onclick^=\"tambah_data_filter_parameter\"]" ).attr("onclick", "tambah_data_filter_parameter(0)")
+            
+            if(data.advanced_validation) {
+                $( '[name=\"route_sementara[advanced_validation]\"]' ).prop('checked',true).change()                
+            }else {
+                $( '[name=\"route_sementara[advanced_validation]\"]' ).prop('checked',false).change()
+            }
+
+            if(data.advanced_validation_code) {
+                $( '[name="route_sementara[advanced_validation_code]"]' ).val(data.advanced_validation_code)
+                eval("code_editor_route_sementara_advanced_validation_code.setValue($( '[name=\"route_sementara[advanced_validation_code]\"]' ).val())")
+                eval("code_editor_route_sementara_advanced_validation_code.clearSelection()")                    
+            }
 
             $.each(data, function( index_route_sementara, value_route_sementara ) {
                 if( index_route_sementara != 'param' 
@@ -2787,10 +2988,21 @@
                     $( '.lock_route_sementara' ).prop('checked',true).change()
                     $( "[name='route_sementara[lock]']" ).val(value_route_sementara)
                 }
-                if(index_route_sementara == 'param'){
+                if(index_route_sementara == 'param'){                        
                     $.each(value_route_sementara, function( index_param, value_param ) {
+                        
                         tambah_route_parameter('route_sementara',(index_param*1))
-                        $( "[name='route_sementara[param]["+index_param+"]']" ).val(value_param).change()                        
+                        
+                        if( value_param.name ) {
+                            $( "[name='route_sementara[param]["+index_param+"][name]']" ).val(value_param.name).change()
+                        }else {
+                            $( "[name='route_sementara[param]["+index_param+"][name]']" ).val(value_param).change()
+                        }
+                        
+                        if( value_param.class ) {                            
+                            $( "[name='route_sementara[param]["+index_param+"][class]']" ).val(value_param.class)
+                        }
+                                                
                         param_fill++
                     })
                 }
@@ -2800,7 +3012,7 @@
                         $( "[name='route_sementara[validation]["+index_validation+"][name]']" ).val(value_validation['name']).change()
                         $( "[name='route_sementara[validation]["+index_validation+"][statement]']" ).val(value_validation['statement']).change()
                         validasi_fill++
-                    })
+                    })                    
                 }
                 if(index_route_sementara == 'dataFilter'){
                     $.each(value_route_sementara, function( index_dataFilter, value_dataFilter ) {
@@ -2850,7 +3062,7 @@
                 if(index_route_sementara == 'system_function'){                    
                     eval("code_editor_process_route_sementara.setValue($( '[name=\"route_sementara[system_function]\"]' ).val())")
                     eval("code_editor_process_route_sementara.clearSelection()")                    
-                }
+                }                
                                 
             })
 
@@ -2906,7 +3118,13 @@
 
             $( '[name=\"route_sementara[custom_code_after]\"]' ).val('')
             eval("code_editor_custom_code_after_route_sementara.setValue($( '[name=\"route_sementara[custom_code_after]\"]' ).val())")
-            eval("code_editor_custom_code_after_route_sementara.clearSelection()") 
+            eval("code_editor_custom_code_after_route_sementara.clearSelection()")
+            
+            $( '[name=\"route_sementara[advanced_validation]\"]' ).prop('checked',false).change()
+            $( '[name=\"route_sementara[advanced_validation_code]\"]' ).val('$this->model::validate($dataRecord, ["nama_param"	=>	"validasi"]);')
+            eval("code_editor_route_sementara_advanced_validation_code.setValue($( '[name=\"route_sementara[advanced_validation_code]\"]' ).val())")
+            eval("code_editor_route_sementara_advanced_validation_code.clearSelection()")
+
             dataOld = {}
         }
 
@@ -3238,6 +3456,16 @@
 
             clear_relation_sementara()
         }
+
+        function to_advanced_validation(e) {            
+            if( $(e).is(':checked') ) {
+                $(" .normal_validation ").hide()
+                $(" .advanced_validation ").show()                
+            }else {
+                $(" .normal_validation ").show()
+                $(" .advanced_validation ").hide()
+            }
+        }
     </script>
 
     <script>
@@ -3279,5 +3507,8 @@
     </script>
 
     <script src="<?php echo URL::to('/vendor/khancode/js/list-index.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-cast.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-column-function.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-system-modul.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-repositories.js');?>"></script>
 @endsection

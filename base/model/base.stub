@@ -15,6 +15,53 @@ class {{Name}} extends BaseModel
     // end list option    
 
     /**
+     * [scopeGetJoin description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetJoin($query, $data = [])
+    {
+        return $query
+                // start raw join query
+                // end raw join query
+                ;
+    }
+
+    /**
+     * [scopeGetSelect description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetSelect($query, $data = [])
+    {
+        return $query->select([
+                    {{column}}
+                ]);
+    }
+
+    /**
+     * [scopeGetOption description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetOption($query, $data = [])
+    {
+        return $query
+                // start list query option
+                // end list query option
+                ;
+    }
+
+    /**
      * [scopeGetAll description]
      *
      * @param   [type]  $query  [$query description]
@@ -24,15 +71,9 @@ class {{Name}} extends BaseModel
      */
     public function scopeGetAll($query, $data = [])
     {
-        return $query
-                // start raw join query
-                // end raw join query
-                ->select([
-                    {{column}}
-                ])
-                // start list query option
-                // end list query option
-                ;
+        return $query->getJoin($data)
+                    ->getSelect($data)                
+                    ->getOption($data);
     }
 
     // start list relation function

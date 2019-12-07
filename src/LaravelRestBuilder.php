@@ -239,7 +239,7 @@ class LaravelRestBuilder
      */
     public function middleware()
     {
-        $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/Http/Kernel.stub');
+        $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/Http/Kernel.php');
         $list = $this->get_string_between($file,'$routeMiddleware = [','];');
         eval('$routeMiddleware = ['.$list.'];');        
         
@@ -288,10 +288,11 @@ class LaravelRestBuilder
         if(empty($data['column_function'])) $data['column_function'] = [];
         if(empty($data['relation'])) $data['relation'] = [];
         if(empty($data['hidden'])) $data['hidden'] = [];
+        if(empty($data['repositories'])) $data['repositories'] = [];
         
         // save to moduls table
         $detail_data = json_encode( array_except($data,['column']) );
-
+        
         // update modul
         if( !empty($data['id']) ) {
 
@@ -316,28 +317,32 @@ class LaravelRestBuilder
             ]);
 
             $data['id'] = $modul->id;
-        }
+        }        
 
         config(['laravelrestbuilder.modul'   =>  $data]);
 
         TableBuilder::buildMigration();
         
-        ControllerBuilder::build(
-            $data['name'],
-            $data['column'],
-            $data['column_function'],
-            $data['route'],
-            $data['relation'],
-            $data['hidden']
-        );
+        if( !empty($data['route']) ) {
+            ControllerBuilder::build(
+                $data['name'],
+                $data['column'],
+                $data['column_function'],
+                $data['route'],
+                $data['relation'],
+                $data['hidden']
+            );
+        }
         
-        ServiceBuilder::build(
-            $data['name'],
-            $data['table'],
-            $data['column'],
-            $data['route'],
-            $data['relation']
-        );
+        if( !empty($data['route']) ) {
+            ServiceBuilder::build(
+                $data['name'],
+                $data['table'],
+                $data['column'],
+                $data['route'],
+                $data['relation']
+            );
+        }
         
         ModelBuilder::build(
             $data['name'],
@@ -345,7 +350,6 @@ class LaravelRestBuilder
             $data['key'],
             $data['column'],
             $data['column_function'],
-            $data['route'],
             $data['with_timestamp'],
             $data['with_authstamp'],
             $data['with_ipstamp'],
@@ -354,26 +358,31 @@ class LaravelRestBuilder
             $data['custom_join'],
             $data['relation'],
             $data['hidden'],
-            $data['with_company_restriction']
+            $data['with_company_restriction'],
+            $data['casts'],
+            $data['with_authenticable']
         );        
 
         RepositoryBuilder::build(
             $data['name'],
-            $data['table']
+            $data['table'],
+            $data['repositories']
         );
 
-        ResourceBuilder::build(
-            $data['name'],
-            $data['column'],
-            $data['column_function'],
-            $data['relation'],
-            $data['hidden']
-        );
-        
-        RouteBuilder::build(
-            $data['name'],
-            $data['route']
-        );
+        if( !empty($data['route']) ) {
+            ResourceBuilder::build(
+                $data['name'],
+                $data['column'],
+                $data['column_function'],
+                $data['relation'],
+                $data['hidden']
+            );
+            
+            RouteBuilder::build(
+                $data['name'],
+                $data['route']
+            );
+        }
         
         // $file_modul = self::getArrayFile('modul', 'storage');
         // $file_table = self::getArrayFile('table', 'storage');        

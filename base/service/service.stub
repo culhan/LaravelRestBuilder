@@ -3,7 +3,9 @@ namespace App\Http\Services;
 
 use Request;
 use App\Http\Models\{{Name}};
+use KhanCode\LaravelBaseRest\Helpers;
 use App\Exceptions\DataEmptyException;
+use App\Exceptions\ValidationException;
 use App\Http\Repositories\{{Name}}Repository;
 use KhanCode\LaravelBaseRest\BaseService;
 
@@ -12,6 +14,7 @@ use KhanCode\LaravelBaseRest\BaseService;
  */
 class {{Name}}Service extends BaseService
 {
+    {{traits}}
 
     /**
      * [__construct description]

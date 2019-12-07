@@ -22,13 +22,27 @@ class ModelBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $column, $column_function = [], $route, $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction )
+    static function build( $name_model, $table, $key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable )
     {
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
-        $base_model = file_get_contents(__DIR__.'/../base/model/base.stub', FILE_USE_INCLUDE_PATH);
+        if( $with_authenticable == 1) {
+            $base_model = file_get_contents(__DIR__.'/../base/model/base_authenticable.stub', FILE_USE_INCLUDE_PATH);    
+        }else {
+            $base_model = file_get_contents(__DIR__.'/../base/model/base.stub', FILE_USE_INCLUDE_PATH);
+        }
         $base_model = str_replace('{{Name}}',$name,$base_model);        
         
+        if( !empty($casts) ) {
+            $column_casts = '';
+            foreach ($casts as $casts_value) {
+                $column_casts   .= "'".$casts_value['column']."'\t=> '".$casts_value['data_type']."'";
+            }
+            $option_casts = file_get_contents(__DIR__.'/../base/model/option_casts.stub', FILE_USE_INCLUDE_PATH);
+            $option_casts = str_replace("{{column_casts}}",$column_casts,$option_casts);
+            $base_model = str_replace('// end list option',$option_casts,$base_model);
+        }
+
         if( !empty($custom_join) ) {
             $option_custom_join = file_get_contents(__DIR__.'/../base/model/option_query_custom_join.stub', FILE_USE_INCLUDE_PATH);
             $option_custom_join = str_replace('{{custom_join}}',$custom_join,$option_custom_join);
@@ -164,7 +178,7 @@ class ModelBuilder
 
                     // column belongs to
                     $belongs_to_query = file_get_contents(__DIR__.'/../base/model/query_column_belongs_to.stub', FILE_USE_INCLUDE_PATH);
-                    $column_belongs_to = self::generateColumnRelation($value_relation['select_column']);
+                    $column_belongs_to = self::generateColumnRelation($value_relation['select_column']);                    
                     
                     $value_relation['relation_key'] = (!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' );
                     // auto add alias table jika tidak ada "."
@@ -183,7 +197,7 @@ class ModelBuilder
                     $belongs_to_query = str_replace('{{column_belongs_to_relation_key}}',$value_relation['relation_key'],$belongs_to_query);
                     $belongs_to_query = str_replace('{{column_belongs_to_foreign_key}}',$value_relation['foreign_key'],$belongs_to_query);
 
-                    $belongs_to_query = str_replace('{{column_belongs_to}}',"".$column_belongs_to,$belongs_to_query);
+                    $belongs_to_query = str_replace('{{column_belongs_to}}',$column_belongs_to,$belongs_to_query);
                     $belongs_to_query = str_replace('{{table_belongs_to}}',$value_relation['table'],$belongs_to_query);                    
                     $belongs_to_query = str_replace('{{belongs_to_name}}',$value_relation['name'],$belongs_to_query);                                                
 
@@ -276,13 +290,28 @@ class ModelBuilder
 
                     // column has many
                     $has_many_query = file_get_contents(__DIR__.'/../base/model/query_column_has_many.stub', FILE_USE_INCLUDE_PATH);
-                    $column_has_many = self::generateColumnRelation($value_relation['select_column']);
-                                
-                    $has_many_query = str_replace('{{column_has_many}}',"".$column_has_many,$has_many_query);
-                    $has_many_query = str_replace('{{table_has_many}}',$value_relation['table'],$has_many_query);                        
-                    $has_many_query = str_replace('{{column_has_many_relation_key}}',(!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' ),$has_many_query);
+                    $column_has_many = self::generateColumnRelation($value_relation['select_column']);                                                    
+                    
+                    $value_relation['relation_key'] = (!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' );
+                    // auto add alias table jika tidak ada "."
+                    $arr_transform = [
+                        'relation_key' => '{{table}}.value',
+                        'foreign_key'    => '{{table_has_many}}.value',
+                    ];
+                    foreach ($value_relation as $value_relation_key => $value_relation_value) {
+                        if( isset($arr_transform[$value_relation_key]) ) {
+                            if (strpos($value_relation_value, '.') === false) {
+                                $value_relation[$value_relation_key] = str_replace('value', $value_relation_value, $arr_transform[$value_relation_key]);
+                            }
+                        }
+                    }
+
+                    $has_many_query = str_replace('{{column_has_many_relation_key}}',$value_relation['relation_key'],$has_many_query);                    
                     $has_many_query = str_replace('{{column_has_many_foreign_key}}',$value_relation['foreign_key'],$has_many_query);
+                    $has_many_query = str_replace('{{column_has_many}}',"".$column_has_many,$has_many_query);
+                    $has_many_query = str_replace('{{table_has_many}}',$value_relation['table'],$has_many_query);
                     $has_many_query = str_replace('{{has_many_name}}',$value_relation['name'],$has_many_query);
+
                     if( !empty($value_relation['custom_join']) )
                     {
                         $has_many_query = str_replace('-- end list has many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t\t\t".'-- end list has many join option',$has_many_query);
@@ -453,9 +482,10 @@ class ModelBuilder
     {
         $column_code = '';
         foreach ($column_to_generate as $column_key => $column_value) {
+            $column_value['column'] = str_replace("\n","\n\t\t\t\t\t\t\t\t\t",$column_value['column']);
             if($column_value['type'] =='integer')
             {
-                $name = '\"'.$column_value['name'].'\"';
+                $name = '\"'.$column_value['name'].'\"';                
                 if( count($column_to_generate)-1 != $column_key )
                 {
                     $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";

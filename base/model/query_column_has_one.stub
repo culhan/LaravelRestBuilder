@@ -2,9 +2,10 @@
                            THEN NULL
                            ELSE 
                            ". \DB::raw("(
-                                select IFNULL(group_concat(CONCAT('{',                            
+                                    select IFNULL(group_concat(CONCAT('{',                            
 {{column_has_one}}
-                                '}') {{custom_order}} ),'{}') 
+                                    '}') {{custom_order}} 
+                                ),'{}') 
                                 from {{table_has_one}}
                                 -- start list has one join option
                                 -- end list has one join option

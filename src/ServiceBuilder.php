@@ -24,6 +24,7 @@ class ServiceBuilder
         $base_service = str_replace('{{Name}}',$name,$base_service);        
         
         $list_file = scandir(__DIR__.'/../base/service', SCANDIR_SORT_DESCENDING);
+        $traits_arr = [];
         foreach ($route as $key => $value) {
             $function_name = 'function_'.$value['process'].'.stub';
             if(in_array($function_name,$list_file))
@@ -43,24 +44,35 @@ class ServiceBuilder
                         }
                     }
                 }
+                
+                if(!empty($value['traits']))
+                {                    
+                    foreach ($value['traits'] as $key_traits => $value_traits) {                        
+                        $traits_arr[$value_traits['path']] = $value_traits['path'];
+                    }                    
+                }
 
-                if(!empty($value['validation']))
-                {
-                    $data_validation_code = file_get_contents(__DIR__.'/../base/service/data_validation.stub', FILE_USE_INCLUDE_PATH);
-                    foreach ($value['validation'] as $key_validation => $value_validation) {
-                        $cols_table_model_validation .= '"'.$value_validation['name'].'"'."\t=>\t".'"'.$value_validation['statement'].'"';
-                        if( !empty($cols_table_model_validation) )
-                        {
-                            $cols_table_model_validation .= ",\r\n\t\t\t";
+                if(!empty($value['advanced_validation'])) {
+                    $code_data_validation = $value['advanced_validation_code'];
+                }else {
+                    if(!empty($value['validation']))
+                    {
+                        $data_validation_code = file_get_contents(__DIR__.'/../base/service/data_validation.stub', FILE_USE_INCLUDE_PATH);
+                        foreach ($value['validation'] as $key_validation => $value_validation) {
+                            $cols_table_model_validation .= '"'.$value_validation['name'].'"'."\t=>\t".'"'.$value_validation['statement'].'"';
+                            if( !empty($cols_table_model_validation) )
+                            {
+                                $cols_table_model_validation .= ",\r\n\t\t\t";
+                            }
                         }
-                    }
 
-                    $code_data_validation = str_replace([
-                        "{{column_validation}}",
-                    ],
-                    [
-                        substr($cols_table_model_validation, 0, -5)
-                    ],$data_validation_code);
+                        $code_data_validation = str_replace([
+                            "{{column_validation}}",
+                        ],
+                        [
+                            substr($cols_table_model_validation, 0, -5)
+                        ],$data_validation_code);
+                    }
                 }
 
                 if(!empty($value['dataFilter'])) {
@@ -152,16 +164,30 @@ class ServiceBuilder
                     {                        
                         
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_check_data.stub', FILE_USE_INCLUDE_PATH);
-                        $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
-                        $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        
+                        // $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
+                        // $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                        // $base_create_code = str_replace('{{service_name}}',,$base_create_code);
+                        
+                        $base_create_code = str_replace([
+                                '{{check_data_function}}',
+                                '{{name_belongs_to}}',
+                                '{{foreign_key}}',
+                                '{{service_name}}'
+                            ],[
+                                (!empty($value_relation['check_data_function']) ? $value_relation['check_data_function']:'getSingleData'),
+                                ucwords(Helper::camelToTitle($value_relation['name'])),
+                                $value_relation['foreign_key'],
+                                ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name']))
+                            ],
+                        $base_create_code);
                         
                         $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
 
                         if( !empty($value_relation['membuat_data']) ) {
                             $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_create_data.stub', FILE_USE_INCLUDE_PATH);
                             $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
-                            $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                            $base_create_code = str_replace('{{foreign_key}}',$value_relation['foreign_key'],$base_create_code);
                             $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                             
                             $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
@@ -226,13 +252,13 @@ class ServiceBuilder
 
                 if(!empty($value['custom_function']))
                 {
-                    // $value['custom_function'] = str_replace("\n","\n\t\t",$value['custom_function']);
+                    $value['custom_function'] = str_replace("\n","\n\t\t",$value['custom_function']);
                     $code_function = str_replace('// end code',$value['custom_function']."\r\n\t\t// end code",$code_function);
                 }
                 
                 if(!empty($value['system_function']))
                 {
-                    // $value['system_function'] = str_replace("\n","\n\t\t",$value['system_function']);
+                    $value['system_function'] = str_replace("\n","\n\t\t",$value['system_function']);
                     $code_function = str_replace('// end code',$value['system_function']."\r\n\t\t// end code",$code_function);
                 }
 
@@ -254,10 +280,10 @@ class ServiceBuilder
                         if($key_param!=0) {
                             $param .= ',';
                         }
-                        $param .= '$'.$value_param;
-                        $param_function .= ',$'.$value_param." = NULL";
+                        $param .= '$'.((!empty($value_param['name'])) ? $value_param['name']:$value_param);
+                        $param_function .= ',$'.((!empty($value_param['name'])) ? $value_param['name']:$value_param)." = NULL";
                     }
-                }
+                }                                
 
                 $code_function = str_replace('{{param}}',$param,$code_function);
                 $code_function = str_replace('{{param_function}}',$param_function,$code_function);
@@ -271,6 +297,17 @@ class ServiceBuilder
                 $base_service = str_replace('// end list function',$code_function,$base_service);
             }            
         }
+
+        // traits
+        $traits = '';
+        foreach ($traits_arr as $key_traits => $value_traits) {
+            $traits .= "use ".$value_traits;
+            if( !empty($traits) )
+            {
+                $traits .= ";\r\n\t\t\t";
+            }
+        }
+        $base_service   = str_replace("{{traits}}",$traits,$base_service);
 
         FileCreator::create( $service_file_name, 'app/Http/Services', $base_service );
     }

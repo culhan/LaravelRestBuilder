@@ -4,12 +4,16 @@
      */
     public function get{{Name}}Data($data,$relation,$data_filter{{param_function}})
     {
-        $dataRecord = $data;
+        $dataRecord = $data_filter;
 
-        {{data-validation}}
+        {{data-filter}}
         
+        {{data-validation}}                
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+
         // custom code before
-        {{custom_code_before}}        
+        {{custom_code_before}}
 
         $return = $this->repository->getIndexData($data,$relation,$data_filter);
 

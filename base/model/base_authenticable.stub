@@ -1,0 +1,115 @@
+<?php
+// File ini ini di  buat dengan Laravel Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
+namespace App\Http\Models;
+
+use Validator;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Passport\HasApiTokens;
+
+class {{Name}} extends Authenticatable
+{
+    use HasApiTokens;
+
+    public $table = "{{table}}";
+
+    // start list option
+
+    // end list option    
+
+    /**
+     * The name of the "created at" column.
+     *
+     * @var string
+     */
+    const CREATED_AT = 'created_time';
+
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string
+     */
+    const UPDATED_AT = 'modified_time';
+
+    /**
+     * The name of the "deleted at" column.
+     *
+     * @var string
+     */
+    const DELETED_AT = 'deleted_time';
+    
+    /**
+     * [$rememberTokenName description]
+     *
+     * @var [type]
+     */
+    protected $rememberTokenName = false;
+
+    /**
+     * [validate description]
+     * @param  [type] $data  [description]
+     * @param  array  $rules [description]
+     * @return [type]        [description]
+     */
+    public static function validate($data, $rules = [])
+    {
+        $validator = Validator::make($data, $rules);
+        if($validator->fails()) throw new  \App\Exceptions\ValidationException($validator->errors());
+        return true;
+    }
+
+    /**
+     * [scopeGetAll description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetAll($query, $data = [])
+    {
+        return $query
+                // start raw join query
+                // end raw join query
+                ->select([
+                    {{column}}
+                ])
+                // start list query option
+                // end list query option
+                ;
+    }
+
+    // start list relation function
+    
+    // end list relation function
+
+    // start custom code    
+    // end custom code
+    
+    /**
+     * [boot description]
+     * @return [type] [description]
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function($model){
+
+            // start list creating option
+
+            // end list creating option  
+
+        });
+
+        self::updating(function($model){
+            
+            // start list updating option
+
+            // end list updating option
+
+        });
+
+    }
+}
