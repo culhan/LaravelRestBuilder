@@ -315,6 +315,8 @@
                         <div class="row container mb-4">
                             <input class="btn btn-primary" id="tambah_relation" type="button" value="Tambah Relasi" height="10px" onclick="tambah_relation_table()">
                             <input class="btn btn-primary d-none" id="edit_relation" type="button" value="Edit Relasi" height="10px" onclick="edit_relation_table()">
+                            <input class="ml-1 btn btn-primary d-none" id="edit_simpan_relation" type="button" value="Ubah Relasi & Simpan" height="10px" onclick="edit_simpan_relation_table()">
+                            <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_relation_sementara()">
                         </div>
 
                         <relation_table>
@@ -3424,11 +3426,25 @@
             fill_kolom_relasi('relation_sementara',data,0)
         }
 
+        function edit_simpan_relation_table(i) {
+            objModul = $('#modul').serializeJSON()
+            relation_sementara = objModul['relation']['relation_sementara']
+
+            storage_parameter.update('relation.' + i, relation_sementara)
+            build_relation_tabel(storage_parameter.get('relation'))
+
+            simpanKeApi()
+        }
+
         function editRelationFromTable(i) {
             
             $( "#tambah_relation" ).addClass('d-none')
+
             $( "#edit_relation" ).removeClass('d-none')
+            $("#edit_simpan_relation").removeClass('d-none')
+            
             $( "#edit_relation" ).attr("onclick","edit_relation_table("+i+")")
+            $("#edit_simpan_relation").attr("onclick", "edit_simpan_relation_table(" + i + ")")
                         
             fill_relation_sementara(storage_parameter.get('relation.'+i))            
             
@@ -3444,8 +3460,18 @@
             ubah_type_relasi($( '.relasi_type_relation_sementara' ).get(0),'relation_sementara', 0)            
         }
 
+        function reset_relation_sementara() {
+            clear_relation_sementara()
+
+            $("#tambah_relation").removeClass('d-none')
+
+            $("#edit_relation").addClass('d-none')
+            $("#edit_simpan_relation").addClass('d-none')
+        }
+
         function edit_relation_table(i) {
             $( "#edit_relation" ).addClass('d-none')
+            $( "#edit_simpan_relation" ).addClass('d-none')
             $( "#tambah_relation" ).removeClass('d-none')
 
             objModul = $('#modul').serializeJSON()

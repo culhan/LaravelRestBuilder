@@ -289,6 +289,7 @@ class LaravelRestBuilder
         if(empty($data['relation'])) $data['relation'] = [];
         if(empty($data['hidden'])) $data['hidden'] = [];
         if(empty($data['repositories'])) $data['repositories'] = [];
+        if(empty($data['casts'])) $data['casts'] = [];
         
         // save to moduls table
         $detail_data = json_encode( array_except($data,['column']) );
@@ -297,6 +298,21 @@ class LaravelRestBuilder
         if( !empty($data['id']) ) {
 
             $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']);
+            
+            // jika beda nama
+            if($data['name'] != $old_data->name) {
+                $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()->where('modul_id',$data['id'])->get();
+        
+                foreach ($files as $key => $value) {
+                    // chown($value->name, 666); //Insert an Invalid UserId to set to Nobody Owern; 666 is my standard for "Nobody" 
+                    if ( file_exists($value->name) ){
+                        unlink($value->name);
+                    }
+                    $value->delete();
+                }
+            }
+
+            // jika detail modul beda
             if( $detail_data != $old_data->detail_data ) {            
                 $old_data->update([
                     'name'  =>  $data['name'],

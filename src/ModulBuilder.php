@@ -24,7 +24,9 @@ class ModulBuilder
         
         foreach ($files as $key => $value) {
             // chown($value->name, 666); //Insert an Invalid UserId to set to Nobody Owern; 666 is my standard for "Nobody" 
-            unlink($value->name);
+            if ( file_exists($value->name) ){
+                unlink($value->name);
+            }
             $value->delete();
         }
         

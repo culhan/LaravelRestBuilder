@@ -76,9 +76,9 @@
                     type: 'DELETE',
                     url: $(this).attr('href'),
                     dataType: 'json',
-                    success: function(json) {
-                        console.log(json)
+                    success: function(json) {                        
                         list_table.ajax.reload( null, false )
+                        $( "#deleteModal" ).modal('hide')
                     },
                     error: function(e) {
                         alert('gagal hapus data')
