@@ -20,17 +20,25 @@ class MigrationBuilder
      * @param [type] $with_ipstamp
      * @return void
      */
-    static function build( $name, $table, array $column, array $index = [])
-    {
+    static function build( $name, $table, array $column, array $index = [], $rename = null)
+    {        
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
 
-        $table_exist = SystemTables::where('name',$table)->first();
-
-        if( $table_exist == NULL ) {
-            // create new table
-            SystemTables::create([
-                'name'  =>  $table
-            ])->id;
+        if( empty($rename) ) {
+            $table_exist = SystemTables::where('name',$table)->first();
+            
+            if( $table_exist == NULL ) {
+                // create new table
+                SystemTables::create([
+                    'name'  =>  $table
+                ])->id;
+            }
+        }else {
+            $table_obj = SystemTables::where('name',$rename)->first();
+            
+            $table_obj->update([
+                'name'  => $table
+            ]);
         }
         
         LaravelRestBuilder::setLaravelrestbuilderConnection();
@@ -40,7 +48,13 @@ class MigrationBuilder
         {
             $migration_file_name = date('Y_m_d_His').'_create_'.$name.'_table'.date('His');
             $migration_class_name = ucfirst(camel_case('create_'.$name.'_table'.date('His')));
-            $base_migration = file_get_contents(__DIR__.'/../base/migration/migration.stub', FILE_USE_INCLUDE_PATH);
+            if( empty($rename) ) {
+                $base_migration = file_get_contents(__DIR__.'/../base/migration/migration.stub', FILE_USE_INCLUDE_PATH);
+            }else {
+                $base_migration = file_get_contents(__DIR__.'/../base/migration/rename_migration.stub', FILE_USE_INCLUDE_PATH);
+                $base_migration = str_replace('{{rename}}',$rename,$base_migration);
+            }
+            
 
             $base_migration = str_replace('{{migration_name}}',$migration_class_name,$base_migration);
             $base_migration = str_replace('{{table}}',$table,$base_migration);
@@ -163,7 +177,11 @@ class MigrationBuilder
                 if(!empty($code_column_text)) $base_migration = str_replace('// end list new column',$code_column_text."\t\t\t// end list new column",$base_migration);
 
                 // check untuk boolean dengan raw query
-                $raw_query = self::generateRawMigrationColumn($table, $column);                
+                $raw_query = self::generateRawMigrationColumn($table, $column);
+                if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
+
+                // check untuk drop default
+                $raw_query = self::generateRawDropDefaultMigrationColumn($table, $column);
                 if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
 
                 // check index change                
@@ -321,6 +339,42 @@ class MigrationBuilder
     }
 
     /**
+     * [generateRawDropDefaultMigrationColumn description]
+     *
+     * @param   [type]  $table   [$table description]
+     * @param   [type]  $column  [$column description]
+     *
+     * @return  [type]           [return description]
+     */
+    static function generateRawDropDefaultMigrationColumn($table, $column)
+    {
+        $list_column = \DB::select( \DB::raw('
+            SELECT *
+            FROM INFORMATION_SCHEMA.COLUMNS
+            where TABLE_SCHEMA=\''.config('database.connections.mysql.database').'\'            
+            AND table_name = \''.$table.'\''
+        ));        
+
+        $raw_query = '';        
+        $templatesQueryRaw = "\t\t\DB::statement(\"ALTER TABLE {{table}} ALTER {{column}} DROP DEFAULT \");\n";
+        
+        foreach ($list_column as $key => $value) {
+            if( strtoupper($value->COLUMN_DEFAULT) == 'NULL' ) {                
+                $raw_query .= str_replace([
+                    "{{table}}",
+                    "{{column}}"
+                ],
+                [
+                    $table,
+                    "`".$value->COLUMN_NAME."`",
+                ],$templatesQueryRaw);
+            }
+        }
+        
+        return $raw_query;
+    }
+
+    /**
      * generateRawMigrationColumn function
      *
      * @param [type] $table
@@ -332,12 +386,12 @@ class MigrationBuilder
         $raw_query = '';
         $templatesQueryRaw = "\t\t\DB::statement(\"ALTER TABLE {{table}} MODIFY {{column}} {{type}} {{null}} {{extra}} {{default}} {{comment}} {{ordinal_position}} \");\n";
         
-        foreach ($column as $key => $value) {
+        foreach ($column as $key => $value) {         
             
-            if($value['type'] != 'boolean') {
+            if( $value['type'] != 'boolean' ) {
                 continue;
-            }
-
+            }            
+            
             $comment = !empty($value['comment']) ? 'COMMENT \"'.strip_tags($value['comment']).'\"':'';
 
             $default = "default NULL";
@@ -348,6 +402,16 @@ class MigrationBuilder
                     "CURRENT_TIMESTAMP",
                     "CURRENT_DATE",
                     "CURTIME",
+                    "current_user",
+                    "current_time",
+                    "current_timestamp",
+                    "current_date",
+                    "curtime",
+                    "current_user()",
+                    "current_time()",
+                    "current_timestamp()",
+                    "current_date()",
+                    "curtime()",
                 ];
                 $allowed_string = array_flip($allowed_string);
                 if( !is_float($value['default']) && 
@@ -355,11 +419,17 @@ class MigrationBuilder
                     !is_int($value['default']) && 
                     empty($allowed_string[$value['default']]) 
                 ) {
-                    $value['default'] = "'".$value['default']."'";
+                    $value['default'] = "'".$value['default']."'";                    
                 }
-                $default = "default ".$value['default'];
-            }
 
+                if( $value['default'] == 'NULL' ) {
+                    $default = "default NULL";
+                }else {
+                    $default = "default ".$value['default'];
+                }
+                
+            }            
+            
             $null = "NOT NULL";
             if( !empty($value['nullable']) ) {
                 $null = "NULL";                
@@ -397,7 +467,7 @@ class MigrationBuilder
             ],$templatesQueryRaw);
 
         }
-
+        
         return $raw_query;
     }
 
@@ -533,7 +603,7 @@ class MigrationBuilder
                 {
                     $where .= ' and column_default is NULL ';
                 }else {
-                    $where .= ' and column_default = "'.$column['default'].'" ';
+                    $where .= ' and (column_default = "'.$column['default'].'" or column_default = "'.$column['default'].'()") ';
                 }
             }else {
                 $where .= ' and column_default is null ';
@@ -753,8 +823,8 @@ class MigrationBuilder
             $return[$table][] = [
                 'name' => $value->COLUMN_NAME,
                 'type' => $type,
-                'default' => $value->COLUMN_DEFAULT,
-                'comment' => $value->COLUMN_COMMENT,
+                'default' => ($value->COLUMN_DEFAULT == 'NULL') ? NULL:$value->COLUMN_DEFAULT,
+                'comment' => ($value->COLUMN_COMMENT == 'NULL') ? NULL:$value->COLUMN_COMMENT,
                 'nullable' => $nullable,
                 'precision' => $value->NUMERIC_PRECISION,
                 'scale' => $value->NUMERIC_SCALE,
@@ -813,6 +883,16 @@ class MigrationBuilder
                     "CURRENT_TIMESTAMP",
                     "CURRENT_DATE",
                     "CURTIME",
+                    "current_user",
+                    "current_time",
+                    "current_timestamp",
+                    "current_date",
+                    "curtime",
+                    "current_user()",
+                    "current_time()",
+                    "current_timestamp()",
+                    "current_date()",
+                    "curtime()",
                 ];
                 $allowed_string = array_flip($allowed_string);
                 if( !is_float($dataColumn[0]->COLUMN_DEFAULT) && 
@@ -823,6 +903,10 @@ class MigrationBuilder
                     $dataColumn[0]->COLUMN_DEFAULT = "'".$dataColumn[0]->COLUMN_DEFAULT."'";
                 }
                 $default = "default ".$dataColumn[0]->COLUMN_DEFAULT;
+            }
+
+            if( $default == "default 'NULL'" ) {
+                $default = "default NULL";
             }
 
             $null = "NULL";
@@ -841,7 +925,7 @@ class MigrationBuilder
             }else {
                 $ordinal_position = 'AFTER '.'`'.$column[$key-1]['name'].'`';
             }
-
+            
             $queryResult = str_replace([
                 "{{table}}",
                 "{{column}}",

@@ -53,7 +53,7 @@ class ServiceBuilder
                 }
 
                 if(!empty($value['advanced_validation'])) {
-                    $code_data_validation = $value['advanced_validation_code'];
+                    $code_data_validation = (!empty($value['advanced_validation_code'])) ? str_replace("\n", "\n\t\t", $value['advanced_validation_code']) : '';                    
                 }else {
                     if(!empty($value['validation']))
                     {
@@ -89,8 +89,12 @@ class ServiceBuilder
                         }
 
                         if( !empty($column_data_filter) && isset($value['dataFilter'][$key_dataFilter+1])) {
-                            $column_data_filter .= ",\r\n\t\t\t";
+                            $column_data_filter .= ",\r\n\t\t\t";                            
                         }
+
+                        if( !empty($default_data_filter) && isset($value['dataFilter'][$key_dataFilter+1]['default'])) {
+                            $default_data_filter    .= ",\r\n\t\t\t";
+                        }                        
                     }
 
                     $data_merge_filter_code = $data_filter_code;
@@ -135,12 +139,24 @@ class ServiceBuilder
 
                     // has many create data
                     if( $value_relation['type'] == 'has_many' )
-                    {
-                        
+                    {                        
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/has_many_create_data.stub', FILE_USE_INCLUDE_PATH);
-                        $base_create_code = str_replace('{{name_has_many}}',$value_relation['name'],$base_create_code);
-                        $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);                        
+                        $base_create_code = str_replace([
+                                '{{name_has_many}}',
+                                '{{foregin_key}}',
+                                '{{service_name}}',
+                                '{{function}}'
+                            ],[
+                                $value_relation['name'],
+                                $value_relation['foreign_key'],
+                                ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
+                                (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
+                            ],
+                            $base_create_code
+                        );
+                        // $base_create_code = str_replace('{{name_has_many}}',$value_relation['name'],$base_create_code);
+                        // $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                        // $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);                        
                         
                         $has_many_code .= (($ihas_many_code!=0) ? "\t\t":"").$base_create_code;
                         $ihas_many_code++;
@@ -151,9 +167,23 @@ class ServiceBuilder
                     {                        
                         
                         $base_create_code = file_get_contents(__DIR__.'/../base/service/has_one_create_data.stub', FILE_USE_INCLUDE_PATH);
-                        $base_create_code = str_replace('{{name_has_one}}',$value_relation['name'],$base_create_code);
-                        $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        $base_create_code = str_replace([
+                                '{{name_has_one}}',
+                                '{{foregin_key}}',
+                                '{{service_name}}',
+                                '{{function}}'
+                            ],[
+                                $value_relation['name'],
+                                $value_relation['foreign_key'],
+                                ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
+                                (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
+                            ],
+                            $base_create_code
+                        );
+                        
+                        // $base_create_code = str_replace('{{name_has_one}}',$value_relation['name'],$base_create_code);
+                        // $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                        // $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                         
                         $has_one_code .= (($ihas_one_code!=0) ? "\t\t":"").$base_create_code;
                         $ihas_one_code++;
@@ -162,33 +192,50 @@ class ServiceBuilder
                     // belongs to create check data
                     if( $value_relation['type'] == 'belongs_to' )
                     {                        
+                        if( empty($value['fungsi_check_relasi_disabled'][$value_relation['name']]) ){
+                            $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_check_data.stub', FILE_USE_INCLUDE_PATH);
                         
-                        $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_check_data.stub', FILE_USE_INCLUDE_PATH);
-                        
-                        // $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
-                        // $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
-                        // $base_create_code = str_replace('{{service_name}}',,$base_create_code);
-                        
-                        $base_create_code = str_replace([
-                                '{{check_data_function}}',
-                                '{{name_belongs_to}}',
-                                '{{foreign_key}}',
-                                '{{service_name}}'
-                            ],[
-                                (!empty($value_relation['check_data_function']) ? $value_relation['check_data_function']:'getSingleData'),
-                                ucwords(Helper::camelToTitle($value_relation['name'])),
-                                $value_relation['foreign_key'],
-                                ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name']))
-                            ],
-                        $base_create_code);
-                        
-                        $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
+                            // $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
+                            // $base_create_code = str_replace('{{foregin_key}}',$value_relation['foreign_key'],$base_create_code);
+                            // $base_create_code = str_replace('{{service_name}}',,$base_create_code);                        
+                            $check_data_function = (!empty($value_relation['check_data_function']) ? $value_relation['check_data_function']:'getSingleData');
+                            $check_data_function = (empty(array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function))) ? $check_data_function : array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function);
+                            
+                            $base_create_code = str_replace([
+                                    '{{check_data_function}}',
+                                    '{{name_belongs_to}}',
+                                    '{{foreign_key}}',
+                                    '{{service_name}}'
+                                ],[
+                                    $check_data_function,
+                                    ucwords(Helper::camelToTitle($value_relation['name'])),
+                                    $value_relation['foreign_key'],
+                                    ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name']))
+                                ],
+                            $base_create_code);
+                            
+                            $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
+                        }                        
 
                         if( !empty($value_relation['membuat_data']) ) {
                             $base_create_code = file_get_contents(__DIR__.'/../base/service/belongs_to_create_data.stub', FILE_USE_INCLUDE_PATH);
-                            $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
-                            $base_create_code = str_replace('{{foreign_key}}',$value_relation['foreign_key'],$base_create_code);
-                            $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
+                            $base_create_code = str_replace([
+                                    '{{name_belongs_to}}',
+                                    '{{foregin_key}}',
+                                    '{{service_name}}',
+                                    '{{function}}'
+                                ],[
+                                    $value_relation['name'],
+                                    $value_relation['foreign_key'],
+                                    ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
+                                    (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
+                                ],
+                                $base_create_code
+                            );
+                            
+                            // $base_create_code = str_replace('{{name_belongs_to}}',$value_relation['name'],$base_create_code);
+                            // $base_create_code = str_replace('{{foreign_key}}',$value_relation['foreign_key'],$base_create_code);
+                            // $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                             
                             $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
                         }
@@ -288,8 +335,8 @@ class ServiceBuilder
                 $code_function = str_replace('{{param}}',$param,$code_function);
                 $code_function = str_replace('{{param_function}}',$param_function,$code_function);
                 
-                $value['custom_code_before'] = (!empty($value['custom_code_before'])) ? $value['custom_code_before'] : '';
-                $value['custom_code_after'] = (!empty($value['custom_code_after'])) ? $value['custom_code_after'] : '';
+                $value['custom_code_before'] = (!empty($value['custom_code_before'])) ? str_replace("\n", "\n\t\t", $value['custom_code_before']) : '';
+                $value['custom_code_after'] = (!empty($value['custom_code_after'])) ? str_replace("\n", "\n\t\t", $value['custom_code_after']) : '';
                 
                 $code_function = str_replace('{{custom_code_before}}',$value['custom_code_before'],$code_function);
                 $code_function = str_replace('{{custom_code_after}}',$value['custom_code_after'],$code_function);

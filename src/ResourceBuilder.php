@@ -31,15 +31,21 @@ class ResourceBuilder
         foreach ($column as $key => $value) {
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[$value['name']]) )
             {
-                $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").str_replace('{{name}}', $value['name'], $base_column);
+                $value['name_function'] = '$this->'.$value['name'];
+                $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column);
                 $jumlah_column++;
             }
         }
         
         foreach ($column_function as $key => $value) {
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
-            {
-                $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").( empty($value['json'])?str_replace('{{name}}', $value['name'], $base_column):str_replace('{{name}}', $value['name'], $base_column_with_json) );
+            {                
+                $value['name_function'] = '$this->'.$value['name'];
+                if(!empty($value['response_code'])) {
+                    $value['name_function']  = $value['response_code'];
+                }                
+                $base_code_response = ( empty($value['json'])?str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column):str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column_with_json) );
+                $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").$base_code_response;
                 $jumlah_column++;
             }
         }
@@ -48,10 +54,11 @@ class ResourceBuilder
         
         $i = 0;
         $code_relation = '';
-        foreach ($relation as $key => $value) {
-            $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace('{{name}}', $value['name'], $base_column_with_json);                
+        foreach ($relation as $key => $value) {            
+            $value['name_function'] = '$this->'.$value['name'];
+            $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column_with_json);                
             $i++;
-        }
+        }        
         $base_resource = str_replace('// end list relation',$code_relation."\t\t\t"."// end list relation",$base_resource);
 
         FileCreator::create( $resource_file, 'app/Http/Resources', $base_resource );

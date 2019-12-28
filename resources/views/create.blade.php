@@ -193,6 +193,11 @@
                             </div> 
                         </div>
                         <div class="form-group">
+                            <label for="exampleFormControlSelect1">Get Company Code</label>
+                            <textarea name="get_company_code" class="d-none"></textarea>
+                            <textarea id="tab_get_company_code"></textarea>
+                        </div>
+                        <div class="form-group">
                             <label>Authenticable</label>
                             <input class="d-none" name="with_authenticable" value="0">
                             <div class="form-check form-check-inline with-check col-md">
@@ -329,7 +334,7 @@
 
                     </figure>
                 </div>
-                <div class="tab-pane fade" id="route" role="tabpanel" aria-labelledby="route-tab">                
+                <div class="tab-pane fade" id="route" role="tabpanel" aria-labelledby="route-tab">
                     <!-- route -->
                     <figure class="highlight">
                     
@@ -393,6 +398,20 @@
                                 </div>
                             </div>
 
+                            <div class="row mb-3 tanpa_route_div">
+                                <div class="col-sm-1" style="padding-top:5px;">
+                                    <label>Tanpa Route</label>
+                                </div>                                
+                                <div class="col-sm-1">                                    
+                                    <div class="form-check form-check-inline with-check">                                        
+                                        <input class="form-check-input tanpa_route" type="checkbox" onchange="show_hide_tanpa_route(this)">
+                                    </div>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="text" name="route_sementara[tanpa_route]" style="display:none" value=0>
+                                </div>
+                            </div>
+
                             <div class="row mb-3 route_advanced_middleware">
                                 <div class="col-sm" style="padding-top:5px;">
                                     <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_middleware_route_sementara" aria-expanded="true" aria-controls="route_middleware_route_sementara"><b>Middleware</b></label>
@@ -426,7 +445,7 @@
                             <data-filter style="display:none">
                                 <div class="row mb-3">
                                     <div class="col-sm" style="padding-top:5px;">
-                                        <label data-toggle="collapse" class="list-collapse collapsed" data-target=".data-filter" aria-expanded="true" aria-controls="data-filter"><b>Parameter</b></label>
+                                        <label data-toggle="collapse" class="list-collapse collapsed" data-target=".data-filter" aria-expanded="true" aria-controls="data-filter"><b>Pembatasan Parameter</b></label>
                                     </div>
                                 </div>
                                 <div class="col-sm data-filter collapse" style="">
@@ -452,13 +471,33 @@
                                 </div>
                                 <input class="btn btn-secondary mb-3 normal_validation" type="button" value="Tambah Validasi" height="10px" onclick="tambah_validasi('route_sementara',0)">
                                 <div class="container advanced_validation" style="display:none">
-                                    <textarea name="route_sementara[advanced_validation_code]" class="d-none" data-editor="php" rows="10">$this->model::validate($dataRecord, ["nama_param"	=>	"validasi"]);</textarea>
-                                    <textarea id="route_sementara_advanced_validation_code">$this->model::validate($dataRecord, ["nama_param"	=>	"validasi"]);</textarea>
+                                    <textarea name="route_sementara[advanced_validation_code]" class="d-none" data-editor="php" rows="10"></textarea>
+                                    <textarea id="route_sementara_advanced_validation_code"></textarea>
                                 </div>
+                            </div>
+
+                            <div class="row mb-3 route_fungsi_check_relasi">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_fungsi_check_relasi_collapse" aria-expanded="true" aria-controls="route_fungsi_check_relasi_collapse"><b>Fungsi Check Data Repository Relasi</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm route_fungsi_check_relasi_collapse collapse">
+                                <fungsi_check_relation_table>
+                                </fungsi_check_relation_table>
                             </div>
                             
                             <custom></custom>             
                             
+                            <div class="row mb-3 route_fungsi_relasi">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_relasi" aria-expanded="true" aria-controls="route_relasi"><b>Fungsi Simpan Data Relasi</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm route_relasi collapse">
+                                <fungsi_relation_table>
+                                </fungsi_relation_table>
+                            </div>
+
                         </div>
 
                         <div class="row container mb-4">
@@ -772,10 +811,25 @@
             $( "[name^='route_sementara[middleware]']" ).prop('disabled',false).change()
             $( "[name^='route_sementara[validation]']" ).prop('disabled',false)
             $( "[name^='route_sementara[method]']" ).prop('disabled',false)
-            $( ".route_advanced_middleware" ).removeClass('d-none')
+            $( ".route_advanced_middleware" ).removeClass('d-none')            
             $( ".route_advanced_validation" ).removeClass('d-none')
             $( ".route_advanced_middleware + div" ).removeClass('d-none')
             $( ".route_advanced_validation + div" ).removeClass('d-none')
+            $( ".tanpa_route_div" ).removeClass('d-none')
+
+            if( ele.value == 'create_data' || ele.value == 'update_data' || ele.value == 'create_update_data') {                
+                $( ".route_fungsi_check_relasi" ).removeClass('d-none')
+                $( ".route_fungsi_check_relasi + div" ).removeClass('d-none')
+
+                $( ".route_fungsi_relasi" ).removeClass('d-none')
+                $( ".route_fungsi_relasi + div" ).removeClass('d-none')
+            }else {
+                $( ".route_fungsi_check_relasi" ).addClass('d-none')
+                $( ".route_fungsi_check_relasi + div" ).addClass('d-none')
+
+                $( ".route_fungsi_relasi" ).addClass('d-none')
+                $( ".route_fungsi_relasi + div" ).addClass('d-none')
+            }
 
             if(ele.value == 'custom_data') {
                 html_code_php = 
@@ -930,7 +984,23 @@
                 $( ".lock_"+i ).switcher();
             }
 
+            if(ele.value == 'system_data') {
+                $( ".tanpa_route_div" ).addClass('d-none')
+            }
+
             $( 'data-filter' ).show()            
+        }
+
+        function show_hide_tanpa_route(ele) {            
+            if( $(ele).is(':checked') ) {
+                $( "[name='route_sementara[prefix]']" ).prop('disabled',true)
+                $( "[name='route_sementara[method]']" ).prop('disabled',true)
+                $( "[name='route_sementara[tanpa_route]']" ).val(1)         
+            }else {
+                $( "[name='route_sementara[prefix]']" ).prop('disabled',false)
+                $( "[name='route_sementara[method]']" ).prop('disabled',false)
+                $( "[name='route_sementara[tanpa_route]']" ).val(0)
+            }
         }
 
         function show_hide_key(i) {
@@ -1673,6 +1743,8 @@
             $( "[name=\"route_sementara[prefix]\"]" ).change()
             
             $( "[name=\"relation[relation_sementara][type]\"]" ).change();
+
+            $( ".tanpa_route" ).switcher();
             
             // $( "#add_relasi" ).click(function( event ) {
             //     tambah_relasi(jumlah_relasi)
@@ -1688,6 +1760,11 @@
             //     tambah_kolom_fungsi(jumlah_kolom_fungsi)
             //     window.objModul = $('#modul').serializeJSON()                
             // })
+            
+            nama_kolom_fungsi = 'get_company_code'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_company_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
 
             nama_kolom_fungsi = 'custom_filter'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_filter', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
@@ -2182,6 +2259,12 @@
                 $( '[name="custom_join"]' ).val(data.custom_join);
                 eval("code_editor_custom_join.setValue($( '[name=\"custom_join\"]' ).val())")
                 eval("code_editor_custom_join.clearSelection()")
+            }
+
+            if(data.get_company_code) {
+                $( '[name="get_company_code"]' ).val(data.get_company_code);
+                eval("code_editor_get_company_code.setValue($( '[name=\"get_company_code\"]' ).val())")
+                eval("code_editor_get_company_code.clearSelection()")
             }            
         }
 
@@ -2831,6 +2914,10 @@
         
         storage_parameter.add('route');
 
+        $( document ).ready(function() {
+           fill_default_advanced_validation(); 
+        });        
+
         function build_route_tabel(data) {
 
             tableHtml = '<table id="example_route" class="table table-striped table-bordered" style="width:100%">'
@@ -2891,7 +2978,7 @@
                             tableHtml += '<button type="button" class="btn btn-danger float-right btn-sm" onclick="removeRouteFromTable(\''+index_route+'\')" style="margin-right: 15px;">'
                             tableHtml += '<svg class="icon" viewBox="0 0 8 8" width="100%" height="100%"><path d="M1.406 0l-1.406 1.406.688.719 1.781 1.781-1.781 1.781-.688.719 1.406 1.406.719-.688 1.781-1.781 1.781 1.781.719.688 1.406-1.406-.688-.719-1.781-1.781 1.781-1.781.688-.719-1.406-1.406-.719.688-1.781 1.781-1.781-1.781-.719-.688z"></path></svg>'
                             tableHtml += '</button>'
-                            tableHtml += '<button type="button" class="btn btn-info float-right btn-sm" onclick="moveRouteFromTable('+(index_route+1)+', '+index_route+')" style="margin-right: 15px;">'
+                            tableHtml += '<button type="button" class="btn btn-info float-right btn-sm route_'+iDataTable+'" onclick="moveRouteFromTable('+(index_route+1)+', '+index_route+')" style="margin-right: 15px;">'
                             tableHtml += '<svg class="icon" viewBox="0 0 8 8" width="100%" height="100%"><path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)"></path></svg>'
                             tableHtml += '</button>'
                             if(iDataTable!=0){
@@ -2908,7 +2995,7 @@
             tableHtml += '</table>'
 
             $( "route_table" ).html(tableHtml);
-            $( "#route_"+(iDataTable-1)+" .btn-info" ).remove()
+            $( ".route_"+(iDataTable-1) ).remove()
             $('[data-toggle="tooltip"]').tooltip({
                 container: 'body'
             })
@@ -2932,6 +3019,190 @@
             }            
         }
 
+        function build_fungsi_simpan_relasi_table(data) {
+            tableHtml = '<table id="fungsi_simpan_relation" class="table table-striped table-bordered" style="width:100%">'
+                tableHtml += '<thead>'
+                    tableHtml += '<tr>'
+                        tableHtml += '<th>#</th>'
+                        tableHtml += '<th>Name</th>'
+                        tableHtml += '<th>Type</th>'
+                        tableHtml += '<th>Menyimpan / Membuat data</th>'
+                        tableHtml += '<th>Nama Fungsi</th>'
+                    tableHtml += '</tr>'
+                tableHtml += '</thead>'
+                tableHtml += '<tbody>'                
+
+                iDataTable=0                
+                $.each(data, function( index_relation, value_relation ) {
+                    if(!value_relation['simpan_data'] && !value_relation['membuat_data']){
+                        return;
+                    }
+                    if(value_relation['type'] == 'belongs_to_many'){
+                        return;
+                    }
+                    index_relation = parseInt(index_relation)
+                    if(value_relation['type']=="belongs_to") {
+                        v_type = "Belongs To"
+                    }
+                    if(value_relation['type']=="has_one") {
+                        v_type = "Has One"
+                    }
+                    if(value_relation['type']=="has_many") {
+                        v_type = "Has Many"
+                    }
+                    if(value_relation['type']=="belongs_to_many") {
+                        v_type = "Belongs To Many"
+                    }                    
+                    
+                    tableHtml += '<tr>'
+                        tableHtml += '<td>'
+                            tableHtml += (iDataTable+1)
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'
+                            tableHtml += value_relation['name']
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'
+                            tableHtml += v_type
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'
+                            if(value_relation['simpan_data']){
+                                tableHtml += 'Menyimpan Data'    
+                            }else if(value_relation['membuat_data']){
+                                tableHtml += 'Membuat Data'
+                            }                            
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'                            
+                            tableHtml += '<input class="form-control" type="" name="route_sementara[fungsi_relasi]['+value_relation['name']+']" placeholder="default fungsi create">'
+                        tableHtml += '</td>'                        
+                    tableHtml += '</tr>'
+                    iDataTable++
+                })
+
+                tableHtml += '<tbody>'
+            tableHtml += '</table>'
+
+            $( "fungsi_relation_table" ).html(tableHtml);
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body'
+            })
+
+            page_now = 0;
+            page_length = 5;
+            if(typeof fungsi_relation_table != 'undefined') {
+                page_now = fungsi_relation_table.page.info().page
+                page_length = fungsi_relation_table.page.info().length
+            }
+
+            fungsi_relation_table = $( "#fungsi_simpan_relation" ).DataTable({
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+            });
+            
+            fungsi_relation_table.page.len( page_length ).page( page_now ).draw( 'page' );
+
+            if(page_now > (fungsi_relation_table.page.info().pages-1)) {                
+                page_now--
+                fungsi_relation_table.page( page_now ).draw( 'page' );
+            }
+        }
+
+        function show_hide_check_function_route(ele,i) {
+            attribute_name_check = $(ele).attr('attr_check')
+            if( !$(ele).is(':checked') ) {
+                $( "[name='route_sementara[fungsi_check_relasi]"+attribute_name_check+"']" ).prop('disabled',true)
+                $( "[name='route_sementara[fungsi_check_relasi_disabled]"+attribute_name_check+"']" ).val(1)
+            }else {                
+                $( "[name='route_sementara[fungsi_check_relasi]"+attribute_name_check+"']" ).prop('disabled',false)
+                $( "[name='route_sementara[fungsi_check_relasi_disabled]"+attribute_name_check+"']" ).val(0)
+            }
+        }
+
+        function build_fungsi_check_relasi_table(data) {
+            tableHtml = '<table id="fungsi_check_relation" class="table table-striped table-bordered" style="width:100%">'
+                tableHtml += '<thead>'
+                    tableHtml += '<tr>'
+                        tableHtml += '<th>#</th>'
+                        tableHtml += '<th>Name</th>'
+                        tableHtml += '<th>Type</th>'
+                        tableHtml += '<th>Nama Fungsi check</th>'
+                    tableHtml += '</tr>'
+                tableHtml += '</thead>'
+                tableHtml += '<tbody>'                
+
+                iDataTable=0                
+                $.each(data, function( index_relation, value_relation ) {
+                    if(value_relation['type'] != 'belongs_to'){
+                        return;
+                    }
+                    
+                    index_relation = parseInt(index_relation)
+                    if(value_relation['type']=="belongs_to") {
+                        v_type = "Belongs To"
+                    }
+                    if(value_relation['type']=="has_one") {
+                        v_type = "Has One"
+                    }
+                    if(value_relation['type']=="has_many") {
+                        v_type = "Has Many"
+                    }
+                    if(value_relation['type']=="belongs_to_many") {
+                        v_type = "Belongs To Many"
+                    }
+
+                    if( value_relation['check_data_function'] ) {
+                        defaultCheckFunction = value_relation['check_data_function']
+                    }else {
+                        defaultCheckFunction = 'getSingleData'
+                    }
+                    
+                    switch_check_data = ''                    
+                    switch_check_data += '<div class="with-check"><input class="form-check-input check_function_route" attr_check="['+value_relation['name']+']" type="checkbox" onchange="show_hide_check_function_route(this,'+iDataTable+')" checked></div>'
+                    switch_check_data += '<input type="text" name="route_sementara[fungsi_check_relasi_disabled]['+value_relation['name']+']" style="display:none" value=0>'                    
+
+                    tableHtml += '<tr>'
+                        tableHtml += '<td>'
+                            tableHtml += switch_check_data
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'
+                            tableHtml += value_relation['name']
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'
+                            tableHtml += v_type
+                        tableHtml += '</td>'
+                        tableHtml += '<td>'                            
+                            tableHtml += '<input class="form-control" type="" name="route_sementara[fungsi_check_relasi]['+value_relation['name']+']" placeholder="default fungsi '+defaultCheckFunction+'">'
+                        tableHtml += '</td>'                        
+                    tableHtml += '</tr>'
+                    iDataTable++
+                })
+
+                tableHtml += '<tbody>'
+            tableHtml += '</table>'
+
+            $( "fungsi_check_relation_table" ).html(tableHtml);
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body'
+            })
+            $( ".check_function_route" ).switcher();
+
+            page_now = 0;
+            page_length = 5;
+            if(typeof fungsi_check_relation_table != 'undefined') {
+                page_now = fungsi_check_relation_table.page.info().page
+                page_length = fungsi_check_relation_table.page.info().length
+            }
+
+            fungsi_check_relation_table = $( "#fungsi_check_relation" ).DataTable({
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+            });
+            
+            fungsi_check_relation_table.page.len( page_length ).page( page_now ).draw( 'page' );
+
+            if(page_now > (fungsi_check_relation_table.page.info().pages-1)) {                
+                page_now--
+                fungsi_check_relation_table.page( page_now ).draw( 'page' );
+            }
+        }
+
         function tambah_route_table() {
             storage_parameter.add('route',$('#modul').serializeJSON().route_sementara)
             build_route_tabel(storage_parameter.get('route'))
@@ -2950,6 +3221,17 @@
             simpanKeApi()            
         }
 
+        function fill_default_advanced_validation() {
+            defaultCode = '';
+            defaultCode += '//$this->model::validate($dataRecord, [\n'
+                defaultCode += '\t//"nama_param"	=>	"validasi"\n'
+            defaultCode += '//]);\n'
+            defaultCode += '//\\KhanCode\\LaravelBaseRest\\Helpers::set_error($validator->errors()->toArray());'
+            $( '[name="route_sementara[advanced_validation_code]"]' ).val(defaultCode)
+            eval("code_editor_route_sementara_advanced_validation_code.setValue($( '[name=\"route_sementara[advanced_validation_code]\"]' ).val())")
+            eval("code_editor_route_sementara_advanced_validation_code.clearSelection()")
+        }
+
         function fill_route_sementara(data) {
             param_fill = 0
             validasi_fill = 0
@@ -2962,18 +3244,70 @@
             
             $( "[onclick^=\"tambah_route_parameter('route_sementara'\"]" ).attr('onclick',"tambah_route_parameter('route_sementara',0)");
             $( "[onclick^=\"tambah_validasi('route_sementara'\"]" ).attr('onclick',"tambah_validasi('route_sementara',0)");
-            $( "[onclick^=\"tambah_data_filter_parameter\"]" ).attr("onclick", "tambah_data_filter_parameter(0)")
-            
+            $( "[onclick^=\"tambah_data_filter_parameter\"]" ).attr("onclick", "tambah_data_filter_parameter(0)")                    
+
             if(data.advanced_validation) {
                 $( '[name=\"route_sementara[advanced_validation]\"]' ).prop('checked',true).change()                
             }else {
                 $( '[name=\"route_sementara[advanced_validation]\"]' ).prop('checked',false).change()
             }
-
+            
             if(data.advanced_validation_code) {
                 $( '[name="route_sementara[advanced_validation_code]"]' ).val(data.advanced_validation_code)
                 eval("code_editor_route_sementara_advanced_validation_code.setValue($( '[name=\"route_sementara[advanced_validation_code]\"]' ).val())")
-                eval("code_editor_route_sementara_advanced_validation_code.clearSelection()")                    
+                eval("code_editor_route_sementara_advanced_validation_code.clearSelection()")
+                validasi_fill++
+            }else {
+                fill_default_advanced_validation()
+            }
+            
+            if(!data['middleware']) {
+                $( "[name^='route_sementara[middleware_parameter]'][type='text']" ).val('')
+                $( "[name^='route_sementara[middleware]'][type='checkbox']" ).prop('checked',false).change()
+            }else {
+                $( "[name^='route_sementara[middleware_parameter]'][type='text']" ).val('')
+                $( "[name^='route_sementara[middleware]'][type='checkbox']" ).prop('checked',false).change()
+                $.each(data['middleware'], function( index_middleware, value_middleware ) {
+                    // tambah_route_middleware('route_sementara',(index_middleware*1))
+                    // $( "[name='route_sementara[middleware]["+index_middleware+"]']" ).val(value_middleware).change()
+
+                    if(value_middleware.indexOf(':') > -1) {
+                        v_mid = value_middleware.split(":");
+                        value_middleware = v_mid[0]
+                        if(!data['middleware_parameter']) {
+                            data['middleware_parameter'] = {}
+                        }
+                        data['middleware_parameter'][value_middleware] = v_mid[1]
+                    }
+
+                    $( "[name^='route_sementara[middleware]'][value='"+value_middleware+"']" ).prop('checked',true).change()
+                    if(data['middleware_parameter']) {
+                        if(data['middleware_parameter'][value_middleware]) {
+                            $( "[name^='route_sementara[middleware_parameter]["+value_middleware+"]']" ).val(data['middleware_parameter'][value_middleware])
+                        }
+                    }
+                    middleware_fill++
+                })
+            }
+
+            data_fungsi_relasi_exist = 0
+            if(data['fungsi_relasi']){                
+                $.each(data['fungsi_relasi'],function (i_frelasi,v_frelasi) {
+                    if(v_frelasi != "") {
+                        data_fungsi_relasi_exist++
+                        $( "[name='route_sementara[fungsi_relasi]["+i_frelasi+"]']" ).val(v_frelasi)
+                    }
+                })
+            }
+
+            data_fungsi_check_relasi_exist = 0
+            if(data['fungsi_check_relasi']){                
+                $.each(data['fungsi_check_relasi'],function (i_frelasi,v_frelasi) {
+                    if(v_frelasi != "") {
+                        data_fungsi_check_relasi_exist++
+                        $( "[name='route_sementara[fungsi_check_relasi]["+i_frelasi+"]']" ).val(v_frelasi)
+                    }
+                })
             }
 
             $.each(data, function( index_route_sementara, value_route_sementara ) {
@@ -3024,31 +3358,6 @@
                         dataFilter_fill++
                     })
                 }
-                if(index_route_sementara == 'middleware'){
-                    $( "[name^='route_sementara[middleware_parameter]'][type='text']" ).val('')
-                    $( "[name^='route_sementara[middleware]'][type='checkbox']" ).prop('checked',false).change()                    
-                    $.each(value_route_sementara, function( index_middleware, value_middleware ) {
-                        // tambah_route_middleware('route_sementara',(index_middleware*1))
-                        // $( "[name='route_sementara[middleware]["+index_middleware+"]']" ).val(value_middleware).change()
-
-                        if(value_middleware.indexOf(':') > -1) {
-                            v_mid = value_middleware.split(":");
-                            value_middleware = v_mid[0]
-                            if(!data['middleware_parameter']) {
-                                data['middleware_parameter'] = {}
-                            }
-                            data['middleware_parameter'][value_middleware] = v_mid[1]
-                        }
-
-                        $( "[name^='route_sementara[middleware]'][value='"+value_middleware+"']" ).prop('checked',true).change()
-                        if(data['middleware_parameter']) {
-                            if(data['middleware_parameter'][value_middleware]) {
-                                $( "[name^='route_sementara[middleware_parameter]["+value_middleware+"]']" ).val(data['middleware_parameter'][value_middleware])
-                            }
-                        }
-                        middleware_fill++
-                    })
-                }
 
                 if(index_route_sementara == 'custom_code_before' || index_route_sementara == 'custom_code_after'){
                     name_sementara_code = index_route_sementara
@@ -3067,23 +3376,51 @@
                 }                
                                 
             })
+            
+            $( ".route_fungsi_check_relasi_collapse" ).collapse('hide')
+            if( data_fungsi_check_relasi_exist > 0 ) {
+                $( ".route_fungsi_check_relasi_collapse " ).collapse('show')
+            }
 
-        
+            $( ".route_relasi" ).collapse('hide')
+            if( data_fungsi_relasi_exist > 0 ) {
+                $( ".route_relasi " ).collapse('show')
+            }
+
+            $( ".route_middleware_route_sementara " ).collapse('hide')
             if( middleware_fill > 0 ) {
                 $( ".route_middleware_route_sementara " ).collapse('show')
             }
 
+            $( ".route_validasi " ).collapse('hide')
             if( validasi_fill > 0 ) {
                 $( ".route_validasi " ).collapse('show')
             }
 
+            $( ".route_parameter_tambahan " ).collapse('hide')
             if( param_fill > 0 ) {
                 $( ".route_parameter_tambahan " ).collapse('show')
             }
 
+            $(".data-filter").collapse('hide')
             if( dataFilter_fill > 0 ) {
                 $(".data-filter").collapse('show')
             }
+
+            if(data.tanpa_route == 1) {
+                $( '.tanpa_route' ).prop('checked',true).change()
+            }else {
+                $( '.tanpa_route' ).prop('checked',false).change()
+            }
+
+            if( data.fungsi_check_relasi_disabled ) {
+                $.each(data.fungsi_check_relasi_disabled, function( i, v ) {
+                    if( v == '1' ){
+                       $( '.check_function_route_['+i+']' ).prop('checked',false).change() 
+                    }
+                });
+            }            
+            
 
             dataOld = {}
         }
@@ -3094,6 +3431,8 @@
             $( "[name='route_sementara[method]']" ).val('get').change()
             $( "[name='route_sementara[process]']" ).val('list_data').change()
             $( '.lock_route_sementara' ).prop('checked',false).change()
+            $( '.check_function_route' ).prop('checked',true).change()
+            $( '.tanpa_route' ).prop('checked',false).change()
             $( "[name='route_sementara[lock]']" ).val('')            
             
             $( ".route_param_route_sementara" ).html('')            
@@ -3112,6 +3451,8 @@
             $( ".route_parameter_tambahan" ).collapse('hide')
             $( ".route_validasi" ).collapse('hide')
             $( ".data-filter" ).collapse('hide')
+            $( ".route_relasi" ).collapse('hide')
+            $( ".route_fungsi_check_relasi_collapse" ).collapse('hide')
             jumlah_data_filter = 0
 
             $( '[name=\"route_sementara[custom_code_before]\"]' ).val('')
@@ -3123,9 +3464,11 @@
             eval("code_editor_custom_code_after_route_sementara.clearSelection()")
             
             $( '[name=\"route_sementara[advanced_validation]\"]' ).prop('checked',false).change()
-            $( '[name=\"route_sementara[advanced_validation_code]\"]' ).val('$this->model::validate($dataRecord, ["nama_param"	=>	"validasi"]);')
-            eval("code_editor_route_sementara_advanced_validation_code.setValue($( '[name=\"route_sementara[advanced_validation_code]\"]' ).val())")
-            eval("code_editor_route_sementara_advanced_validation_code.clearSelection()")
+
+            $( "[name^='route_sementara[fungsi_relasi]']" ).val('')
+            $( "[name^='route_sementara[fungsi_check_relasi]']" ).val('')
+
+            fill_default_advanced_validation()
 
             dataOld = {}
         }
@@ -3383,8 +3726,11 @@
             if(page_now > (relation_table.page.info().pages-1)) {                
                 page_now--
                 relation_table.page( page_now ).draw( 'page' );
-            }            
-        }
+            }
+
+            build_fungsi_simpan_relasi_table(data)
+            build_fungsi_check_relasi_table(data)
+        }        
 
         function tambah_relation_table() {
             storage_parameter.add('relation',$('#modul').serializeJSON().relation.relation_sementara)

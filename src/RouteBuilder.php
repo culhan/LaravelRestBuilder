@@ -19,10 +19,15 @@ class RouteBuilder
         $route_file = $name;        
         $base_route = file_get_contents(__DIR__.'/../base/route/base.stub', FILE_USE_INCLUDE_PATH);
         $route_code = '<?php'."\r\n";
+        $route_builded = 0;
         foreach ($route as $key => $value) {
-            if($value['process'] == 'system_data') {
+            if( empty($value['tanpa_route']) ) {
+                $value['tanpa_route'] = '0';
+            }
+            if($value['process'] == 'system_data' || $value['tanpa_route'] == '1') {
                 continue;
             }
+            $route_builded++;
             $route_code .= $base_route."\r\n";
             $route_code = str_replace('{{Name}}',ucwords($name),$route_code);
             $route_code = str_replace('{{name_route}}',$value['prefix'].$name.'/'.$value['name'],$route_code);
@@ -70,6 +75,15 @@ class RouteBuilder
             FileCreator::create( 'api', 'routes', $system_route, 'route', false );
         }
         
+        if( empty($route_builded)  ) {
+            $system_route = str_replace("\r\n\r\n"."include '".$route_file.".php';","",$system_route);
+            FileCreator::create( 'api', 'routes', $system_route, 'route', false );
+            if ( file_exists(base_path()."/".config('laravelrestbuilder.copy_to')."/".'routes'."/".$route_file.".php") ) {
+                unlink(base_path()."/".config('laravelrestbuilder.copy_to')."/".'routes'."/".$route_file.".php");
+            }            
+        }else {
+            FileCreator::create( $route_file, 'routes', $route_code );
+        }
         // untuk route bukan copy file, tapi append
         // if( !empty(config('laravelrestbuilder.copy_to')) )
         // {
@@ -78,9 +92,7 @@ class RouteBuilder
         //         $system_route = $system_route."\r\n\r\n"."include '".$route_file.".php';";
         //         FileCreator::create( 'api', config('laravelrestbuilder.copy_to').'/routes', $system_route, 'route', false );                
         //     }
-        // }
-
-        FileCreator::create( $route_file, 'routes', $route_code );
+        // }        
     }
 
 }

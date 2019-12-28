@@ -22,7 +22,7 @@ class ModelBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable )
+    static function build( $name_model, $table, $key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL )
     {
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
@@ -465,7 +465,12 @@ class ModelBuilder
         
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
         $base_model = str_replace('{{table}}',$table,$base_model);
-        $base_model = str_replace('{{company_id_code}}',config('laravelrestbuilder.company_id_code'),$base_model);
+        if(empty($get_company_code)){
+            $base_model = str_replace('{{company_id_code}}',config('laravelrestbuilder.company_id_code'),$base_model);
+        }else {
+            $base_model = str_replace('{{company_id_code}}',$get_company_code,$base_model);
+        }
+        
         $base_model = str_replace('{{user_id_code}}',config('laravelrestbuilder.user_id_code'),$base_model);
         
         

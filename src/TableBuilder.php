@@ -21,21 +21,30 @@ class TableBuilder
     {
         DB::beginTransaction();
 
-        $data = Request::all();        
-        $data = ColumnBuilder::build($data,'column');
-        $data['name'] = camel_case($data['table']);
+        $data = Request::all();
         
-        $return = MigrationBuilder::build( $data['name'], $data['table'], $data['column'], $data['list_index'] );
+        $data = ColumnBuilder::build($data,'column');
+        $data['name'] = camel_case($data['table']);        
 
-        $data_system_table = SystemTables::where('name',$data['table'])->first();
-        if(empty($data_system_table)) {
-            $data_system_table = SystemTables::create([
-                'name'  =>  $data['table']
-            ]);
+        $rename = null;        
+        if( Request::path() == 'build' ) {
+            $data_system_table = SystemTables::where('name',$data['table'])->first();
+            if(empty($data_system_table)) {
+                $data_system_table = SystemTables::create([
+                    'name'  =>  $data['table']
+                ]);
+            }            
+        }else {            
+            $data_system_table = SystemTables::find($data['id']);
+            if( $data_system_table->name != $data['name'] ){
+                $rename = $data_system_table->name;                
+            }
         }
-
+        
         $data['id'] = $data_system_table->id;
-
+        
+        $return = MigrationBuilder::build( $data['name'], $data['table'], $data['column'], $data['list_index'], $rename );
+        
         // hanya akan migrate 1
         if( !empty($return) ) {
             MigrationFiles::create([

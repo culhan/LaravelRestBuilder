@@ -290,6 +290,7 @@ class LaravelRestBuilder
         if(empty($data['hidden'])) $data['hidden'] = [];
         if(empty($data['repositories'])) $data['repositories'] = [];
         if(empty($data['casts'])) $data['casts'] = [];
+        if(empty($data['get_company_code'])) $data['get_company_code'] = NULL;        
         
         // save to moduls table
         $detail_data = json_encode( array_except($data,['column']) );
@@ -376,7 +377,8 @@ class LaravelRestBuilder
             $data['hidden'],
             $data['with_company_restriction'],
             $data['casts'],
-            $data['with_authenticable']
+            $data['with_authenticable'],
+            $data['get_company_code']
         );        
 
         RepositoryBuilder::build(

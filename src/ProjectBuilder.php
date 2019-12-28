@@ -76,13 +76,17 @@ class ProjectBuilder
      */
     public function updateProjects($id) 
     {
+        $project    = Projects::find($id)->toArray();        
+        if(session('project')['id'] == $id) {
+            session(['project' => $project]);
+        }
+
         return view('khancode::createProject', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
             'projects'   =>  Projects::get(),
             'data'=>[
-                'simpan_api'    =>  1,
-                
-            ]+Projects::find($id)->toArray(),
+                'simpan_api'    =>  1,                
+            ]+$project,
         ]);
     }
 

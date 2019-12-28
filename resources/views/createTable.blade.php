@@ -9,14 +9,17 @@
 @section('content')
     <div class="col-lg-12">        
         <form id="modul">
+            <input type="" class="form-control d-none" id="table_id" name='id' value='{{ Arr::get($data, 'id', 0) }}'>
             @if (!array_has($data,'name')) 
                 <div class="form-group">                
-                    <label>Nama Table</label>
-                    <input type="" class="form-control d-none" id="table_id" name='id' value='{{ Arr::get($data, 'id', 0) }}'>
+                    <label>Nama Table</label>                    
                     <input type="" class="form-control" id="table_name" placeholder="nama tabel" name='table' onkeyup="ambil_data_tabel(this)" value='{{ Arr::get($data, 'name', '') }}'>
                 </div>
             @else
-                <input type="" class="form-control d-none" id="table_name" placeholder="nama tabel" name='table' onkeyup="ambil_data_tabel(this)" value='{{ Arr::get($data, 'name', '') }}'>
+                <div class="form-group">                
+                    <label>Nama Table</label>
+                    <input type="" class="form-control" id="table_name" placeholder="nama tabel" name='table' value='{{ Arr::get($data, 'name', '') }}'>
+                </div>
             @endif
 
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -309,8 +312,8 @@
         })();
 
         $( document ).ready(function() {                        
-            @if (!empty($data['name']) )
-                $( "[name='table']" ).keyup();
+            @if (!empty($data['name']) )                
+                ambil_data_tabel($( "[name='table']" ).get(0));
             @endif
         });
     </script>
