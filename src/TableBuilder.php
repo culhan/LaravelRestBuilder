@@ -27,7 +27,7 @@ class TableBuilder
         $data['name'] = camel_case($data['table']);        
 
         $rename = null;        
-        if( Request::path() == 'build' ) {
+        if( Request::path() == 'build' || empty($data['id']) ) {
             $data_system_table = SystemTables::where('name',$data['table'])->first();
             if(empty($data_system_table)) {
                 $data_system_table = SystemTables::create([
@@ -86,6 +86,29 @@ class TableBuilder
         DB::commit();
         
         return $return;            
+    }
+
+    /**
+     * [dropTable description]
+     *
+     * @param   [type]  $id  [$id description]
+     *
+     * @return  [type]       [return description]
+     */
+    public function dropTable($id) {        
+        $return = MigrationBuilder::dropTable($id);
+
+        if( !empty($return) ){
+            LaravelRestBuilder::setLaravelrestbuilderConnection();
+            if( !empty(config('laravelrestbuilder.copy_to')) ) {
+                $migration_result = \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);
+            }else {
+                $migration_result = \Artisan::call('migrate',['--force' => true]);
+            }
+            LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+        }
+
+        return $return;
     }
 
     /**
@@ -155,6 +178,7 @@ class TableBuilder
         
         $data['data'] = $model
             ->select('*')
+            ->whereNull('deleted_by')
             ->addSelect([
                 \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
             ])
@@ -171,8 +195,9 @@ class TableBuilder
             ->get();
         
         $data['draw'] = request('draw');
-        $data['recordsTotal'] = $model->count();
+        $data['recordsTotal'] = $model->whereNull('deleted_by')->count();
         $data['recordsFiltered'] = $model
+            ->whereNull('deleted_by')
             ->setSortableAndSearchableColumn(['name'=>'name'])
             ->search()            
             ->count();

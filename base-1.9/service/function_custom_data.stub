@@ -1,0 +1,18 @@
+/**
+     * [{{name}} description]
+     * @param  [type] $data [description]
+     * @return [type]       [description]
+     */
+    public function {{name}}($data{{param_function}})
+    {
+        $dataRecord = $data;
+        
+        {{data-filter}}
+        
+        {{data-validation}}
+
+        // start code
+        // end code
+	}
+
+    // end list function

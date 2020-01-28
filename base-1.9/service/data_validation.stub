@@ -1,0 +1,3 @@
+$this->model::validate($dataRecord, [
+            {{column_validation}}
+        ]);

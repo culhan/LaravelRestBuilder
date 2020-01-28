@@ -16,17 +16,19 @@ class ResourceBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name, $column, $column_function, $relation, $hidden )
+    static function build( $name, $column, $column_function, $relation, $hidden, $hidden_relation )
     {
+        $base = config('laravelRestBuilder.base');
         $resource_file = ucwords($name).'Resource';        
-        $base_resource = file_get_contents(__DIR__.'/../base/resource/base.stub', FILE_USE_INCLUDE_PATH);
-        $base_column = file_get_contents(__DIR__.'/../base/resource/column.stub', FILE_USE_INCLUDE_PATH);
-        $base_column_with_json = file_get_contents(__DIR__.'/../base/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
+        $base_resource = file_get_contents(__DIR__.'/../base'.$base.'/resource/base.stub', FILE_USE_INCLUDE_PATH);
+        $base_column = file_get_contents(__DIR__.'/../base'.$base.'/resource/column.stub', FILE_USE_INCLUDE_PATH);
+        $base_column_with_json = file_get_contents(__DIR__.'/../base'.$base.'/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
 
         $base_resource = str_replace('{{Name}}',$name,$base_resource);
 
         $code_column = '';
         $hidden = array_flip($hidden);
+        $hidden_relation = array_flip($hidden_relation);
         $jumlah_column = 0;
         foreach ($column as $key => $value) {
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[$value['name']]) )
@@ -54,10 +56,12 @@ class ResourceBuilder
         
         $i = 0;
         $code_relation = '';
-        foreach ($relation as $key => $value) {            
-            $value['name_function'] = '$this->'.$value['name'];
-            $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column_with_json);                
-            $i++;
+        foreach ($relation as $key => $value) {
+            if( !isset($hidden_relation[$value['name']]) ) {
+                $value['name_function'] = '$this->'.$value['name'];
+                $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column_with_json);
+                $i++;
+            }
         }        
         $base_resource = str_replace('// end list relation',$code_relation."\t\t\t"."// end list relation",$base_resource);
 

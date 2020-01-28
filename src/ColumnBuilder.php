@@ -16,6 +16,12 @@ class ColumnBuilder
     {
         // remove kolom yg berada di forbidden
         $has_company_stamp = 0;
+        
+        if( empty($data[$key_arr]) ) {
+            $data['column'] = [];
+            return $data;
+        }
+
         foreach ($data[$key_arr] as $key => $value) {
             if( !empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) ) {
                 unset($data[$key_arr][$key]);
@@ -71,16 +77,17 @@ class ColumnBuilder
                     [
                         "name"  =>  "created_by",
                         "type"  =>  "string",
+                        "nullable"   =>  1
                     ],
                     [
                         "name"  =>  "modified_by",
                         "type"  =>  "string",
-                        "nullable"   =>  "1"
+                        "nullable"   =>  1
                     ],
                     [
                         "name"  =>  "deleted_by",
                         "type"  =>  "string",
-                        "nullable"   =>  "1"
+                        "nullable"   =>  1
                     ],
                 ]);
             }
@@ -94,16 +101,17 @@ class ColumnBuilder
                     [
                         "name"  =>  "created_from",
                         "type"  =>  "string",
+                        "nullable"   =>  1
                     ],
                     [
                         "name"  =>  "modified_from",
                         "type"  =>  "string",
-                        "nullable"   =>  "1"
+                        "nullable"   =>  1
                     ],
                     [
                         "name"  =>  "deleted_from",
                         "type"  =>  "string",
-                        "nullable"   =>  "1"
+                        "nullable"   =>  1
                     ],
                 ]);
             }

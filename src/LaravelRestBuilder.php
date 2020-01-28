@@ -1,5 +1,4 @@
 <?php
-
 namespace KhanCode\LaravelRestBuilder;
 
 use Arr;
@@ -162,21 +161,23 @@ class LaravelRestBuilder
      */
     static function setLaravelrestbuilderConnection()
     {            
-        config(['database.connections.mysql'   =>  [
-            'driver' => 'mysql',
-            'host' => Arr::get(session('project'),'db_host','localhost'),
-            'port' => Arr::get(session('project'),'db_port','3306'),
-            'database' => Arr::get(session('project'),'db_name',env('DB_DATABASE')),
-            'username' => Arr::get(session('project'),'db_username',env('DB_DATABASE')),
-            'password' => Arr::get(session('project'),'db_password',env('DB_DATABASE')),
-            'unix_socket' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => false,
-            'engine' => null,
-        ] 
+        config([
+            'database.connections.mysql'   =>  [
+                'driver' => 'mysql',
+                'host' => Arr::get(session('project'),'db_host','localhost'),
+                'port' => Arr::get(session('project'),'db_port','3306'),
+                'database' => Arr::get(session('project'),'db_name',env('DB_DATABASE')),
+                'username' => Arr::get(session('project'),'db_username',env('DB_DATABASE')),
+                'password' => Arr::get(session('project'),'db_password',env('DB_DATABASE')),
+                'unix_socket' => '',
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'strict' => false,
+                'engine' => null,
+            ],
+            'laravelRestBuilder.base'    =>  !empty(Arr::get(session('project'),'base_version',NULL)) ? '-'.Arr::get(session('project'),'base_version'):NULL
         ]);
         
         \DB::purge('mysql');
@@ -288,6 +289,7 @@ class LaravelRestBuilder
         if(empty($data['column_function'])) $data['column_function'] = [];
         if(empty($data['relation'])) $data['relation'] = [];
         if(empty($data['hidden'])) $data['hidden'] = [];
+        if(empty($data['hidden_relation'])) $data['hidden_relation'] = [];
         if(empty($data['repositories'])) $data['repositories'] = [];
         if(empty($data['casts'])) $data['casts'] = [];
         if(empty($data['get_company_code'])) $data['get_company_code'] = NULL;        
@@ -312,14 +314,14 @@ class LaravelRestBuilder
                     $value->delete();
                 }
             }
-
+            
             // jika detail modul beda
             if( $detail_data != $old_data->detail_data ) {            
                 $old_data->update([
                     'name'  =>  $data['name'],
                     'detail'    =>  $detail_data,
                 ]);
-
+                
                 \KhanCode\LaravelRestBuilder\Models\ModulHistories::create([
                     'name'  =>  $data['name'],
                     'detail'    =>  $detail_data,
@@ -338,9 +340,11 @@ class LaravelRestBuilder
 
         config(['laravelrestbuilder.modul'   =>  $data]);
 
-        TableBuilder::buildMigration();
+        if( !empty($data['table']) && !empty($data['column']) ) {
+            TableBuilder::buildMigration();
+        }
         
-        if( !empty($data['route']) ) {
+        if( !empty($data['route']) && !empty($data['table']) && !empty($data['column']) ) {
             ControllerBuilder::build(
                 $data['name'],
                 $data['column'],
@@ -361,39 +365,42 @@ class LaravelRestBuilder
             );
         }
         
-        ModelBuilder::build(
-            $data['name'],
-            $data['table'],
-            $data['key'],
-            $data['column'],
-            $data['column_function'],
-            $data['with_timestamp'],
-            $data['with_authstamp'],
-            $data['with_ipstamp'],
-            $data['with_companystamp'],
-            $data['custom_filter'],
-            $data['custom_join'],
-            $data['relation'],
-            $data['hidden'],
-            $data['with_company_restriction'],
-            $data['casts'],
-            $data['with_authenticable'],
-            $data['get_company_code']
-        );        
+        if( !empty($data['table']) && !empty($data['column']) ) {
+            ModelBuilder::build(
+                $data['name'],
+                $data['table'],
+                $data['key'],
+                $data['column'],
+                $data['column_function'],
+                $data['with_timestamp'],
+                $data['with_authstamp'],
+                $data['with_ipstamp'],
+                $data['with_companystamp'],
+                $data['custom_filter'],
+                $data['custom_join'],
+                $data['relation'],
+                $data['hidden'],
+                $data['with_company_restriction'],
+                $data['casts'],
+                $data['with_authenticable'],
+                $data['get_company_code']
+            );    
 
-        RepositoryBuilder::build(
-            $data['name'],
-            $data['table'],
-            $data['repositories']
-        );
+            RepositoryBuilder::build(
+                $data['name'],
+                $data['table'],
+                $data['repositories']
+            );
+        }            
 
-        if( !empty($data['route']) ) {
+        if( !empty($data['route']) && !empty($data['table']) && !empty($data['column']) ) {
             ResourceBuilder::build(
                 $data['name'],
                 $data['column'],
                 $data['column_function'],
                 $data['relation'],
-                $data['hidden']
+                $data['hidden'],
+                $data['hidden_relation']
             );
             
             RouteBuilder::build(

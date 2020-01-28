@@ -42,7 +42,10 @@ class {{Name}} extends BaseModel
     {
         return $query->select([
                     {{column}}
-                ]);
+                ])
+                ->addBinding([
+                    {{binding_columns}}
+                ],'select');
     }
 
     /**

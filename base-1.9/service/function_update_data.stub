@@ -9,13 +9,11 @@
 
         {{data-filter}}
 
-        {{data-validation}}        
+        {{data-validation}}
 
         // start list belongs to check create
         
-        // end list belongs to check create        
-
-        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+        // end list belongs to check create
 
         // locking function
 
@@ -23,17 +21,23 @@
 
         // custom code before
         {{custom_code_before}}
-
-        // create
-        $result = $this->model->create($dataRecord);
         
+        // update
+        $single_data = $this->getSingleData($id);
+        $result = $single_data->update($dataRecord);
+        if(!$result) {
+            throw new DataEmptyException('no data updated');
+        }else {
+            $result = $single_data;
+        }
+
         // start list has many create
         
         // end list has many create
 
         // start list belongs to many create
         
-        // end list belongs to many create        
+        // end list belongs to many create
         
         // custom code after
         {{custom_code_after}}
@@ -42,7 +46,7 @@
 
         // unlocking function
 
-        return $this->getSingleData($result->id);
+        return $this->getSingleData($id);
 	}
 
     // end list function

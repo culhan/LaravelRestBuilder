@@ -705,6 +705,14 @@
                 $models[] = $namespace . preg_replace('/.php$/', '', $file);
         }
 
+        $files = scandir($dir.'Http/Resources/');
+        $namespace = '\App\Http\Resources\\';
+        foreach($files as $file) {
+            //skip current and parent folder entries and non-php files
+            if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+                $models[] = $namespace . preg_replace('/.php$/', '', $file);
+        }
+
         $files = scandir($dir.'Exceptions/');
         $namespace = '\App\Exceptions\\';
         foreach($files as $file) {
@@ -903,6 +911,8 @@
                 if( ele.value == 'delete_data' ) {
                     $( "[name^='route_sementara[validation]']" ).prop('disabled',true)                
                     $( ".route_advanced_validation" ).addClass('d-none')
+                    $( ".route_validasi" ).addClass('d-none')
+                    $( "data-filter" ).addClass('d-none')
                 }
                 
                 isi_before = ''
@@ -2184,10 +2194,9 @@
             build_tabel_option(dataDetail);
             build_kolom_tabel_modul(dataDetail);           
             // build_kolom_fungsi(dataDetail);
-            
-            build_route_tabel(dataDetail['route'])
-            build_relation_tabel(dataDetail['relation'])            
+                        
             storage_parameter.update('hidden',dataDetail['hidden'])
+            storage_parameter.update('hidden_relation',dataDetail['hidden_relation'])
             storage_parameter.update('route',dataDetail['route'])            
             storage_parameter.update('relation',dataDetail['relation'])
             
@@ -2199,6 +2208,8 @@
             storage_parameter.update('casts',objModul['casts'])
             storage_parameter.update('repositories',objModul['repositories'])
 
+            build_route_tabel(dataDetail['route'])
+            build_relation_tabel(dataDetail['relation'])
             build_kolom_tabel(objModul['column'],objForbiddenCOlumn)
             build_tabel_option_by_column(objModul['column'])
             build_modul_tabel(objModul['column'],objForbiddenCOlumn)
@@ -2771,6 +2782,15 @@
                 storage_parameter.remove('hidden.'+key_hidden)
             }else {
                 storage_parameter.add('hidden',objModul.column[i].name)
+            }
+        }
+
+        function ubahHiddenRelationInTable(ele,i) {
+            if($(ele).is(':checked')) {                
+                key_hidden = storage_parameter.find('hidden_relation',storage_parameter.get('relation.'+i+'.name'))
+                storage_parameter.remove('hidden_relation.'+key_hidden)
+            }else {
+                storage_parameter.add('hidden_relation',storage_parameter.get('relation.'+i+'.name'))
             }
         }
     </script>
@@ -3639,6 +3659,8 @@
         
         storage_parameter.add('relation');
 
+        storage_parameter.add('hidden_relation');
+
         function build_relation_tabel(data) {
 
             tableHtml = '<table id="example_relation" class="table table-striped table-bordered" style="width:100%">'
@@ -3646,6 +3668,7 @@
                     tableHtml += '<tr>'
                         tableHtml += '<th>#</th>'
                         tableHtml += '<th>Name</th>'
+                        tableHtml += '<th>Show/Hide</th>'
                         tableHtml += '<th>Type</th>'
                         tableHtml += '<th>Action</th>'
                     tableHtml += '</tr>'
@@ -3675,6 +3698,19 @@
                         tableHtml += '<td>'
                             tableHtml += value_relation['name']
                         tableHtml += '</td>'
+
+                        tableHtml += '<td>'
+                        if( storage_parameter.find('hidden_relation',value_relation['name']) == -1 ) {
+                            tableHtml += '<div class="form-check form-check-inline">'
+                                tableHtml += '<input class="form-check-input hidden_col" type="checkbox" checked onchange="ubahHiddenRelationInTable(this,'+iDataTable+')" >'
+                            tableHtml += '</div>'
+                        }else {                                
+                            tableHtml += '<div class="form-check form-check-inline">'
+                                tableHtml += '<input class="form-check-input hidden_col" type="checkbox" onchange="ubahHiddenRelationInTable(this,'+iDataTable+')" >'
+                            tableHtml += '</div>'
+                        }                    
+                        tableHtml += '</td>'
+
                         tableHtml += '<td>'
                             tableHtml += v_type
                         tableHtml += '</td>'

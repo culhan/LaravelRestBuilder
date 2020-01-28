@@ -105,6 +105,8 @@ class ModelBuilder
         $fillable_table_model = "";
         $hidden = array_flip($hidden);
         $base_column_function_query = file_get_contents(__DIR__.'/../base/model/query_column_function.stub', FILE_USE_INCLUDE_PATH);
+        $base_set_bindings = "{{column}}";
+        $column_set_bindings = "";
         
         foreach ($column as $key => $value) {            
             // jika bukan forbidden column dan hidden masukkan ke query global
@@ -120,6 +122,7 @@ class ModelBuilder
 
                 $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'').$column_query;
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\"".'{{table}}.'.$value['name']."\",\r\n";
+                $column_set_bindings .= 'array_get($data, "show_'.$value['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
 
             $fillable_table_model .= "\t\t\"".$value['name']."\",";
@@ -142,9 +145,10 @@ class ModelBuilder
 
                 $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'').$column_function_query;          
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\DB::raw(\"".str_replace("\n","\n\t\t\t\t\t",$value_column_function['function'])." as ".$value_column_function['name']."\"),\r\n";
+                $column_set_bindings .= 'array_get($data, "show_'.$value['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
         }
-
+        
         // fillable
         $option_fillable = file_get_contents(__DIR__.'/../base/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);
         $option_fillable = str_replace('{{column_fillable}}',$fillable_table_model,$option_fillable);
@@ -154,6 +158,7 @@ class ModelBuilder
         {
             foreach ($relation as $key_relation => $value_relation) {
                 
+                $column_set_bindings .= 'array_get($data, "show_'.$value_relation['name'].'", 1),'."\r\n\t\t\t\t\t";
                 $value_relation['custom_order'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_order']);
                 $value_relation['custom_join'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_join']);
                 $value_relation['custom_option'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_option']);
@@ -463,6 +468,9 @@ class ModelBuilder
             }
         }
         
+        $base_set_bindings = str_replace("{{column}}",substr($column_set_bindings,0,-7),$base_set_bindings);
+        
+        $base_model = str_replace('{{binding_columns}}',$base_set_bindings,$base_model);
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
         $base_model = str_replace('{{table}}',$table,$base_model);
         if(empty($get_company_code)){

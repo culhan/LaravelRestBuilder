@@ -3,8 +3,7 @@ namespace App\Http\Services;
 
 use App;
 use Request;
-use KhanCode\LaravelBaseRest\Helpers;
-use KhanCode\LaravelBaseRest\Locking;
+use App\Http\Locking;
 use App\Exceptions\DataEmptyException;
 use App\Exceptions\ValidationException;
 use KhanCode\LaravelBaseRest\BaseService;

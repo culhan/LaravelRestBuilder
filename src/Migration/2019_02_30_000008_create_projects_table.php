@@ -16,7 +16,8 @@ class CreateProjectsTable extends Migration {
 		{
 			$table->increments('id', true);
 			$table->string('name')->index();
-            $table->string('folder');
+			$table->string('folder');
+			$table->string('base_version');
             $table->string('db_host')
                 ->default('localhost');
             $table->string('db_port')

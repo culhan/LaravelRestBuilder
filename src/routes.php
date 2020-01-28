@@ -17,6 +17,7 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('table', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@table');
                 Route::get('listTable', 'KhanCode\LaravelRestBuilder\TableBuilder@listTable');
                 Route::get('createTable', 'KhanCode\LaravelRestBuilder\TableBuilder@createTable');
+                Route::get('dropTable/{id}', 'KhanCode\LaravelRestBuilder\TableBuilder@dropTable');
                 Route::get('updateTable/{id}', 'KhanCode\LaravelRestBuilder\TableBuilder@updateTable');
                 Route::post('buildMigration', 'KhanCode\LaravelRestBuilder\TableBuilder@buildMigration');
                 Route::get('systemTable', 'KhanCode\LaravelRestBuilder\TableBuilder@systemTable');

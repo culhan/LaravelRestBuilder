@@ -45,12 +45,14 @@ class MigrationBuilder
 
         // jika table belum di buat
         if( !Schema::hasTable($table) )
-        {
-            $migration_file_name = date('Y_m_d_His').'_create_'.$name.'_table'.date('His');
-            $migration_class_name = ucfirst(camel_case('create_'.$name.'_table'.date('His')));
+        {            
             if( empty($rename) ) {
+                $migration_file_name = date('Y_m_d_His').'_create_'.$name.'_table'.date('His');
+                $migration_class_name = ucfirst(camel_case('create_'.$name.'_table'.date('His')));
                 $base_migration = file_get_contents(__DIR__.'/../base/migration/migration.stub', FILE_USE_INCLUDE_PATH);
             }else {
+                $migration_file_name = date('Y_m_d_His').'_rename_'.$name.'_table'.date('His');
+                $migration_class_name = ucfirst(camel_case('rename_'.$name.'_table'.date('His')));
                 $base_migration = file_get_contents(__DIR__.'/../base/migration/rename_migration.stub', FILE_USE_INCLUDE_PATH);
                 $base_migration = str_replace('{{rename}}',$rename,$base_migration);
             }
@@ -64,6 +66,10 @@ class MigrationBuilder
 
             // check untuk boolean dengan raw query
             $raw_query = self::generateRawMigrationColumn($table, $column);                
+            if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
+
+            // check untuk drop default
+            $raw_query = self::generateNewTableRawDropDefaultMigrationColumn($table, $column);
             if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
             
             // buat index baru
@@ -195,8 +201,7 @@ class MigrationBuilder
         
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
         
-        if(!empty($base_migration))
-        {            
+        if(!empty($base_migration)) {
             // create migration file
             return FileCreator::create( $migration_file_name, 'database/migrations', $base_migration, 'migration' );
         }
@@ -336,6 +341,35 @@ class MigrationBuilder
         }                
 
         return $diff;
+    }
+
+    /**
+     * [generateNewTableRawDropDefaultMigrationColumn description]
+     *
+     * @param   [type]  $table   [$table description]
+     * @param   [type]  $column  [$column description]
+     *
+     * @return  [type]           [return description]
+     */
+    static function generateNewTableRawDropDefaultMigrationColumn($table, $column)
+    {
+        $raw_query = '';        
+        $templatesQueryRaw = "\t\t\DB::statement(\"ALTER TABLE {{table}} ALTER {{column}} DROP DEFAULT \");\n";
+        
+        foreach ($column as $key => $value) {            
+            if( empty($value['default']) && ($value['nullable'] == 1 || $value['nullable'] == '1') ) {
+                $raw_query .= str_replace([
+                    "{{table}}",
+                    "{{column}}"
+                ],
+                [
+                    $table,
+                    "`".$value['name']."`",
+                ],$templatesQueryRaw);
+            }
+        }
+        
+        return $raw_query;
     }
 
     /**
@@ -497,7 +531,7 @@ class MigrationBuilder
                 ];
             }
         }
-
+        
         return $return;
     }
 
@@ -564,7 +598,7 @@ class MigrationBuilder
             $where .= ' and data_type = "timestamp" ';
         }
         if ($column['type'] == 'decimal') {
-            $where .= ' and data_type = "decimal" ';
+            $where .= ' and data_type = "decimal" and numeric_precision = '.$column['precision'].' and numeric_scale = '.$column['scale'];
         }
         if ($column['type'] == 'char') {
             $where .= ' and data_type = "char" ';
@@ -601,12 +635,12 @@ class MigrationBuilder
             if ( isset($column['default']) ) {
                 if( strtolower($column['default']) == 'null')
                 {
-                    $where .= ' and column_default is NULL ';
+                    $where .= ' and (column_default is NULL or column_default = \'\' or column_default = \'NULL\' or column_default = \'null\' )';
                 }else {
                     $where .= ' and (column_default = "'.$column['default'].'" or column_default = "'.$column['default'].'()") ';
                 }
             }else {
-                $where .= ' and column_default is null ';
+                $where .= ' and (column_default is NULL or column_default = \'\' or column_default = \'NULL\' or column_default = \'null\' )';
             }
         }
 
@@ -614,18 +648,18 @@ class MigrationBuilder
             $where .= ' and column_comment = "'.$column['comment'].'" ';
         }else {
             $where .= ' and column_comment = "" ';
-        }
-
+        }            
+        
         $check = \DB::select( \DB::raw('
                                     SELECT *
                                     FROM INFORMATION_SCHEMA.COLUMNS
                                     where TABLE_SCHEMA=\''.config('database.connections.mysql.database').'\'
                                     AND column_name = \''.$column['name'].'\'
                                     AND table_name = \''.$table.'\''.$where
-                                ));
+                                ));    
 
         if(empty($check)) return false;
-
+        
         return $check;
     }
 
@@ -672,7 +706,7 @@ class MigrationBuilder
                 // utk increment tidak ada default
                 if($value['type'] != 'increment' && $value['type'] != 'bigIncrement') {
                     if(strtolower($value['default'])=='null') {
-                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default(NULL);',$code_column);
+                        // $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default();',$code_column);
                     }else {
                         $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default(\DB::raw("'.$value['default'].'"));',$code_column);
                     }
@@ -957,5 +991,38 @@ class MigrationBuilder
             return FileCreator::create( $migration_file_name, 'database/migrations', $base_migration, 'migration' );
         }
                 
+    }
+
+    static function dropTable($id) {
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+
+        $dataTable = SystemTables::find($id);
+        $table = $dataTable->name;
+        $dataTable->delete();
+
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        
+        // jika table ada
+        if( Schema::hasTable($table) )
+        {
+            $migration_file_name = date('Y_m_d_His').'_drop_'.camel_case($table).'_table'.date('His');
+            $migration_class_name = ucfirst(camel_case('drop_'.camel_case($table).'_table'.date('His')));            
+            $base_migration = file_get_contents(__DIR__.'/../base/migration/drop_migration.stub', FILE_USE_INCLUDE_PATH);
+            $base_migration = str_replace([
+                '{{table}}',
+                '{{migration_name}}',
+            ],[
+                $table,
+                $migration_class_name
+            ],
+            $base_migration);            
+            
+            if(!empty($base_migration)) {                
+                // create migration file
+                return FileCreator::create( $migration_file_name, 'database/migrations', $base_migration, 'migration' );
+            }
+        }
+
+        return [];
     }
 }

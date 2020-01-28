@@ -1,4 +1,4 @@
-                    \DB::raw("(CASE WHEN (".array_get($data, "show_{{has_one_name}}", 1)." = 0)
+                    \DB::raw("(CASE WHEN (? = 0)
                            THEN NULL
                            ELSE 
                            ". \DB::raw("(

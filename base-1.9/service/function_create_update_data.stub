@@ -9,23 +9,21 @@
 
         {{data-filter}}
 
-        {{data-validation}}        
+        {{data-validation}}
 
         // start list belongs to check create
         
-        // end list belongs to check create        
-
-        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+        // end list belongs to check create
 
         // locking function
-
+        
         \DB::beginTransaction();
 
         // custom code before
         {{custom_code_before}}
-
+        
         // create
-        $result = $this->model->create($dataRecord);
+        $result = $this->model->updateOrCreate($keyFirstOrCreate,$dataRecord);
         
         // start list has many create
         
