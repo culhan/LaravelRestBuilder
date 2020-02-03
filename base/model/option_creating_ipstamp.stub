@@ -1,3 +1,5 @@
-$model->created_from = $_SERVER['REMOTE_ADDR'];
+if( !empty($_SERVER['REMOTE_ADDR'])) $model->created_from = $_SERVER['REMOTE_ADDR'];
+
+            if( empty($_SERVER['REMOTE_ADDR'])) $model->created_from = '0.0.0.0';
 
             // end list creating option

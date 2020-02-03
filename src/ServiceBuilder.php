@@ -254,11 +254,20 @@ class ServiceBuilder
                     // belongs to many create check data
                     if( $value_relation['type'] == 'belongs_to_many' )
                     {                        
+                        if( empty($value['fungsi_check_relasi_disabled'][$value_relation['name']]) ){
+                            $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_create_data.stub', FILE_USE_INCLUDE_PATH);
+                        }else {
+                            $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_create_data_without_check.stub', FILE_USE_INCLUDE_PATH);
+                        }
                         
-                        $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_create_data.stub', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_create_code);                            
                         $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : '{{service_name}}'),$base_create_code);
                         $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
+                                                
+                        $check_data_function = (!empty($value_relation['check_data_function']) ? $value_relation['check_data_function']:'getSingleData');
+                        $check_data_function = (empty(array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function))) ? $check_data_function : array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function);
+                    
+                        $base_create_code = str_replace('{{check_data_function}}',$check_data_function,$base_create_code);
                         
                         $belongs_to_many_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_create_code;
                         

@@ -3150,49 +3150,49 @@
 
                 iDataTable=0                
                 $.each(data, function( index_relation, value_relation ) {
-                    if(value_relation['type'] != 'belongs_to'){
-                        return;
-                    }
+                    if(value_relation['type'] == 'belongs_to' || value_relation['type'] == 'belongs_to_many'){                    
                     
-                    index_relation = parseInt(index_relation)
-                    if(value_relation['type']=="belongs_to") {
-                        v_type = "Belongs To"
-                    }
-                    if(value_relation['type']=="has_one") {
-                        v_type = "Has One"
-                    }
-                    if(value_relation['type']=="has_many") {
-                        v_type = "Has Many"
-                    }
-                    if(value_relation['type']=="belongs_to_many") {
-                        v_type = "Belongs To Many"
-                    }
+                        index_relation = parseInt(index_relation)
+                        if(value_relation['type']=="belongs_to") {
+                            v_type = "Belongs To"
+                        }
+                        if(value_relation['type']=="has_one") {
+                            v_type = "Has One"
+                        }
+                        if(value_relation['type']=="has_many") {
+                            v_type = "Has Many"
+                        }
+                        if(value_relation['type']=="belongs_to_many") {
+                            v_type = "Belongs To Many"
+                        }
 
-                    if( value_relation['check_data_function'] ) {
-                        defaultCheckFunction = value_relation['check_data_function']
-                    }else {
-                        defaultCheckFunction = 'getSingleData'
-                    }
-                    
-                    switch_check_data = ''                    
-                    switch_check_data += '<div class="with-check"><input class="form-check-input check_function_route" attr_check="['+value_relation['name']+']" type="checkbox" onchange="show_hide_check_function_route(this,'+iDataTable+')" checked></div>'
-                    switch_check_data += '<input type="text" name="route_sementara[fungsi_check_relasi_disabled]['+value_relation['name']+']" style="display:none" value=0>'                    
+                        if( value_relation['check_data_function'] ) {
+                            defaultCheckFunction = value_relation['check_data_function']
+                        }else {
+                            defaultCheckFunction = 'getSingleData'
+                        }
+                        
+                        switch_check_data = ''                    
+                        switch_check_data += '<div class="with-check"><input class="form-check-input check_function_route" attr_check="['+value_relation['name']+']" type="checkbox" onchange="show_hide_check_function_route(this,'+iDataTable+')" checked></div>'
+                        switch_check_data += '<input type="text" name="route_sementara[fungsi_check_relasi_disabled]['+value_relation['name']+']" style="display:none" value=0>'                    
 
-                    tableHtml += '<tr>'
-                        tableHtml += '<td>'
-                            tableHtml += switch_check_data
-                        tableHtml += '</td>'
-                        tableHtml += '<td>'
-                            tableHtml += value_relation['name']
-                        tableHtml += '</td>'
-                        tableHtml += '<td>'
-                            tableHtml += v_type
-                        tableHtml += '</td>'
-                        tableHtml += '<td>'                            
-                            tableHtml += '<input class="form-control" type="" name="route_sementara[fungsi_check_relasi]['+value_relation['name']+']" placeholder="default fungsi '+defaultCheckFunction+'">'
-                        tableHtml += '</td>'                        
-                    tableHtml += '</tr>'
-                    iDataTable++
+                        tableHtml += '<tr>'
+                            tableHtml += '<td>'
+                                tableHtml += switch_check_data
+                            tableHtml += '</td>'
+                            tableHtml += '<td>'
+                                tableHtml += value_relation['name']
+                            tableHtml += '</td>'
+                            tableHtml += '<td>'
+                                tableHtml += v_type
+                            tableHtml += '</td>'
+                            tableHtml += '<td>'                            
+                                tableHtml += '<input class="form-control" type="" name="route_sementara[fungsi_check_relasi]['+value_relation['name']+']" placeholder="default fungsi '+defaultCheckFunction+'">'
+                            tableHtml += '</td>'                        
+                        tableHtml += '</tr>'
+                        iDataTable++
+
+                    }
                 })
 
                 tableHtml += '<tbody>'
