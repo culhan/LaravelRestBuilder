@@ -414,11 +414,11 @@ class ModelBuilder
                     $belongs_to_many_query = str_replace('{{belongs_to_many_name}}',$value_relation['name'],$belongs_to_many_query);
                     if( !empty($value_relation['custom_join']) )
                     {
-                        $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
+                        $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
                     }
                     if( !empty($value_relation['custom_option']) )
                     {
-                        $belongs_to_many_query = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t\t".'-- end list belongs to many query option',$belongs_to_many_query);
+                        $belongs_to_many_query = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t\t\t\t".'-- end list belongs to many query option',$belongs_to_many_query);
                     }
                     
                     $cols_table_model .= $belongs_to_many_query."\r\n";

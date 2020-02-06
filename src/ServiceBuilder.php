@@ -266,7 +266,7 @@ class ServiceBuilder
                                                 
                         $check_data_function = (!empty($value_relation['check_data_function']) ? $value_relation['check_data_function']:'getSingleData');
                         $check_data_function = (empty(array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function))) ? $check_data_function : array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function);
-                    
+                        
                         $base_create_code = str_replace('{{check_data_function}}',$check_data_function,$base_create_code);
                         
                         $belongs_to_many_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_create_code;

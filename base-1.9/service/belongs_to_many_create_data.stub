@@ -9,11 +9,11 @@
                 foreach ($data['{{name_belongs_to_many}}'] as $key_belongs_to_many => $value_relation_belongs_to_many) {
                     if(is_array($value_relation_belongs_to_many)) {
                         foreach ($value_relation_belongs_to_many as $key_belongs_to_many_2 => $value_relation_belongs_to_many_2) {
-                            {{service_name}}Service::{{function_check_data}}($key_belongs_to_many_2);
+                            {{service_name}}Service::{{check_data_function}}($key_belongs_to_many_2);
                             $result->{{name_belongs_to_many}}()->attach($key_belongs_to_many_2,$value_relation_belongs_to_many_2);
                         }
                     }else {
-                        {{service_name}}Service::{{function_check_data}}($value_relation_belongs_to_many);
+                        {{service_name}}Service::{{check_data_function}}($value_relation_belongs_to_many);
                         $result->{{name_belongs_to_many}}()->attach($value_relation_belongs_to_many);
                     }
                 }

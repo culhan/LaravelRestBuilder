@@ -3702,11 +3702,11 @@
                         tableHtml += '<td>'
                         if( storage_parameter.find('hidden_relation',value_relation['name']) == -1 ) {
                             tableHtml += '<div class="form-check form-check-inline">'
-                                tableHtml += '<input class="form-check-input hidden_col" type="checkbox" checked onchange="ubahHiddenRelationInTable(this,'+iDataTable+')" >'
+                                tableHtml += '<input class="form-check-input hidden_col_relasi" type="checkbox" checked onchange="ubahHiddenRelationInTable(this,'+iDataTable+')" >'
                             tableHtml += '</div>'
                         }else {                                
                             tableHtml += '<div class="form-check form-check-inline">'
-                                tableHtml += '<input class="form-check-input hidden_col" type="checkbox" onchange="ubahHiddenRelationInTable(this,'+iDataTable+')" >'
+                                tableHtml += '<input class="form-check-input hidden_col_relasi" type="checkbox" onchange="ubahHiddenRelationInTable(this,'+iDataTable+')" >'
                             tableHtml += '</div>'
                         }                    
                         tableHtml += '</td>'
@@ -3741,6 +3741,7 @@
             tableHtml += '</table>'
 
             $( "relation_table" ).html(tableHtml);
+            $( '.hidden_col_relasi' ).switcher();
             $( "#relation_"+(iDataTable-1)+" .btn-info" ).remove()
             $('[data-toggle="tooltip"]').tooltip({
                 container: 'body'
