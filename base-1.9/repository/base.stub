@@ -49,6 +49,7 @@ class {{Name}}Repository extends BaseRepository
             ->search()
             ->distinct()
             ->sort()
+            ->orderBy($this->model->getKeyName(),'DESC')
             ->paginate(Request::get('per_page'));
 
         $data->sortableAndSearchableColumn = $sortableAndSearchableColumn;
