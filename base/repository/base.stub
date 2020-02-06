@@ -47,9 +47,8 @@ class {{Name}}Repository extends BaseRepository
             ->setSortableAndSearchableColumn($sortableAndSearchableColumn)
             ->setRelationColumn($relationColumn)
             ->search()
-            ->sort()
             ->distinct()
-            ->orderBy($this->model->getKeyName(),'DESC')
+            ->sort($this->model->getKeyName())
             ->paginate(Request::get('per_page'));
 
         $data->sortableAndSearchableColumn = $sortableAndSearchableColumn;
