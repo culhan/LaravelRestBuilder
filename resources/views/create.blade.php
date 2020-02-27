@@ -158,6 +158,13 @@
                             <input type="text" class="form-control" name="key" id="key" placeholder="default: kolom pertama">
                         </div>
                         <div class="form-group">
+                            <label>Increment Key</label>
+                            <input class="d-none" name="increment_key" value="0">
+                            <div class="form-check form-check-inline with-check col-md">
+                                <input checked class="form-check-input" type="checkbox" id="increment_key" name="increment_key" value="1">
+                            </div> 
+                        </div> 
+                        <div class="form-group">
                             <label for="with_timestamp">Time Stamp</label>
                             <select class="form-control" id="with_timestamp" name="with_timestamp">
                                 <option value=0>no</option>                
@@ -215,6 +222,16 @@
                             <textarea name="custom_filter" class="d-none"></textarea>
                             <textarea id="tab_custom_filter"></textarea>
                             <pre>*input ".code." akan di baca kode php</pre>
+                        </div>
+                        <div class="form-group">
+                            <label for="get_custom_creating">Custom Creating</label>
+                            <textarea name="get_custom_creating" class="d-none"></textarea>
+                            <textarea id="tab_get_custom_creating"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="get_custom_updating">Custom Updating</label>
+                            <textarea name="get_custom_updating" class="d-none"></textarea>
+                            <textarea id="tab_get_custom_updating"></textarea>
                         </div>
                     </figure>
                 </div>
@@ -1744,7 +1761,9 @@
 
             $( "#with_company_restriction" ).switcher();
 
-            $( "#with_authenticable" ).switcher();
+            $( "#with_authenticable" ).switcher()
+
+            $( "#increment_key" ).switcher();
 
             $( "#with_advanced_validation" ).switcher();
 
@@ -1773,6 +1792,16 @@
             
             nama_kolom_fungsi = 'get_company_code'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_company_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
+
+            nama_kolom_fungsi = 'get_custom_updating'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_custom_updating', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
+
+            nama_kolom_fungsi = 'get_custom_creating'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_custom_creating', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
 
@@ -2231,7 +2260,7 @@
                 if(value['name'] == 'created_from') $( '[name="with_ipstamp"]' ).val(1)
                 if(value['name'] == 'com_id') {
                     $( '[name="with_companystamp"]' ).val(1)
-                    storage_parameter.add('hidden','com_id')
+                    // storage_parameter.add('hidden','com_id')
                 }
             });
         }
@@ -2249,6 +2278,13 @@
             eval("code_editor_custom_filter.clearSelection()")
 
             if(data.key) $( '[name="key"]' ).val(data.key).change();
+            if(data.increment_key) {
+                if( data.increment_key == 1 ) {
+                    $( '[name="increment_key"]' ).prop('checked',true).change();
+                }else {
+                    $( '[name="increment_key"]' ).prop('checked',false).change();
+                }
+            }
             if(data.with_timestamp) $( '[name="with_timestamp"]' ).val(data.with_timestamp).change();
             if(data.with_authstamp) $( '[name="with_authstamp"]' ).val(data.with_authstamp).change();
             if(data.with_ipstamp) $( '[name="with_ipstamp"]' ).val(data.with_ipstamp).change();
@@ -2593,7 +2629,7 @@
                             tableHtml += '<td>'
                             if( value_column_function['name'] == 'com_id' ){
                                 tableHtml += '<div class="form-check form-check-inline">'
-                                    tableHtml += '<input disabled class="form-check-input hidden_col" type="checkbox" onchange="ubahHiddenInTable(this,'+index_column_function+')" >'
+                                    tableHtml += '<input class="form-check-input hidden_col" type="checkbox" onchange="ubahHiddenInTable(this,'+index_column_function+')" >'
                                 tableHtml += '</div>'
                             }else if( storage_parameter.find('hidden',value_column_function['name']) == -1 ) {
                                 tableHtml += '<div class="form-check form-check-inline">'
@@ -3881,6 +3917,7 @@
         function companyStampChange(ele) {
             if( ele.value == 1 ) {
                 has_company_column = 0
+                
                 $.each(objColumn, function( e, v ) {
                     if(v.name == 'com_id') {
                         has_company_column = e

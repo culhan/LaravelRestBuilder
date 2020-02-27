@@ -3,6 +3,6 @@
         {
             $this->{{service_name}}Service = New {{service_name}}Service;
             $this->{{service_name}}Service->{{function}}($data['{{name_has_one}}']+[
-                "{{foregin_key}}"   =>  $result->id,
+                "{{foregin_key}}"   =>  $result->{{relation_key}},
             ]);
         }

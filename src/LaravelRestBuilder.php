@@ -360,6 +360,7 @@ class LaravelRestBuilder
                 $data['name'],
                 $data['table'],
                 $data['column'],
+                $data['key'],
                 $data['route'],
                 $data['relation']
             );
@@ -370,6 +371,7 @@ class LaravelRestBuilder
                 $data['name'],
                 $data['table'],
                 $data['key'],
+                $data['increment_key'],
                 $data['column'],
                 $data['column_function'],
                 $data['with_timestamp'],
@@ -383,7 +385,10 @@ class LaravelRestBuilder
                 $data['with_company_restriction'],
                 $data['casts'],
                 $data['with_authenticable'],
-                $data['get_company_code']
+                $data['get_company_code'],
+                $data['get_custom_creating'],
+                $data['get_custom_updating'],
+                $data['hidden_relation']
             );    
 
             RepositoryBuilder::build(

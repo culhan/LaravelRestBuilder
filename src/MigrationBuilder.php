@@ -21,7 +21,7 @@ class MigrationBuilder
      * @return void
      */
     static function build( $name, $table, array $column, array $index = [], $rename = null)
-    {        
+    {                
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
 
         if( empty($rename) ) {
@@ -187,7 +187,7 @@ class MigrationBuilder
                 if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
 
                 // check untuk drop default
-                $raw_query = self::generateRawDropDefaultMigrationColumn($table, $column);
+                $raw_query = self::generateNewTableRawDropDefaultMigrationColumn($table, $column);
                 if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
 
                 // check index change                

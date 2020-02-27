@@ -25,6 +25,10 @@
         // create
         $result = $this->model->create($dataRecord);
         
+        // start list has one create
+        
+        // end list has one create
+
         // start list has many create
         
         // end list has many create
@@ -40,7 +44,7 @@
 
         // unlocking function
 
-        return $this->getSingleData($result->id);
+        return $this->getSingleData($result->{{primary_key}});
 	}
 
     // end list function

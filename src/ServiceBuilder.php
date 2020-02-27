@@ -7,16 +7,18 @@ use Illuminate\Support\Facades\Schema;
 class ServiceBuilder
 {
     /**
-     * build service function
+     * [build description]
      *
-     * @param [type] $name
-     * @param [type] $table
-     * @param [type] $column
-     * @param [type] $route
-     * @param [type] $relation
-     * @return void
+     * @param   [type]  $name      [$name description]
+     * @param   [type]  $table     [$table description]
+     * @param   [type]  $column    [$column description]
+     * @param   [type]  $key       [$key description]
+     * @param   [type]  $route     [$route description]
+     * @param   [type]  $relation  [$relation description]
+     *
+     * @return  [type]             [return description]
      */
-    static function build( $name, $table, $column, $route, $relation)
+    static function build( $name, $table, $column, $primary_key = 'id', $route, $relation)
     {
         $base = config('laravelRestBuilder.base');
         $name = UCWORDS($name);
@@ -151,11 +153,13 @@ class ServiceBuilder
                         $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/has_many_create_data.stub', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace([
                                 '{{name_has_many}}',
+                                '{{relation_key}}',
                                 '{{foregin_key}}',
                                 '{{service_name}}',
                                 '{{function}}'
                             ],[
                                 $value_relation['name'],
+                                $value_relation['relation_key'],
                                 $value_relation['foreign_key'],
                                 ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
                                 (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
@@ -172,16 +176,17 @@ class ServiceBuilder
 
                     // has one create data
                     if( $value_relation['type'] == 'has_one' )
-                    {                        
-                        
+                    {                                                
                         $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/has_one_create_data.stub', FILE_USE_INCLUDE_PATH);
                         $base_create_code = str_replace([
                                 '{{name_has_one}}',
+                                '{{relation_key}}',
                                 '{{foregin_key}}',
                                 '{{service_name}}',
-                                '{{function}}'
+                                '{{function}}',                                
                             ],[
-                                $value_relation['name'],
+                                $value_relation['name'],                            
+                                $value_relation['relation_key'],
                                 $value_relation['foreign_key'],
                                 ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
                                 (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
@@ -357,6 +362,11 @@ class ServiceBuilder
                 
                 $code_function = str_replace('{{custom_code_before}}',$value['custom_code_before'],$code_function);
                 $code_function = str_replace('{{custom_code_after}}',$value['custom_code_after'],$code_function);
+                if(!empty($primary_key)) {
+                    $code_function = str_replace('{{primary_key}}',$primary_key,$code_function);                
+                }else {
+                    $code_function = str_replace('{{primary_key}}',$column[0]['name'],$code_function);
+                }                
 
                 $base_service = str_replace('// end list function',$code_function,$base_service);
             }            

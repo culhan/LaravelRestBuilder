@@ -8,21 +8,33 @@ class ModelBuilder
 {
 
     /**
-     * model builder function
+     * [build description]
      *
-     * @param [type] $name_model
-     * @param [type] $table
-     * @param [type] $column
-     * @param [type] $column_function
-     * @param [type] $route
-     * @param [type] $with_timestamp
-     * @param [type] $with_authstamp
-     * @param [type] $with_ipstamp
-     * @param [type] $with_companystamp
-     * @param [type] $relation
-     * @return void
+     * @param   [type]  $name_model                [$name_model description]
+     * @param   [type]  $table                     [$table description]
+     * @param   [type]  $key                       [$key description]
+     * @param   [type]  $increment_key             [$increment_key description]
+     * @param   [type]  $column                    [$column description]
+     * @param   [type]  $column_function           [$column_function description]
+     * @param   [type]  $with_timestamp            [$with_timestamp description]
+     * @param   [type]  $with_authstamp            [$with_authstamp description]
+     * @param   [type]  $with_ipstamp              [$with_ipstamp description]
+     * @param   [type]  $with_companystamp         [$with_companystamp description]
+     * @param   [type]  $custom_filter             [$custom_filter description]
+     * @param   [type]  $custom_join               [$custom_join description]
+     * @param   [type]  $relation                  [$relation description]
+     * @param   [type]  $hidden                    [$hidden description]
+     * @param   [type]  $with_company_restriction  [$with_company_restriction description]
+     * @param   [type]  $casts                     [$casts description]
+     * @param   [type]  $with_authenticable        [$with_authenticable description]
+     * @param   [type]  $get_company_code          [$get_company_code description]
+     * @param   [type]  $custom_creating           [$custom_creating description]
+     * @param   [type]  $custom_updating           [$custom_updating description]
+     * @param   [type]  $hidden_relation           [$hidden_relation description]
+     *
+     * @return  [type]                             [return description]
      */
-    static function build( $name_model, $table, $key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
     {
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
@@ -95,10 +107,26 @@ class ModelBuilder
             $base_model = str_replace('// end list option',$option_key,$base_model);
         }
 
+        if( empty($increment_key) ) {            
+            $option_key = file_get_contents(__DIR__.'/../base/model/option_increment_key.stub', FILE_USE_INCLUDE_PATH);
+            $option_key = str_replace('{{key}}',$key,$option_key);
+            $base_model = str_replace('// end list option',$option_key,$base_model);
+        }
+
         if( !empty($custom_filter) ) {
             $option_custom_filter = file_get_contents(__DIR__.'/../base/model/option_query_custom_filter.stub', FILE_USE_INCLUDE_PATH);
             $option_custom_filter = str_replace('{{custom_filter}}',$custom_filter,$option_custom_filter);
             $base_model = str_replace('// end list query option',$option_custom_filter,$base_model);
+        }
+
+        if( !empty($custom_creating) ) {
+            $custom_creating = str_replace("\n","\n\t\t\t",$custom_creating."\n\n// end list creating option");
+            $base_model = str_replace('// end list creating option',$custom_creating,$base_model);
+        }
+
+        if ( !empty($custom_updating) ) {
+            $custom_updating = str_replace("\n","\n\t\t\t",$custom_updating."\n\n// end list updating option");
+            $base_model = str_replace('// end list updating option',$custom_updating,$base_model);
         }
 
         $cols_table_model = "";        
@@ -156,8 +184,14 @@ class ModelBuilder
         
         if( !empty($relation) )
         {
+            if( !empty($hidden_relation) ) {
+                $hidden_relation = array_flip($hidden_relation);
+            }
+
             foreach ($relation as $key_relation => $value_relation) {
                 
+                if(isset($hidden_relation[$value_relation['name']])) continue;
+
                 $column_set_bindings .= 'array_get($data, "show_'.$value_relation['name'].'", 1),'."\r\n\t\t\t\t\t";
                 $value_relation['custom_order'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_order']);
                 $value_relation['custom_join'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_join']);
@@ -367,22 +401,24 @@ class ModelBuilder
                     // $function = str_replace('{{column_belongs_to_many_foreign_key_model}}',$value_relation['foreign_key_model'],$function);
                     // $function = str_replace('{{column_belongs_to_many_foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$function);                    
                     
-                    if( !empty($value_relation['custom_option']) ) {
-                        $custom_option_relation = file_get_contents(__DIR__.'/../base/model/custom_option_relation_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
-                        $custom_option_relation = str_replace([
-                                '{{custom_option}}',
-                                '{{column_belongs_to_many_foreign_key_model}}',
-                                '{{belongs_to_many_intermediate_table}}'
-                            ],
-                            [
-                                $value_relation['custom_option'],
-                                $value_relation['foreign_key_model'],
-                                $value_relation['intermediate_table'],
-                            ],
-                        $custom_option_relation);
+                    // belum bisa di gunakan
+                    // if( !empty($value_relation['custom_option']) ) {
+                    //     $custom_option_relation = file_get_contents(__DIR__.'/../base/model/custom_option_relation_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
+                    //     $custom_option_relation = str_replace([
+                    //             '{{custom_option}}',
+                    //             '{{column_belongs_to_many_foreign_key_model}}',
+                    //             '{{belongs_to_many_intermediate_table}}'
+                    //         ],
+                    //         [
+                    //             $value_relation['custom_option'],
+                    //             $value_relation['foreign_key_model'],
+                    //             $value_relation['intermediate_table'],
+                    //         ],
+                    //     $custom_option_relation);
 
-                        $function = str_replace(';',"\n".$custom_option_relation,$function);
-                    }                    
+                    //     $function = str_replace(';',"\n".$custom_option_relation,$function);
+                    // }                    
+                    
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column belongs to many
