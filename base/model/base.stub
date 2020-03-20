@@ -79,6 +79,10 @@ class {{Name}} extends BaseModel
                     ->getOption($data);
     }
 
+    // start list accessor function
+
+    // end list accessor function
+
     // start list relation function
     
     // end list relation function

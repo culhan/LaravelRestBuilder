@@ -21,6 +21,7 @@ class ModelBuilder
      * @param   [type]  $with_ipstamp              [$with_ipstamp description]
      * @param   [type]  $with_companystamp         [$with_companystamp description]
      * @param   [type]  $custom_filter             [$custom_filter description]
+     * @param   [type]  $custom_union              [$custom_union description]
      * @param   [type]  $custom_join               [$custom_join description]
      * @param   [type]  $relation                  [$relation description]
      * @param   [type]  $hidden                    [$hidden description]
@@ -34,7 +35,7 @@ class ModelBuilder
      *
      * @return  [type]                             [return description]
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
     {
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
@@ -43,7 +44,8 @@ class ModelBuilder
         }else {
             $base_model = file_get_contents(__DIR__.'/../base/model/base.stub', FILE_USE_INCLUDE_PATH);
         }
-        $base_model = str_replace('{{Name}}',$name,$base_model);        
+        $base_model = str_replace('{{Name}}',$name,$base_model);
+        $function_accessor = file_get_contents(__DIR__.'/../base/model/function_accessor.stub', FILE_USE_INCLUDE_PATH);
         
         if( !empty($casts) ) {
             $column_casts = '';
@@ -57,6 +59,7 @@ class ModelBuilder
 
         if( !empty($custom_join) ) {
             $option_custom_join = file_get_contents(__DIR__.'/../base/model/option_query_custom_join.stub', FILE_USE_INCLUDE_PATH);
+            $custom_join = str_replace("\n","\n\t\t\t\t",$custom_join);
             $option_custom_join = str_replace('{{custom_join}}',$custom_join,$option_custom_join);
             $base_model = str_replace('// end raw join query',$option_custom_join,$base_model);
         }
@@ -115,6 +118,7 @@ class ModelBuilder
 
         if( !empty($custom_filter) ) {
             $option_custom_filter = file_get_contents(__DIR__.'/../base/model/option_query_custom_filter.stub', FILE_USE_INCLUDE_PATH);
+            $custom_filter = str_replace("\n","\n\t\t\t\t",$custom_filter);
             $option_custom_filter = str_replace('{{custom_filter}}',$custom_filter,$option_custom_filter);
             $base_model = str_replace('// end list query option',$option_custom_filter,$base_model);
         }
@@ -161,8 +165,7 @@ class ModelBuilder
         }
 
         foreach ($column_function as $key_column_function => $value_column_function) {
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) )
-            {      
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) && !empty($value_column_function['function']) ){      
                 $column_function_query = str_replace([
                     '{{column_function_name}}',
                     '{{function_query}}'
@@ -173,14 +176,31 @@ class ModelBuilder
 
                 $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'').$column_function_query;          
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\DB::raw(\"".str_replace("\n","\n\t\t\t\t\t",$value_column_function['function'])." as ".$value_column_function['name']."\"),\r\n";
-                $column_set_bindings .= 'array_get($data, "show_'.$value['name'].'", 1),'."\r\n\t\t\t\t\t";
+                $column_set_bindings .= 'array_get($data, "show_'.$value_column_function['name'].'", 1),'."\r\n\t\t\t\t\t";
+            }
+
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) ) {                                
+                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$value';
+                $value_column_function['response_code'] = !empty($value_column_function['json']) ? 'json_decode('.$value_column_function['response_code'].')' : $value_column_function['response_code']; 
+
+                // column accessor
+                $current_function_accessor = $function_accessor;
+                $current_function_accessor = str_replace([
+                        '{{camel_case_name}}',
+                        '{{value}}'
+                    ],[
+                        ucwords(camel_case($value_column_function['name'])),
+                        $value_column_function['response_code']
+                    ],$current_function_accessor);
+                
+                $base_model = str_replace('// end list accessor function',$current_function_accessor,$base_model);
             }
         }
         
         // fillable
-        $option_fillable = file_get_contents(__DIR__.'/../base/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);
+        $option_fillable = file_get_contents(__DIR__.'/../base/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);        
         $option_fillable = str_replace('{{column_fillable}}',$fillable_table_model,$option_fillable);
-        $base_model = str_replace('// end list option',$option_fillable,$base_model);
+        $base_model = str_replace('// end list option',$option_fillable,$base_model);        
         
         if( !empty($relation) )
         {
@@ -188,15 +208,28 @@ class ModelBuilder
                 $hidden_relation = array_flip($hidden_relation);
             }
 
-            foreach ($relation as $key_relation => $value_relation) {
-                
-                if(isset($hidden_relation[$value_relation['name']])) continue;
+            foreach ($relation as $key_relation => $value_relation) {                
 
+                $value_relation['name'] = empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param'];
                 $column_set_bindings .= 'array_get($data, "show_'.$value_relation['name'].'", 1),'."\r\n\t\t\t\t\t";
                 $value_relation['custom_order'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_order']);
                 $value_relation['custom_join'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_join']);
                 $value_relation['custom_option'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_option']);
                 
+                // yang hidden tanpa accessor
+                if( !isset($hidden_relation[$value_relation['name']]) ) {
+                    $current_function_accessor = $function_accessor;
+                    $current_function_accessor = str_replace([
+                            '{{camel_case_name}}',
+                            '{{value}}'
+                        ],[
+                            ucwords(camel_case((empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param']))),
+                            'json_decode($this->attributes["'.(empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param']).'"])'
+                        ],$current_function_accessor);
+                    
+                    $base_model = str_replace('// end list accessor function',$current_function_accessor,$base_model);                
+                }
+
                 // belongs to query
                 if($value_relation['type']=='belongs_to')
                 {                    
@@ -366,8 +399,7 @@ class ModelBuilder
 
                 // belongs to many query
                 if($value_relation['type']=='belongs_to_many')
-                {                    
-
+                {                                        
                     // function belongs to many
                     $function = file_get_contents(__DIR__.'/../base/model/function_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
                     
@@ -378,6 +410,8 @@ class ModelBuilder
                             '{{belongs_to_many_intermediate_table}}',
                             '{{column_belongs_to_many_foreign_key_model}}',
                             '{{column_belongs_to_many_foreign_key_joining_model}}',
+                            '{{foreign_key_model}}',
+                            '{{foreign_key_joining_model}}',
                         ],
                         [
                             UCWORDS($value_relation['name']),
@@ -386,8 +420,19 @@ class ModelBuilder
                             $value_relation['intermediate_table'],
                             $value_relation['foreign_key_model'],
                             $value_relation['foreign_key_joining_model'],
+                            $value_relation['foreign_key_model'],
+                            $value_relation['foreign_key_joining_model']
                         ],
                     $function);
+
+                    if( !empty($value_relation['custom_join']) )
+                    {
+                        $function = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t".'-- end list belongs to many join option',$function);
+                    }
+                    if( !empty($value_relation['custom_option']) )
+                    {
+                        $function = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t".'-- end list belongs to many query option',$function);
+                    }
 
                     // $function = str_replace('{{belongs_to_many_name}}',UCWORDS($value_relation['name']),$function);
                     // if(!empty($value_relation['model_name'])) {
@@ -501,14 +546,29 @@ class ModelBuilder
                 }else {
                     $cols_table_model = str_replace('{{custom_order}}','',$cols_table_model);
                 }
-            }
+            }                        
         }
         
         $base_set_bindings = str_replace("{{column}}",substr($column_set_bindings,0,-7),$base_set_bindings);
-        
+                
         $base_model = str_replace('{{binding_columns}}',$base_set_bindings,$base_model);
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
-        $base_model = str_replace('{{table}}',$table,$base_model);
+
+        if( !empty($custom_union) ) {
+            $union = file_get_contents(__DIR__.'/../base/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
+            $union = str_replace([
+                '{{table}}',
+                '{{union}}'
+            ],[
+                $table,
+                str_replace("\n","\n\t\t\t",$custom_union)
+            ],$union);
+
+            $base_model = str_replace('{{table}}',$union,$base_model);
+        }else {
+            $base_model = str_replace('{{table}}',$table,$base_model);
+        }
+        
         if(empty($get_company_code)){
             $base_model = str_replace('{{company_id_code}}',config('laravelrestbuilder.company_id_code'),$base_model);
         }else {

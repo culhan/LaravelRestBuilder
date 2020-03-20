@@ -22,7 +22,7 @@ class ResourceBuilder
         $resource_file = ucwords($name).'Resource';        
         $base_resource = file_get_contents(__DIR__.'/../base'.$base.'/resource/base.stub', FILE_USE_INCLUDE_PATH);
         $base_column = file_get_contents(__DIR__.'/../base'.$base.'/resource/column.stub', FILE_USE_INCLUDE_PATH);
-        $base_column_with_json = file_get_contents(__DIR__.'/../base'.$base.'/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
+        // $base_column_with_json = file_get_contents(__DIR__.'/../base'.$base.'/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
 
         $base_resource = str_replace('{{Name}}',$name,$base_resource);
 
@@ -43,10 +43,12 @@ class ResourceBuilder
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
             {                
                 $value['name_function'] = '$this->'.$value['name'];
-                if(!empty($value['response_code'])) {
-                    $value['name_function']  = $value['response_code'];
-                }                
-                $base_code_response = ( empty($value['json'])?str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column):str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column_with_json) );
+
+                // masuk ke accessor model
+                // if(!empty($value['response_code'])) {
+                //     $value['name_function']  = $value['response_code'];
+                // }                
+                $base_code_response = ( empty($value['json'])?str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column):str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column) );
                 $code_column .= (($jumlah_column!=0) ? "\t\t\t":"").$base_code_response;
                 $jumlah_column++;
             }
@@ -58,8 +60,9 @@ class ResourceBuilder
         $code_relation = '';
         foreach ($relation as $key => $value) {
             if( !isset($hidden_relation[$value['name']]) ) {
+                $value['name'] = empty($value['name_param']) ? $value['name'] : $value['name_param'];
                 $value['name_function'] = '$this->'.$value['name'];
-                $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column_with_json);
+                $code_relation .= (($i!=0) ? "\t\t\t":"").str_replace(['{{name}}','{{name_function}}'], [$value['name'],$value['name_function']], $base_column);
                 $i++;
             }
         }        

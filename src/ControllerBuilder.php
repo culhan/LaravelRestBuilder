@@ -73,6 +73,7 @@ class ControllerBuilder
         }
 
         foreach ($relation as $key => $value) {
+            $value['name'] = empty($value['name_param']) ? $value['name'] : $value['name_param'];
             $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list relation column";
             $base_controller = str_replace('// end list relation column',$cols,$base_controller);
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )

@@ -355,8 +355,15 @@ class MigrationBuilder
     {
         $raw_query = '';        
         $templatesQueryRaw = "\t\t\DB::statement(\"ALTER TABLE {{table}} ALTER {{column}} DROP DEFAULT \");\n";
-        
-        foreach ($column as $key => $value) {            
+
+        //  BLOB, TEXT, GEOMETRY or JSON column can't have a default
+        $no_default = 'text';
+
+        foreach ($column as $key => $value) {
+            if( $value['type'] == 'text' ) {
+                continue;
+            }   
+
             if( empty($value['default']) && ($value['nullable'] == 1 || $value['nullable'] == '1') ) {
                 $raw_query .= str_replace([
                     "{{table}}",

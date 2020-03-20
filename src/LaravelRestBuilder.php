@@ -379,6 +379,7 @@ class LaravelRestBuilder
                 $data['with_ipstamp'],
                 $data['with_companystamp'],
                 $data['custom_filter'],
+                $data['custom_union'],
                 $data['custom_join'],
                 $data['relation'],
                 $data['hidden'],

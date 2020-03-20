@@ -4,6 +4,7 @@
 // atau hubungi A'mal Sholihan
 namespace App\Http\Models;
 
+use Request;
 use Validator;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
@@ -160,6 +161,94 @@ class {{Name}} extends Authenticatable
                     ->getOption($data);
     }
 
+    /**
+	 * [setSortableAndSearchableColumn description]
+	 * @param array $value [description]
+	 */
+	public function scopeSetSortableAndSearchableColumn($query, $value=[])
+	{
+		$this->sortableAndSearchableColumn = $value;
+	}
+
+	/**
+	 * set relationColumn function
+	 *
+	 * @param [type] $query
+	 * @param array $value
+	 * @return void
+	 */
+	public function scopeSetRelationColumn($query, $value=[])
+	{		
+		$this->relationColumn = $value;		
+		$this->sortableAndSearchableColumn += $this->relationColumn; 		
+				
+		if( Request::has('distinct_column') ) {
+
+			$this->validate(Request::all(), [
+				'distinct_column' => [
+					'filled',
+					new \KhanCode\LaravelBaseRest\Rules\SortableAndSearchable($this->sortableAndSearchableColumn),
+				],
+			]);
+
+			if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+
+			$this->sortableAndSearchableColumn = [];
+			foreach (Request::get('distinct_column') as $key => $value) {
+				$this->sortableAndSearchableColumn[$value] = $value;
+			}
+
+		}
+	}
+
+    /**
+	 * [getSql description]
+	 * @param  [type] $model [description]
+	 * @return [type]        [description]
+	 */
+	public function getSql($model)
+	{		
+	    $replace = function ($sql, $bindings)
+	    {
+	        $needle = '?';
+	        foreach ($bindings as $replace){
+	            $pos = strpos($sql, $needle);
+	            if ($pos !== false) {
+	                if (gettype($replace) === "string") {
+	                     $replace = ' "'.addslashes($replace).'" ';
+	                }
+	                $sql = substr_replace($sql, $replace, $pos, strlen($needle));
+	            }
+	        }
+	        return $sql;
+	    };
+	    $sql = $replace($model->toSql(), $model->getBindings());
+
+	    return $sql;
+	}
+
+    /**
+	 * [encapsulatedQuery description]
+	 *
+	 * @param   [type]  $alias  [$alias description]
+	 *
+	 * @return  [type]          [return description]
+	 */
+	public function scopeEncapsulatedQuery($query, $alias = 'myTable')
+	{
+		$queryOld = $this->getSql($query);
+		$thisClass = get_class($this);
+		$model = new $thisClass;
+		$model->setSortableAndSearchableColumn( $this->sortableAndSearchableColumn );
+		$model->setRelationColumn( $this->relationColumn );
+		$query = $model->setTable(\DB::raw('('.$queryOld.') as '.$alias))->whereRaw("1=1");
+		return $query;
+	}
+
+    // start list accessor function
+
+    // end list accessor function
+    
     // start list relation function
     
     // end list relation function

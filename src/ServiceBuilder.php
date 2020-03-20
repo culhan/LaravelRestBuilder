@@ -131,8 +131,8 @@ class ServiceBuilder
                 $ihas_one_code = 0;
                 $ibelongs_to_code = 0;
                 $ibelongs_to_many = 0;
-                foreach ($relation as $key_relation => $value_relation) {
-                    if( empty($value_relation['simpan_data']) && $value_relation['type']!='belongs_to' ) {
+                foreach ($relation as $key_relation => $value_relation) {                    
+                    if( empty($value_relation['simpan_data']) && $value_relation['type']!='belongs_to' && $value_relation['type']!='belongs_to_many' ) {
                         continue;
                     }
                     $cols_table_model .= '"'.$value_relation['name'].'"';
@@ -159,7 +159,7 @@ class ServiceBuilder
                                 '{{function}}'
                             ],[
                                 $value_relation['name'],
-                                $value_relation['relation_key'],
+                                (empty($value_relation['relation_key'])) ? 'id':$value_relation['relation_key'],
                                 $value_relation['foreign_key'],
                                 ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
                                 (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
@@ -186,7 +186,7 @@ class ServiceBuilder
                                 '{{function}}',                                
                             ],[
                                 $value_relation['name'],                            
-                                $value_relation['relation_key'],
+                                (empty($value_relation['relation_key'])) ? 'id':$value_relation['relation_key'],
                                 $value_relation['foreign_key'],
                                 ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
                                 (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
@@ -227,7 +227,7 @@ class ServiceBuilder
                                 ],
                             $base_create_code);
                             
-                            $belongs_to_code .= (($ibelongs_to_code!=0) ? "\t\t":"").$base_create_code;
+                            $belongs_to_code .= (($ibelongs_to_code!=0) ? "":"").$base_create_code;
                         }                        
 
                         if( !empty($value_relation['membuat_data']) ) {
@@ -255,7 +255,7 @@ class ServiceBuilder
 
                         $ibelongs_to_code++;
                     }
-
+                    
                     // belongs to many create check data
                     if( $value_relation['type'] == 'belongs_to_many' )
                     {                        
@@ -265,7 +265,9 @@ class ServiceBuilder
                             $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_create_data_without_check.stub', FILE_USE_INCLUDE_PATH);
                         }
                         
-                        $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_create_code);                            
+                        $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_create_code);
+                        $base_create_code = str_replace('{{name_param_belongs_to_many}}',(!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] ),$base_create_code);
+                        $base_create_code = str_replace('{{ucfirst_name_param_belongs_to_many}}',ucfirst((!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] )),$base_create_code);
                         $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : '{{service_name}}'),$base_create_code);
                         $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
                                                 
@@ -276,8 +278,9 @@ class ServiceBuilder
                         
                         $belongs_to_many_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_create_code;
                         
-                        $base_delete_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_delete_data.stub', FILE_USE_INCLUDE_PATH);
-                        $base_delete_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_delete_code);                            
+                        $base_delete_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_delete_data.stub', FILE_USE_INCLUDE_PATH);                        
+                        $base_delete_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_delete_code);
+                        $base_delete_code = str_replace('{{ucfirst_name_param_belongs_to_many}}',ucfirst((!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] )),$base_delete_code);
                         $base_delete_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_delete_code);                        
                         
                         $belongs_to_many_delete_code .= (($ibelongs_to_many!=0) ? "\t\t":"").$base_delete_code;
@@ -306,7 +309,7 @@ class ServiceBuilder
                 {
                     $code_function = str_replace('// end list belongs to many create',$belongs_to_many_code."\r\n\t\t// end list belongs to many create",$code_function);
                 }
-
+                
                 if( !empty($belongs_to_many_delete_code) )
                 {
                     $code_function = str_replace('// end list belongs to many delete',$belongs_to_many_delete_code."\r\n\t\t// end list belongs to many delete",$code_function);
@@ -364,7 +367,7 @@ class ServiceBuilder
                 $code_function = str_replace('{{custom_code_after}}',$value['custom_code_after'],$code_function);
                 if(!empty($primary_key)) {
                     $code_function = str_replace('{{primary_key}}',$primary_key,$code_function);                
-                }else {
+                }else {                    
                     $code_function = str_replace('{{primary_key}}',$column[0]['name'],$code_function);
                 }                
 

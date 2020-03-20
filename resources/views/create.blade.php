@@ -212,6 +212,12 @@
                             </div> 
                         </div>                       
                         <div class="form-group">
+                            <label for="exampleFormControlSelect1">Custom Union</label>
+                            <textarea name="custom_union" class="d-none"></textarea>
+                            <textarea id="tab_custom_union"></textarea>
+                            <pre>*input ".code." akan di baca kode php</pre>
+                        </div>
+                        <div class="form-group">
                             <label for="exampleFormControlSelect1">Custom Join</label>
                             <textarea name="custom_join" class="d-none"></textarea>
                             <textarea id="tab_custom_join"></textarea>
@@ -698,6 +704,14 @@
         $dir = app_path().'/..'.session('project')['folder'].'/app/';        
         $models = array();
         
+        $files = scandir($dir.'Http/Controllers/');
+        $namespace = '\App\Http\Controllers\\';
+        foreach($files as $file) {
+            //skip current and parent folder entries and non-php files
+            if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+                $models[] = $namespace . preg_replace('/.php$/', '', $file);
+        }
+
         $files = scandir($dir.'Http/Models/');
         $namespace = '\App\Http\Models\\';
         foreach($files as $file) {
@@ -928,8 +942,15 @@
                 if( ele.value == 'delete_data' ) {
                     $( "[name^='route_sementara[validation]']" ).prop('disabled',true)                
                     $( ".route_advanced_validation" ).addClass('d-none')
-                    $( ".route_validasi" ).addClass('d-none')
-                    $( "data-filter" ).addClass('d-none')
+                    $( ".route_validasi" ).hide()
+                    $( "data-filter" ).hide()
+                }else {
+                    $( "[name^='route_sementara[validation]']" ).prop('disabled',false)                
+                    $( ".route_advanced_validation" ).removeClass('d-none')
+                    $( ".route_validasi" ).collapse('hide')
+                    $( "data-filter" ).collapse('hide')
+                    // $( ".route_validasi" ).show()
+                    $( 'data-filter' ).show()
                 }
                 
                 isi_before = ''
@@ -1013,9 +1034,7 @@
 
             if(ele.value == 'system_data') {
                 $( ".tanpa_route_div" ).addClass('d-none')
-            }
-
-            $( 'data-filter' ).show()            
+            }                        
         }
 
         function show_hide_tanpa_route(ele) {            
@@ -1063,7 +1082,7 @@
                     html_relasi_detail += 
                         '<div class="row mb-3 '+data.value+'_'+i+'">'+
                             '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Name </label>'+
+                                '<label>Nama </label>'+
                             '</div>'+
                             '<div class="col-sm">'+
                                 '<input type="" class="form-control" placeholder="nama tabel relasi" name="relation['+i+'][name]">'+
@@ -1150,10 +1169,21 @@
                     html_relasi_detail += 
                         '<div class="row mb-3 '+data.value+'_'+i+'">'+
                             '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Name </label>'+
+                                '<label>Nama </label>'+
                             '</div>'+
                             '<div class="col-sm">'+
                                 '<input type="" class="form-control" placeholder="nama relasi" name="relation['+i+'][name]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Nama Parameter</label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="nama parameter relasi (default Nama)" name="relation['+i+'][name_param]">'+
                             '</div>'+
                         '</div>'+
                         '';
@@ -1341,7 +1371,7 @@
                 
                 $( "[name='relation["+i+"][membuat_data]']" ).switcher();
                 $( "[name='relation["+i+"][simpan_data]']" ).switcher();
-                
+                                
                 createCodeEditor( 'relation_custom_join_'+i, "relation["+i+"][custom_join]", 'sql' );
                 createCodeEditor( 'relation_custom_option_'+i, "relation["+i+"][custom_option]", 'sql' );
                 createCodeEditor( 'relation_custom_order_'+i, "relation["+i+"][custom_order]", 'sql' );
@@ -1809,6 +1839,10 @@
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_filter', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
             
+            nama_kolom_fungsi = 'custom_union'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_union', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")            
+
             nama_kolom_fungsi = 'custom_join'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_join', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")            
@@ -2302,6 +2336,12 @@
                 eval("code_editor_custom_filter.clearSelection()")
             }
 
+            if(data.custom_union) {
+                $( '[name="custom_union"]' ).val(data.custom_union);
+                eval("code_editor_custom_union.setValue($( '[name=\"custom_union\"]' ).val())")
+                eval("code_editor_custom_union.clearSelection()")
+            }
+
             if(data.custom_join) {
                 $( '[name="custom_join"]' ).val(data.custom_join);
                 eval("code_editor_custom_join.setValue($( '[name=\"custom_join\"]' ).val())")
@@ -2362,6 +2402,9 @@
             }
             if( value_relasi['check_data_function'] ) {
                 $( '[name="relation['+jumlah_relasi_builded+'][check_data_function]"]' ).val(value_relasi['check_data_function']);
+            }
+            if( value_relasi['custom_union'] ) {
+                fillCodeEditor( 'relation_custom_union'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_union]", value_relasi['custom_union'] );                
             }
             if( value_relasi['custom_join'] ) {
                 fillCodeEditor( 'relation_custom_join_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_join]", value_relasi['custom_join'] );                
@@ -2914,6 +2957,7 @@
         var prefix_param = []
         
         function prefixChange(ele){
+
             $( '.'+($(ele).attr('name')).replace(/[\[\]']+/g,'') ).html('api/'+ele.value+objModul['name']+'/')
             
             delay(function(){
@@ -3373,7 +3417,8 @@
                     || index_route_sementara != 'middleware_parameter'
                     || index_route_sementara != 'lock'
                     || index_route_sementara != 'dataFilter'
-                ) {
+                    || index_route_sementara != 'tanpa_route'
+                ) {                    
                     $( "[name='route_sementara["+index_route_sementara+"]']" ).val(value_route_sementara).change()
                 }                
                 if(index_route_sementara == 'lock') {
@@ -3463,7 +3508,7 @@
                 $(".data-filter").collapse('show')
             }
 
-            if(data.tanpa_route == 1) {
+            if(data.tanpa_route == 1 || data.process == 'system_data') {
                 $( '.tanpa_route' ).prop('checked',true).change()
             }else {
                 $( '.tanpa_route' ).prop('checked',false).change()

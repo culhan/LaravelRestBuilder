@@ -6,4 +6,24 @@
         return $this->belongsToMany('\App\Http\Models\{{belongs_to_many_model_name}}','{{belongs_to_many_intermediate_table}}','{{column_belongs_to_many_foreign_key_model}}','{{column_belongs_to_many_foreign_key_joining_model}}');
     }
 
+    /**
+     * [Detach{{belongs_to_many_name}} description]
+     *
+     * @param   [type]  $data  [$data description]
+     *
+     * @return  [type]       [return description]
+     */
+    public function detach{{belongs_to_many_name}}($data = []){
+        return \DB::delete("
+            delete {{belongs_to_many_intermediate_table}} 
+            from {{belongs_to_many_intermediate_table}}
+            left join {{belongs_to_many_table}} on ({{belongs_to_many_table}}.id = {{belongs_to_many_intermediate_table}}.{{foreign_key_joining_model}})
+            -- start list belongs to many join option
+            -- end list belongs to many join option
+            where {{belongs_to_many_intermediate_table}}.{{foreign_key_model}} = $this->id
+            -- start list belongs to many query option
+            -- end list belongs to many query option 
+        ");
+    }
+
     // end list relation function

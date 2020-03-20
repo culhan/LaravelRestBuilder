@@ -178,21 +178,7 @@
             <a class="collapse-item" href="{{url('/')}}/createProject">Create</a>
           </div>
         </div>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapseTwo">
-          <i class="fas fa-fw fa-cog"></i>
-          <span>Authentication User</span>
-        </a>
-        <div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Authentication User :</h6>
-            <a class="collapse-item" href="{{url('/')}}/authentication_user/list">List</a>
-            <a class="collapse-item" href="{{url('/')}}/authentication_user/create">Create</a>
-          </div>
-        </div>
-      </li>      
+      </li>     
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
@@ -221,6 +207,20 @@
           </div>
         </div>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapseTwo">
+          <i class="fas fa-fw fa-cog"></i>
+          <span>Lang</span>
+        </a>
+        <div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Lang :</h6>
+            <a class="collapse-item" href="{{url('/')}}/lang/list">List</a>
+            <a class="collapse-item" href="{{url('/')}}/lang/create">Create</a>
+          </div>
+        </div>
+      </li> 
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="{{url('/')}}/dokumentasi">
@@ -518,7 +518,7 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> -->
     <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/rowreorder/1.2.5/js/dataTables.rowReorder.min.js"></script>    
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
@@ -526,6 +526,7 @@
     <script src="{{url('/')}}/vendor/khancode/js/sb-admin-2.min.js"></script>
     <!-- script modul table -->
     <script src="{{url('/')}}/vendor/khancode/js/modul-table.js"></script>
+    <script src="{{url('/')}}/vendor/khancode/bootstrap/js/bootstrap.min.js"></script>
     
     <script>
       function arrayUnique(array) {

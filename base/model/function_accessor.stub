@@ -1,0 +1,9 @@
+/**
+     * [get{{camel_case_name}}Attribute description]
+     * @return [type] [description]
+     */
+    public function get{{camel_case_name}}Attribute($value){
+        return {{value}};
+    }
+
+    // end list accessor function

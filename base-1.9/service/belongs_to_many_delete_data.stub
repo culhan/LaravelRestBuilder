@@ -1,2 +1,2 @@
 // delete data {{name_belongs_to_many}}
-        $result->{{name_belongs_to_many}}()->detach();
+        $result->detach{{ucfirst_name_param_belongs_to_many}}();

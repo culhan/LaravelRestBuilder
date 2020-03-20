@@ -11,6 +11,8 @@
 
         {{data-validation}}
 
+        $single_data = $this->getSingleData($id);
+
         // start list belongs to check create
         
         // end list belongs to check create
@@ -22,8 +24,7 @@
         // custom code before
         {{custom_code_before}}
         
-        // update
-        $single_data = $this->getSingleData($id);
+        // update        
         $result = $single_data->update($dataRecord);
         if(!$result) {
             throw new DataEmptyException('no data updated');

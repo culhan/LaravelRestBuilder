@@ -2,7 +2,7 @@
                            THEN NULL
                            ELSE 
                            ". \DB::raw("(
-                                    select IFNULL(group_concat(CONCAT('{',                            
+                                    select IFNULL(group_concat(distinct CONCAT('{',                            
 {{column_belongs_to}}
                                     '}') {{custom_order}} 
                                 ),'{}')

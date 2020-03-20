@@ -36,6 +36,9 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('updateProject/{id}', 'KhanCode\LaravelRestBuilder\ProjectBuilder@updateProjects');
                 Route::get('createProject', 'KhanCode\LaravelRestBuilder\ProjectBuilder@createProject');
                 Route::get('setProject/{id}', 'KhanCode\LaravelRestBuilder\ProjectBuilder@setProject');
+                Route::get('lang/list', 'KhanCode\LaravelRestBuilder\LanguageBuilder@index');
+                Route::post('lang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@save');
+                Route::get('updateLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@update');
             });
         });
     });
