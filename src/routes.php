@@ -39,6 +39,7 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('lang/list', 'KhanCode\LaravelRestBuilder\LanguageBuilder@index');
                 Route::post('lang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@save');
                 Route::get('updateLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@update');
+                Route::get('dropLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@dropLang');
             });
         });
     });

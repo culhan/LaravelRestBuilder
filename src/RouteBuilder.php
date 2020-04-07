@@ -82,7 +82,8 @@ class RouteBuilder
                 unlink(base_path()."/".config('laravelrestbuilder.copy_to')."/".'routes'."/".$route_file.".php");
             }            
         }else {
-            FileCreator::create( $route_file, 'routes', $route_code );
+            $route_code .= "// start custom code\n// end custom code";
+            FileCreator::create( $route_file, 'routes', $route_code, 'routes' );
         }
         // untuk route bukan copy file, tapi append
         // if( !empty(config('laravelrestbuilder.copy_to')) )

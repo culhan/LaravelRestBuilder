@@ -37,87 +37,89 @@ class ModelBuilder
      */
     static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
     {
+        $base = config('laravelRestBuilder.base');
+        
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
         if( $with_authenticable == 1) {
-            $base_model = file_get_contents(__DIR__.'/../base/model/base_authenticable.stub', FILE_USE_INCLUDE_PATH);    
+            $base_model = file_get_contents(__DIR__.'/../base'.$base.'/model/base_authenticable.stub', FILE_USE_INCLUDE_PATH);    
         }else {
-            $base_model = file_get_contents(__DIR__.'/../base/model/base.stub', FILE_USE_INCLUDE_PATH);
+            $base_model = file_get_contents(__DIR__.'/../base'.$base.'/model/base.stub', FILE_USE_INCLUDE_PATH);
         }
         $base_model = str_replace('{{Name}}',$name,$base_model);
-        $function_accessor = file_get_contents(__DIR__.'/../base/model/function_accessor.stub', FILE_USE_INCLUDE_PATH);
+        $function_accessor = file_get_contents(__DIR__.'/../base'.$base.'/model/function_accessor.stub', FILE_USE_INCLUDE_PATH);
         
         if( !empty($casts) ) {
             $column_casts = '';
             foreach ($casts as $casts_value) {
                 $column_casts   .= "'".$casts_value['column']."'\t=> '".$casts_value['data_type']."'";
             }
-            $option_casts = file_get_contents(__DIR__.'/../base/model/option_casts.stub', FILE_USE_INCLUDE_PATH);
+            $option_casts = file_get_contents(__DIR__.'/../base'.$base.'/model/option_casts.stub', FILE_USE_INCLUDE_PATH);
             $option_casts = str_replace("{{column_casts}}",$column_casts,$option_casts);
             $base_model = str_replace('// end list option',$option_casts,$base_model);
         }
 
         if( !empty($custom_join) ) {
-            $option_custom_join = file_get_contents(__DIR__.'/../base/model/option_query_custom_join.stub', FILE_USE_INCLUDE_PATH);
+            $option_custom_join = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_custom_join.stub', FILE_USE_INCLUDE_PATH);
             $custom_join = str_replace("\n","\n\t\t\t\t",$custom_join);
             $option_custom_join = str_replace('{{custom_join}}',$custom_join,$option_custom_join);
             $base_model = str_replace('// end raw join query',$option_custom_join,$base_model);
         }
 
         if( $with_timestamp == 1 ) {
-            $option_timestamp = file_get_contents(__DIR__.'/../base/model/option_query_timestamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_timestamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_timestamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list query option',$option_timestamp,$base_model);
 
-            $option_timestamp = file_get_contents(__DIR__.'/../base/model/option_timestamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_timestamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_timestamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list option',$option_timestamp,$base_model);
         }
 
         if( $with_authstamp == 1 ) {
-            $option_authstamp = file_get_contents(__DIR__.'/../base/model/option_query_authstamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_authstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list query option',$option_authstamp,$base_model);
 
-            $option_authstamp = file_get_contents(__DIR__.'/../base/model/option_updating_authstamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_updating_authstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list updating option',$option_authstamp,$base_model);
 
-            $option_authstamp = file_get_contents(__DIR__.'/../base/model/option_creating_authstamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_creating_authstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list creating option',$option_authstamp,$base_model);
 
-            $option_authstamp = file_get_contents(__DIR__.'/../base/model/option_authstamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_authstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list option',$option_authstamp,$base_model);
         }
         
         if( $with_companystamp == 1 ) {
 
             if( !empty($with_company_restriction) ) {
-                $option_companystamp = file_get_contents(__DIR__.'/../base/model/option_query_companystamp.stub', FILE_USE_INCLUDE_PATH);
+                $option_companystamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_companystamp.stub', FILE_USE_INCLUDE_PATH);
                 $base_model = str_replace('// end list query option',$option_companystamp,$base_model);
             }
             
-            $option_companystamp = file_get_contents(__DIR__.'/../base/model/option_creating_companystamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_companystamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_creating_companystamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list creating option',$option_companystamp,$base_model);
         }
         
         if( $with_ipstamp == 1 ) {
-            $option_ipstamp = file_get_contents(__DIR__.'/../base/model/option_creating_ipstamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_ipstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_creating_ipstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list creating option',$option_ipstamp,$base_model);
-            $option_ipstamp = file_get_contents(__DIR__.'/../base/model/option_updating_ipstamp.stub', FILE_USE_INCLUDE_PATH);
+            $option_ipstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_updating_ipstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list updating option',$option_ipstamp,$base_model);
         }
 
         if( !empty($key) ) {
-            $option_key = file_get_contents(__DIR__.'/../base/model/option_key.stub', FILE_USE_INCLUDE_PATH);
+            $option_key = file_get_contents(__DIR__.'/../base'.$base.'/model/option_key.stub', FILE_USE_INCLUDE_PATH);
             $option_key = str_replace('{{key}}',$key,$option_key);
             $base_model = str_replace('// end list option',$option_key,$base_model);
         }
 
         if( empty($increment_key) ) {            
-            $option_key = file_get_contents(__DIR__.'/../base/model/option_increment_key.stub', FILE_USE_INCLUDE_PATH);
+            $option_key = file_get_contents(__DIR__.'/../base'.$base.'/model/option_increment_key.stub', FILE_USE_INCLUDE_PATH);
             $option_key = str_replace('{{key}}',$key,$option_key);
             $base_model = str_replace('// end list option',$option_key,$base_model);
         }
 
         if( !empty($custom_filter) ) {
-            $option_custom_filter = file_get_contents(__DIR__.'/../base/model/option_query_custom_filter.stub', FILE_USE_INCLUDE_PATH);
+            $option_custom_filter = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_custom_filter.stub', FILE_USE_INCLUDE_PATH);
             $custom_filter = str_replace("\n","\n\t\t\t\t",$custom_filter);
             $option_custom_filter = str_replace('{{custom_filter}}',$custom_filter,$option_custom_filter);
             $base_model = str_replace('// end list query option',$option_custom_filter,$base_model);
@@ -136,7 +138,8 @@ class ModelBuilder
         $cols_table_model = "";        
         $fillable_table_model = "";
         $hidden = array_flip($hidden);
-        $base_column_function_query = file_get_contents(__DIR__.'/../base/model/query_column_function.stub', FILE_USE_INCLUDE_PATH);
+        $base_column_function_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_function.stub', FILE_USE_INCLUDE_PATH);
+        $option_isJson = file_get_contents(__DIR__.'/../base'.$base.'/model/option_isJson.stub', FILE_USE_INCLUDE_PATH);
         $base_set_bindings = "{{column}}";
         $column_set_bindings = "";
         
@@ -180,8 +183,9 @@ class ModelBuilder
             }
 
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) ) {                                
+                $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
                 $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$value';
-                $value_column_function['response_code'] = !empty($value_column_function['json']) ? 'json_decode('.$value_column_function['response_code'].')' : $value_column_function['response_code']; 
+                $value_column_function['response_code'] = !empty($value_column_function['json']) ? $json_converter : $value_column_function['response_code']; 
 
                 // column accessor
                 $current_function_accessor = $function_accessor;
@@ -198,7 +202,7 @@ class ModelBuilder
         }
         
         // fillable
-        $option_fillable = file_get_contents(__DIR__.'/../base/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);        
+        $option_fillable = file_get_contents(__DIR__.'/../base'.$base.'/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);        
         $option_fillable = str_replace('{{column_fillable}}',$fillable_table_model,$option_fillable);
         $base_model = str_replace('// end list option',$option_fillable,$base_model);        
         
@@ -215,16 +219,22 @@ class ModelBuilder
                 $value_relation['custom_order'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_order']);
                 $value_relation['custom_join'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_join']);
                 $value_relation['custom_option'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_option']);
-                
+                                
                 // yang hidden tanpa accessor
                 if( !isset($hidden_relation[$value_relation['name']]) ) {
+                    $json_converter = str_replace([
+                        "{{json}}"
+                    ],[
+                        (empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param'])
+                    ],$option_isJson);
+
                     $current_function_accessor = $function_accessor;
                     $current_function_accessor = str_replace([
                             '{{camel_case_name}}',
                             '{{value}}'
                         ],[
                             ucwords(camel_case((empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param']))),
-                            'json_decode($this->attributes["'.(empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param']).'"])'
+                            $json_converter
                         ],$current_function_accessor);
                     
                     $base_model = str_replace('// end list accessor function',$current_function_accessor,$base_model);                
@@ -235,7 +245,7 @@ class ModelBuilder
                 {                    
                         
                     //function belongs to
-                    $function = file_get_contents(__DIR__.'/../base/model/function_belongs_to.stub', FILE_USE_INCLUDE_PATH);                    
+                    $function = file_get_contents(__DIR__.'/../base'.$base.'/model/function_belongs_to.stub', FILE_USE_INCLUDE_PATH);                    
                     if( empty($value_relation['model_name']) )
                     {
                         $function = str_replace('{{belongs_to_name_model}}',ucwords(camel_case($value_relation['name'])),$function);
@@ -249,7 +259,7 @@ class ModelBuilder
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column belongs to
-                    $belongs_to_query = file_get_contents(__DIR__.'/../base/model/query_column_belongs_to.stub', FILE_USE_INCLUDE_PATH);
+                    $belongs_to_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_belongs_to.stub', FILE_USE_INCLUDE_PATH);
                     $column_belongs_to = self::generateColumnRelation($value_relation['select_column']);                    
                     
                     $value_relation['relation_key'] = (!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' );
@@ -291,7 +301,7 @@ class ModelBuilder
                 {                    
                         
                     //function has one
-                    $function = file_get_contents(__DIR__.'/../base/model/function_has_one.stub', FILE_USE_INCLUDE_PATH);
+                    $function = file_get_contents(__DIR__.'/../base'.$base.'/model/function_has_one.stub', FILE_USE_INCLUDE_PATH);
                     if( empty($value_relation['model_name']) )
                     {
                         $function = str_replace('{{has_one_name_model}}',ucwords(camel_case($value_relation['name'])),$function);
@@ -305,7 +315,7 @@ class ModelBuilder
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column has one
-                    $has_one_query = file_get_contents(__DIR__.'/../base/model/query_column_has_one.stub', FILE_USE_INCLUDE_PATH);
+                    $has_one_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_has_one.stub', FILE_USE_INCLUDE_PATH);
                     $column_has_one = self::generateColumnRelation($value_relation['select_column']);
                     
                     $value_relation['relation_key'] = (!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' );
@@ -347,7 +357,7 @@ class ModelBuilder
                 {                    
 
                     // function has many                    
-                    $function = file_get_contents(__DIR__.'/../base/model/function_has_many.stub', FILE_USE_INCLUDE_PATH);
+                    $function = file_get_contents(__DIR__.'/../base'.$base.'/model/function_has_many.stub', FILE_USE_INCLUDE_PATH);
                     if( empty($value_relation['model_name']) )
                     {
                         $function = str_replace('{{has_many_name_model}}',ucwords(camel_case($value_relation['name'])),$function);
@@ -361,7 +371,7 @@ class ModelBuilder
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column has many
-                    $has_many_query = file_get_contents(__DIR__.'/../base/model/query_column_has_many.stub', FILE_USE_INCLUDE_PATH);
+                    $has_many_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_has_many.stub', FILE_USE_INCLUDE_PATH);
                     $column_has_many = self::generateColumnRelation($value_relation['select_column']);                                                    
                     
                     $value_relation['relation_key'] = (!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' );
@@ -401,7 +411,7 @@ class ModelBuilder
                 if($value_relation['type']=='belongs_to_many')
                 {                                        
                     // function belongs to many
-                    $function = file_get_contents(__DIR__.'/../base/model/function_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
+                    $function = file_get_contents(__DIR__.'/../base'.$base.'/model/function_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
                     
                     $function = str_replace([
                             '{{belongs_to_many_name}}',
@@ -448,7 +458,7 @@ class ModelBuilder
                     
                     // belum bisa di gunakan
                     // if( !empty($value_relation['custom_option']) ) {
-                    //     $custom_option_relation = file_get_contents(__DIR__.'/../base/model/custom_option_relation_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
+                    //     $custom_option_relation = file_get_contents(__DIR__.'/../base'.$base.'/model/custom_option_relation_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
                     //     $custom_option_relation = str_replace([
                     //             '{{custom_option}}',
                     //             '{{column_belongs_to_many_foreign_key_model}}',
@@ -467,7 +477,7 @@ class ModelBuilder
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column belongs to many
-                    $belongs_to_many_query = file_get_contents(__DIR__.'/../base/model/query_column_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
+                    $belongs_to_many_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
                     $value_relation['select_column'] = array_merge($value_relation['select_column'],[
                         [
                             "name" => $value_relation['foreign_key_joining_model'],
@@ -555,7 +565,7 @@ class ModelBuilder
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
 
         if( !empty($custom_union) ) {
-            $union = file_get_contents(__DIR__.'/../base/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
+            $union = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
             $union = str_replace([
                 '{{table}}',
                 '{{union}}'
@@ -592,35 +602,40 @@ class ModelBuilder
         $column_code = '';
         foreach ($column_to_generate as $column_key => $column_value) {
             $column_value['column'] = str_replace("\n","\n\t\t\t\t\t\t\t\t\t",$column_value['column']);
-            if($column_value['type'] =='integer')
-            {
-                $name = '\"'.$column_value['name'].'\"';                
-                if( count($column_to_generate)-1 != $column_key )
-                {
-                    $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";
-                }
-                else
-                {
-                    $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), '', ";
-                }
-            }
-            if($column_value['type'] =='string')
-            {
-                $name = '\"'.$column_value['name'].'\"';
-                if( count($column_to_generate)-1 != $column_key )
-                {
-                    $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\",';
-                }
-                else
-                {
-                    $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\"\',';
-                }
-                $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ".$column_value['column']." ";
-            }
+            $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$column_value['name']."', IFNULL(".$column_value['column'].",'')";
             if( count($column_to_generate)-1 != $column_key )
             {          
-                $column_code .= "',\r\n";
+                $column_code .= ",\r\n";
             }
+            // if($column_value['type'] =='integer')
+            // {
+            //     $name = '\"'.$column_value['name'].'\"';                
+            //     if( count($column_to_generate)-1 != $column_key )
+            //     {
+            //         $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";
+            //     }
+            //     else
+            //     {
+            //         $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), '', ";
+            //     }
+            // }
+            // if($column_value['type'] =='string')
+            // {
+            //     $name = '\"'.$column_value['name'].'\"';
+            //     if( count($column_to_generate)-1 != $column_key )
+            //     {
+            //         $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\",';
+            //     }
+            //     else
+            //     {
+            //         $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\"\',';
+            //     }
+            //     $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ".$column_value['column']." ";
+            // }
+            // if( count($column_to_generate)-1 != $column_key )
+            // {          
+            //     $column_code .= "',\r\n";
+            // }
         }
 
         return $column_code;

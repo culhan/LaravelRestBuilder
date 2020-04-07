@@ -1,0 +1,5 @@
+if( !empty($_SERVER['REMOTE_ADDR'])) $model->modified_from = $_SERVER['REMOTE_ADDR'];
+
+            if( empty($_SERVER['REMOTE_ADDR'])) $model->modified_from = '0.0.0.0';
+
+            // end list updating option

@@ -193,38 +193,126 @@ class LanguageBuilder
         $key = explode('.', Request::get('key'));
         $file = base_path()."/".config('laravelrestbuilder.copy_to')."/resources/lang/".Request::get('lang')."/".$key[0].".php";
         $comment = $this->readComment($file);
-
+        // dd($comment);
         $isi_arr_file = include $file;
         
         unset($key[0]);
-
+        
+        $diff = 0;
+        $diff_line = 0;
         // saat tambah key
         if( empty(array_get($isi_arr_file, implode('.',$key))) ){
-            #asd
+            $isi_file_old = explode( "\n", "<?php\nreturn ".$this->var_export54( $isi_arr_file ).";" );
+            array_set($isi_arr_file, implode('.',$key), Request::get('value'));
+            $isi_file_new = explode( "\n", "<?php\nreturn ".$this->var_export54( $isi_arr_file ).";" );
+            
+            $diff = count($isi_file_old) - count($isi_file_new);
+                        
+            foreach($isi_file_new as $line_key =>  $line){
+                if (!in_array($line, $isi_file_old)){
+                    $diff_line = $line_key;
+                    break;
+                }
+            }
+
         }else {
             array_set($isi_arr_file, implode('.',$key), Request::get('value'));
-        }
-        
-        $isi_file_new = explode( "\n", "<?php\nreturn ".$this->var_export54( $isi_arr_file ).";" );
+            $isi_file_new = explode( "\n", "<?php\nreturn ".$this->var_export54( $isi_arr_file ).";" );
+        }        
                  
         foreach ($isi_file_new as $f_key => &$f_value) {
             $f_value .= "\n";
         }        
 
         // insert comment
-        $add_on = 0; 
+        $add_on = 0;     
+        $debug = [];    
         foreach ($comment as $c_key => $c_value) {
             
+            if($diff_line > 0){
+                $diff_line += substr_count($c_value,"\n");
+            }
+
+            if( $c_key-1 >= $diff_line && $diff_line > 0) {
+                $add_on += $diff;
+                $diff_line = 0;
+            }
+            $debug[$c_key] = $c_key-1-$add_on;
+            array_splice( $isi_file_new, $c_key-1-$add_on, 0, $c_value );            
+            $add_on += substr_count($c_value,"\n")-1;            
+            
+        }
+                
+        $isi_file_new = implode('',$isi_file_new);
+        $isi_file_new = str_replace(" =>","\t=>",$isi_file_new);        
+        
+        file_put_contents($file, $isi_file_new);
+
+        return Request::all();
+    }
+
+    /**
+     * [dropLang description]
+     *
+     * @return  [type]  [return description]
+     */
+    public function dropLang()
+    {
+        $key = explode('.', Request::get('key'));
+        $file = base_path()."/".config('laravelrestbuilder.copy_to')."/resources/lang/".Request::get('lang')."/".$key[0].".php";
+        $comment = $this->readComment($file);
+        
+        $isi_arr_file = include $file;
+        
+        unset($key[0]);
+        
+        $diff = 0;
+        $diff_line = 0;        
+        
+        $isi_file_old = explode( "\n", "<?php\nreturn ".$this->var_export54( $isi_arr_file ).";" );
+        array_forget($isi_arr_file, implode('.',$key));
+        $isi_file_new = explode( "\n", "<?php\nreturn ".$this->var_export54( $isi_arr_file ).";" );
+
+        $diff = count($isi_file_old) - count($isi_file_new);
+                    
+        foreach($isi_file_new as $line_key =>  $line){
+            if (!in_array($line, $isi_file_old)){
+                $diff_line = $line_key;
+                break;
+            }
+        }    
+                 
+        foreach ($isi_file_new as $f_key => &$f_value) {
+            $f_value .= "\n";
+        }        
+
+        // insert comment
+        $add_on = 0;         
+        foreach ($comment as $c_key => $c_value) {
+            
+            if($diff_line > 0){
+                $diff_line += substr_count($c_value,"\n");
+            }
+
+            if( $c_key-1 >= $diff_line && $diff_line > 0) {   
+                $add_on += $diff;
+                $diff_line = 0;
+            }
+
             array_splice( $isi_file_new, $c_key-1-$add_on, 0, $c_value );            
             $add_on += substr_count($c_value,"\n")-1;
             
         }
-
+        
         $isi_file_new = implode('',$isi_file_new);
         $isi_file_new = str_replace(" =>","\t=>",$isi_file_new);
         file_put_contents($file, $isi_file_new);
 
-        return Request::all();
+        return [
+            'updated'   => [
+                $file
+            ]
+        ];
     }
 
 }

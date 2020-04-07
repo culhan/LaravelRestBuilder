@@ -1,0 +1,2 @@
+->joinRaw("{{custom_join}}")
+                // end raw join query

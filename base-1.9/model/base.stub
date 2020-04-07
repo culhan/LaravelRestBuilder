@@ -4,7 +4,6 @@
 // atau hubungi A'mal Sholihan
 namespace App\Http\Models;
 
-use KhanCode\LaravelBaseRest\Helpers;
 use KhanCode\LaravelBaseRest\BaseModel;
 
 class {{Name}} extends BaseModel
@@ -90,6 +89,24 @@ class {{Name}} extends BaseModel
 
     // start custom code    
     // end custom code
+
+    /**
+	 * [encapsulatedQuery description]
+	 *
+	 * @param   [type]  $alias  [$alias description]
+	 *
+	 * @return  [type]          [return description]
+	 */
+	public function scopeEncapsulatedQuery($query, $alias = 'myTable')
+	{
+		$queryOld = $this->getSql($query);
+		$thisClass = get_class($this);
+		$model = new $thisClass;
+		$model->setSortableAndSearchableColumn( $this->sortableAndSearchableColumn );
+		$model->setRelationColumn( $this->relationColumn );
+		$query = $model->setTable(\DB::raw('('.$queryOld.') as '.$alias))->whereRaw("1=1");
+		return $query;
+	}
     
     /**
      * [boot description]

@@ -71,6 +71,7 @@ class {{Name}}Repository extends BaseRepository
     public function getSingleData( $id, array $data_filter = [] ) {
         $return = $this->model
                 ->getAll($data_filter)
+                ->encapsulatedQuery()
                 ->where($this->model->getKeyName(),$id)
                 ->first();
 

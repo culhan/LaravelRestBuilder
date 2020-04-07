@@ -6,9 +6,8 @@ namespace App\Http\Models;
 
 use Request;
 use Validator;
-use Laravel\Passport\HasApiTokens;
-use KhanCode\LaravelBaseRest\Helpers;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Passport\HasApiTokens;
 
 class {{Name}} extends Authenticatable
 {

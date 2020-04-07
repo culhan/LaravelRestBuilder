@@ -70,14 +70,18 @@ class FileCreator
                 }
 
                 $index = 0;                
-                $content = preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use ($custom_code,&$index) {
+                $content = preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use ($custom_code,&$index,$type) {
                     if(!empty($custom_code[$index]))
                     {                        
                         // hapus \r\n
-                        $custom_code[$index] = substr($custom_code[$index], 0, -6);                        
+                        if( $type != "routes" ) {
+                            $custom_code[$index] = substr($custom_code[$index], 0, -6);
+                        }else {
+                            $custom_code[$index] = substr($custom_code[$index], 0, -1);
+                        }
                         $return = $m[0].$custom_code[$index];
                         $index++;
-                        return $return;
+                        return $return;                                                
                     }
                     return "// start custom code";
                 }, $content);
