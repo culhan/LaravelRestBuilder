@@ -1,1 +1,1 @@
-json_decode($this->attributes["{{json}}"])
+json_decode_recursive({{json}})

@@ -52,6 +52,7 @@ class ModelBuilder
         if( !empty($casts) ) {
             $column_casts = '';
             foreach ($casts as $casts_value) {
+                if( !empty($column_casts) ) $column_casts   .= ",\n\t\t";
                 $column_casts   .= "'".$casts_value['column']."'\t=> '".$casts_value['data_type']."'";
             }
             $option_casts = file_get_contents(__DIR__.'/../base'.$base.'/model/option_casts.stub', FILE_USE_INCLUDE_PATH);
@@ -182,9 +183,9 @@ class ModelBuilder
                 $column_set_bindings .= 'array_get($data, "show_'.$value_column_function['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
 
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) ) {                                
-                $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) ) {                                                
                 $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$value';
+                $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
                 $value_column_function['response_code'] = !empty($value_column_function['json']) ? $json_converter : $value_column_function['response_code']; 
 
                 // column accessor
@@ -225,7 +226,7 @@ class ModelBuilder
                     $json_converter = str_replace([
                         "{{json}}"
                     ],[
-                        (empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param'])
+                        '$value'
                     ],$option_isJson);
 
                     $current_function_accessor = $function_accessor;
