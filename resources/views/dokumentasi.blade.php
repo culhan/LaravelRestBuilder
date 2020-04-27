@@ -1,4 +1,4 @@
-@extends('khancode::base')
+@extends('khancode::base'.config('laravelrestbuilder.theme'))
 
 @section('title', 'Dokumentasi')
 

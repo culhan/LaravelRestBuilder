@@ -20,6 +20,8 @@ class ServiceBuilder
      */
     static function build( $name, $table, $column, $primary_key = 'id', $route, $relation)
     {
+        LaravelRestBuilder::setLaravelrestbuilderConnection();        
+
         $base = config('laravelRestBuilder.base');
         $name = UCWORDS($name);
         $service_file_name = $name.'Service';
@@ -368,7 +370,7 @@ class ServiceBuilder
                 if(!empty($primary_key)) {
                     $code_function = str_replace('{{primary_key}}',$primary_key,$code_function);                
                 }else {                    
-                    $code_function = str_replace('{{primary_key}}',$column[0]['name'],$code_function);
+                    if( isset($column[0]) ) $code_function = str_replace('{{primary_key}}',$column[0]['name'],$code_function);
                 }                
 
                 $base_service = str_replace('// end list function',$code_function,$base_service);
@@ -386,6 +388,8 @@ class ServiceBuilder
         }
         $base_service   = str_replace("{{traits}}",$traits,$base_service);
 
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+        
         FileCreator::create( $service_file_name, 'app/Http/Services', $base_service );
     }
 

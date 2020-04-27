@@ -1,4 +1,4 @@
-@extends('khancode::base')
+@extends('khancode::base'.config('laravelrestbuilder.theme'))
 
 @if (array_has($data,'name'))
     @section('title', 'Update Project '.Arr::get($data, 'name', ''))

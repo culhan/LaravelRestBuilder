@@ -7,4 +7,55 @@ return [
     'copy_to'   =>  '',    
     'project_id'    =>  0,
     'file'  =>  [],
+    'theme' => 'Architect',
+    'menu'  => [
+        'Menu'   => [
+            'Project' =>  [
+                [
+                    'name'  => 'List',
+                    'url'   => "/project"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/createProject"
+                ],
+            ],
+            'Moduls'    => [
+                [
+                    'name'  => 'List',
+                    'url'   => "/list"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/create"
+                ],
+            ],
+            'Tables'    => [
+                [
+                    'name'  => 'List',
+                    'url'   => "/listTable"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/createTable"
+                ],
+            ],
+            'Lang'    => [
+                [
+                    'name'  => 'List',
+                    'url'   => "/lang/list"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/lang/create"
+                ],
+            ],
+            'Dokumentasi'   => [
+                [
+                    'name'  => 'Dokumentasi',
+                    'url'   => "/dokumentasi"
+                ]
+            ]
+        ]
+    ]
 ];

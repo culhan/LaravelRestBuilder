@@ -8,6 +8,7 @@ use Session;
 use Illuminate\Support\Facades\Hash;
 use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelRestBuilder\Models\SystemTables;
+use KhanCode\LaravelRestBuilder\Models\SchemaTables;
 use KhanCode\LaravelRestBuilder\Models\MigrationFiles;
 
 class TableBuilder
@@ -35,7 +36,7 @@ class TableBuilder
                 ]);
             }            
         }else {            
-            $data_system_table = SystemTables::find($data['id']);
+            $data_system_table = SystemTables::where('name',$data['id'])->first();
             if( $data_system_table->name != $data['name'] ){
                 $rename = $data_system_table->name;                
             }
@@ -118,12 +119,18 @@ class TableBuilder
      */
     public function updateTable($id) 
     {        
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        
+        $table_data = SchemaTables::getAll()->where('TABLE_NAME',$id)->first()->toArray();
+
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+
         return view('khancode::createTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
             'projects'   =>  Projects::get(),
             'data'=>[
                 'simpan_api'    =>  1,                
-            ]+SystemTables::find($id)->toArray()
+            ]+$table_data
         ]);
     }
 
@@ -166,19 +173,19 @@ class TableBuilder
      */
     public function systemTable()
     {   
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        
         \Request::merge([
             'search' => \Request::get('search')['value'],
             'sort_column'   =>  'nomor_baris',
             'sort_type'   =>  \Request::get('order')[0]['dir'],
             ]);
                     
-        $model = new SystemTables;
+        $model = new SchemaTables;
         
-        \DB::connection( $model->connection )->statement(\DB::raw('set @nomorbaris = 0;'));
+        \DB::statement(\DB::raw('set @nomorbaris = 0;'));
         
-        $data['data'] = $model
-            ->select('*')
-            ->whereNull('deleted_by')
+        $data['data'] = $model->getAll()            
             ->addSelect([
                 \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
             ])
@@ -195,12 +202,14 @@ class TableBuilder
             ->get();
         
         $data['draw'] = request('draw');
-        $data['recordsTotal'] = $model->whereNull('deleted_by')->count();
+        $data['recordsTotal'] = $model->getAll()->count();
         $data['recordsFiltered'] = $model
-            ->whereNull('deleted_by')
+            ->getAll()
             ->setSortableAndSearchableColumn(['name'=>'name'])
             ->search()            
             ->count();
+        
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
 
         return $data;
         

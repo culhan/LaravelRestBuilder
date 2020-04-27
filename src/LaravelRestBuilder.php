@@ -5,8 +5,10 @@ use Arr;
 use Request;
 use Session;
 use Illuminate\Support\Facades\Hash;
-use \KhanCode\LaravelRestBuilder\Models\Users;
+use KhanCode\LaravelRestBuilder\Models\Users;
 use KhanCode\LaravelRestBuilder\Models\Projects;
+use KhanCode\LaravelBaseRest\Helpers;
+use KhanCode\LaravelBaseRest\ValidationException;
 
 class LaravelRestBuilder
 {
@@ -283,6 +285,8 @@ class LaravelRestBuilder
                     ],
             ]);
         }
+        
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
 
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['name']);
@@ -344,7 +348,7 @@ class LaravelRestBuilder
             TableBuilder::buildMigration();
         }
         
-        if( !empty($data['route']) && !empty($data['table']) && !empty($data['column']) ) {
+        if( !empty($data['route']) ) {
             ControllerBuilder::build(
                 $data['name'],
                 $data['column'],
@@ -399,7 +403,7 @@ class LaravelRestBuilder
             );
         }            
 
-        if( !empty($data['route']) && !empty($data['table']) && !empty($data['column']) ) {
+        if( !empty($data['route']) ) {
             ResourceBuilder::build(
                 $data['name'],
                 $data['column'],

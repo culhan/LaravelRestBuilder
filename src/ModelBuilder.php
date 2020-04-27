@@ -603,7 +603,7 @@ class ModelBuilder
         $column_code = '';
         foreach ($column_to_generate as $column_key => $column_value) {
             $column_value['column'] = str_replace("\n","\n\t\t\t\t\t\t\t\t\t",$column_value['column']);
-            $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$column_value['name']."', IFNULL(".$column_value['column'].",'')";
+            $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$column_value['name']."', ".$column_value['column']."";
             if( count($column_to_generate)-1 != $column_key )
             {          
                 $column_code .= ",\r\n";

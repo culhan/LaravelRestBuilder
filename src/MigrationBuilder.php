@@ -109,7 +109,7 @@ class MigrationBuilder
             
             // check perbedaan nya antara table yg akan di drop            
             $check_for_drop_column = self::checkColumnForDrop($column_exist,$table);         
-            
+
             // check for change to timestamp, dbal laravel not supported
             // The following column types can not be "changed": 
             // char, double, enum, mediumInteger, timestamp, tinyInteger, ipAddress, json, jsonb, macAddress, mediumIncrements, morphs, nullableMorphs, nullableTimestamps, softDeletes, timeTz, timestampTz, timestamps, timestampsTz, unsignedMediumInteger, unsignedTinyInteger, uuid.
@@ -138,6 +138,7 @@ class MigrationBuilder
                 "uuid",
             ];
             $unableChanged = array_flip($unableChanged);
+            
             foreach ($check_for_change_column as $key_check_for_change_column => $value_check_for_change_column) {
                 if( !empty($unableChanged[$value_check_for_change_column['type']]) ) {
                     $check_for_drop_column[] = $value_check_for_change_column;
@@ -362,17 +363,19 @@ class MigrationBuilder
         foreach ($column as $key => $value) {
             if( $value['type'] == 'text' ) {
                 continue;
-            }   
+            }            
 
-            if( empty($value['default']) && ($value['nullable'] == 1 || $value['nullable'] == '1') ) {
-                $raw_query .= str_replace([
-                    "{{table}}",
-                    "{{column}}"
-                ],
-                [
-                    $table,
-                    "`".$value['name']."`",
-                ],$templatesQueryRaw);
+            if( empty($value['default']) && !empty($value['nullable']) ) {
+                if( ($value['nullable'] == 1 || $value['nullable'] == '1') ) {
+                    $raw_query .= str_replace([
+                        "{{table}}",
+                        "{{column}}"
+                    ],
+                    [
+                        $table,
+                        "`".$value['name']."`",
+                    ],$templatesQueryRaw);
+                }
             }
         }
         
@@ -655,7 +658,16 @@ class MigrationBuilder
             $where .= ' and column_comment = "'.$column['comment'].'" ';
         }else {
             $where .= ' and column_comment = "" ';
-        }            
+        }      
+
+        // if($column['name'] == 'start_date') {
+        //     dd('
+        //                             SELECT *
+        //                             FROM INFORMATION_SCHEMA.COLUMNS
+        //                             where TABLE_SCHEMA=\''.config('database.connections.mysql.database').'\'
+        //                             AND column_name = \''.$column['name'].'\'
+        //                             AND table_name = \''.$table.'\''.$where);
+        // }  
         
         $check = \DB::select( \DB::raw('
                                     SELECT *

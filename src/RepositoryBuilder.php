@@ -29,10 +29,12 @@ class RepositoryBuilder
         foreach ($repositories as $repository) {
 
             $params = '';
-            foreach ($repository['param'] as $param_key => $param) {
-                $params .= '$'.$param;
-                if( $param_key+1 != count($repository['param']) ){
-                    $params .= ', ';
+            if( !empty($repository['param']) ) {
+                foreach ($repository['param'] as $param_key => $param) {
+                    $params .= '$'.$param;
+                    if( $param_key+1 != count($repository['param']) ){
+                        $params .= ', ';
+                    }
                 }
             }
 

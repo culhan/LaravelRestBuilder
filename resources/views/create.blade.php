@@ -1,4 +1,4 @@
-@extends('khancode::base')
+@extends('khancode::base'.config('laravelrestbuilder.theme'))
 
 @section('title', 'Create Modul')
 
@@ -15,7 +15,7 @@
                 <input type="" class="form-control" id="table_name" placeholder="nama tabel" name='table' onkeyup="ambil_data_tabel(this)">
             </div>
 
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom:0px">
                 <li class="nav-item">
                     <a class="nav-link active" id="tabel-tab" data-toggle="tab" href="#tabel" role="tab" aria-controls="tabel" aria-selected="true">Tabel</a>
                 </li>
@@ -35,11 +35,17 @@
                     <a class="nav-link" id="relasi-tab" data-toggle="tab" href="#relasi" role="tab" aria-controls="relasi" aria-selected="false">Relasi Tabel</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" id="system-class" data-toggle="tab" href="#systemclass" role="tab" aria-controls="repositoryclass" aria-selected="false">Class System</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="route-tab" data-toggle="tab" href="#route" role="tab" aria-controls="route" aria-selected="false">System Modul</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" id="repository-class" data-toggle="tab" href="#repositoryclass" role="tab" aria-controls="repositoryclass" aria-selected="false">Class Repository</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="repository-tab" data-toggle="tab" href="#repository" role="tab" aria-controls="repository" aria-selected="false">Repository</a>
-                </li>                
+                </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="tabel" role="tabpanel" aria-labelledby="tabel-tab">
@@ -360,6 +366,47 @@
 
                     </figure>
                 </div>
+                <div class="tab-pane fade" id="systemclass" role="tabpanel" aria-labelledby="systemclass-tab">
+                    <!-- route -->
+                    <figure class="highlight">                        
+
+                        <div class="row ">
+                            <label for="column1" class="col-sm-12">
+                                <b>Class</b>                                
+                            </label>
+                        </div>
+                        <div class="container ">
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Name </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input name="system_class_sementara[name]" type="text" class="form-control" placeholder="nama variable class">
+                                </div>
+                            </div>                            
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Path Class</label>
+                                </div>
+                                <div class="col-sm">
+                                    <textarea name="system_class_sementara[class_code]" class="d-none"></textarea>
+                                    <textarea id="system_class_sementara_class_code"></textarea>
+                                    <pre>php code untuk class</pre>
+                                </div>
+                            </div>                                         
+                        </div>
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_system_class" type="button" value="Tambah column function" height="10px" onclick="tambah_list_system_class_table()">
+                            <input class="btn btn-primary d-none" id="edit_system_class" type="button" value="Edit column function" height="10px" onclick="edit_list_system_class_table()">
+                            <input class="ml-1 btn btn-primary d-none" id="edit_simpan_system_class" type="button" value="Ubah Kolom Fungsi & Simpan" height="10px" onclick="edit_simpan_system_class_table()">
+                            <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_system_class_sementara()">
+                        </div>
+
+                        <listsystem_class_table>
+                        </listsystem_class_table>
+
+                    </figure>
+                </div>
                 <div class="tab-pane fade" id="route" role="tabpanel" aria-labelledby="route-tab">
                     <!-- route -->
                     <figure class="highlight">
@@ -617,6 +664,47 @@
 
                     </figure>
                 </div>
+                <div class="tab-pane fade" id="repositoryclass" role="tabpanel" aria-labelledby="repositoryclass-tab">
+                    <!-- route -->
+                    <figure class="highlight">                        
+
+                        <div class="row ">
+                            <label for="column1" class="col-sm-12">
+                                <b>Class</b>                                
+                            </label>
+                        </div>
+                        <div class="container ">
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Name </label>
+                                </div>
+                                <div class="col-sm">
+                                    <input name="repository_class_sementara[name]" type="text" class="form-control" placeholder="nama variable class">
+                                </div>
+                            </div>                            
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Path Class</label>
+                                </div>
+                                <div class="col-sm">
+                                    <textarea name="repository_class_sementara[class_code]" class="d-none"></textarea>
+                                    <textarea id="repository_class_sementara_class_code"></textarea>
+                                    <pre>php code untuk class</pre>
+                                </div>
+                            </div>                                         
+                        </div>
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_repository_class" type="button" value="Tambah column function" height="10px" onclick="tambah_list_repository_class_table()">
+                            <input class="btn btn-primary d-none" id="edit_repository_class" type="button" value="Edit column function" height="10px" onclick="edit_list_repository_class_table()">
+                            <input class="ml-1 btn btn-primary d-none" id="edit_simpan_repository_class" type="button" value="Ubah Kolom Fungsi & Simpan" height="10px" onclick="edit_simpan_repository_class_table()">
+                            <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_repository_class_sementara()">
+                        </div>
+
+                        <listrepository_class_table>
+                        </listrepository_class_table>
+
+                    </figure>
+                </div>
                 <div class="tab-pane fade" id="repository" role="tabpanel" aria-labelledby="repository-tab">
                     <!-- route -->
                     <figure class="highlight">
@@ -669,7 +757,10 @@
             </div>
         </form>
     </div>    
+    
+@endsection
 
+@section('modal')
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
         Launch demo modal
@@ -695,7 +786,7 @@
         </div>
     </div>
     
-    <div class="modal"><!-- Place at bottom of page --></div>    
+    <div class="modal"><!-- Place at bottom of page --></div>
 @endsection
 
 @section('script_add_on')
@@ -2552,7 +2643,9 @@
     <script src="<?php echo URL::to('/vendor/khancode/js/list-cast.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-column-function.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-column-relasi.js');?>"></script>
-    <script src="<?php echo URL::to('/vendor/khancode/js/list-column-route.js');?>"></script>              
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-column-route.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-system-class.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-system-modul.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-repository-class.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-repositories.js');?>"></script>
 @endsection
