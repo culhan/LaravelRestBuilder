@@ -22,7 +22,7 @@
                 </div>
             @endif
 
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom:0px">
                 <li class="nav-item">
                     <a class="nav-link active" id="tabel-tab" data-toggle="tab" href="#tabel" role="tab" aria-controls="tabel" aria-selected="true">Tabel</a>
                 </li>
@@ -213,8 +213,10 @@
                 </div>
             </div>
         </form>
-    </div>    
+    </div>
+@endsection
 
+@section('modal')
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
         Launch demo modal
@@ -792,7 +794,7 @@
             }
 
             $('html, body').animate({
-                scrollTop: $( "[name='column_sementara[name]']" ).offset().top
+                scrollTop: $( "#table_name" ).offset().top
             }, 1000, function() {
                 $( "[name='column_sementara[name]']" ).focus();
             });
@@ -849,52 +851,53 @@
     </script>
 
     <script>
-        function simpanKeApi() {
+        submit_url = '{{url('/')}}/buildMigration';
+        // function simpanKeApi() {
             
-            objModul = $('#modul').serializeJSON()
-            delete objModul['route']
+        //     objModul = $('#modul').serializeJSON()
+        //     delete objModul['route']
 
-            $.ajax({
-                url: '{{url('/')}}/buildMigration',
-                type: "POST",
-                data: JSON.stringify(Object.assign({}, objModul, storage_parameter.all() )),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    htmlcreated = ''
-                    htmlupdated = ''
-                    $.each(data,function(index,value) {
-                        $.each(value,function(index_2,value_2) {
-                            if(index == 'created') {
-                                htmlcreated += value_2+"<br>"
-                            }else {
-                                htmlupdated += value_2+"<br>"
-                            }
+        //     $.ajax({
+        //         url: '{{url('/')}}/buildMigration',
+        //         type: "POST",
+        //         data: JSON.stringify(Object.assign({}, objModul, storage_parameter.all() )),
+        //         contentType: "application/json; charset=utf-8",
+        //         dataType: "json",
+        //         success: function (data) {
+        //             htmlcreated = ''
+        //             htmlupdated = ''
+        //             $.each(data,function(index,value) {
+        //                 $.each(value,function(index_2,value_2) {
+        //                     if(index == 'created') {
+        //                         htmlcreated += value_2+"<br>"
+        //                     }else {
+        //                         htmlupdated += value_2+"<br>"
+        //                     }
                             
-                        })
-                    })
+        //                 })
+        //             })
 
-                    html = ''
-                    if(htmlcreated != '') {
-                        html += 'created <br>'+htmlcreated+'<br>'
-                    }
-                    if(htmlupdated != '') {
-                        html += 'updated <br>'+htmlupdated+'<br>'
-                    }
+        //             html = ''
+        //             if(htmlcreated != '') {
+        //                 html += 'created <br>'+htmlcreated+'<br>'
+        //             }
+        //             if(htmlupdated != '') {
+        //                 html += 'updated <br>'+htmlupdated+'<br>'
+        //             }
                     
-                    $( "#modal_1 .modal-body" ).html(html)
-                    $( "#launch_modal_1" ).click()
-                },
-                error:function (data) {                    
-                    if( data.responseJSON ) {
-                        $( "#modal_1 .modal-body" ).html(data.responseJSON.message)
-                    }else {
-                        $( "#modal_1 .modal-body" ).html('Tidak ada perubahan')
-                    }
-                    $( "#launch_modal_1" ).click()
-                }
-            });
-        }
+        //             $( "#modal_1 .modal-body" ).html(html)
+        //             $( "#launch_modal_1" ).click()
+        //         },
+        //         error:function (data) {                    
+        //             if( data.responseJSON ) {
+        //                 $( "#modal_1 .modal-body" ).html(data.responseJSON.message)
+        //             }else {
+        //                 $( "#modal_1 .modal-body" ).html('Tidak ada perubahan')
+        //             }
+        //             $( "#launch_modal_1" ).click()
+        //         }
+        //     });
+        // }
     </script>
 
     <script>
@@ -942,4 +945,5 @@
     </script>
 
     <script src="<?php echo URL::to('/vendor/khancode/js/list-index.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/submit.js');?>"></script>
 @endsection
