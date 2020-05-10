@@ -8,9 +8,23 @@ use Session;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use KhanCode\LaravelRestBuilder\Models\Projects;
+use KhanCode\LaravelBaseRest\Helpers;
 
 class ProjectBuilder
 {    
+    static function setProjectSession()
+    {
+        $data = Request::all();
+
+        \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
+                'select_project'    => ['required']
+            ]);
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+
+        session(['project'   => \KhanCode\LaravelRestBuilder\Models\Projects::find($data['select_project'])->toArray() ]);
+    }
+
     /**
      * setProject function
      *

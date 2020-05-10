@@ -946,6 +946,7 @@ class MigrationBuilder
                     "current_timestamp()",
                     "current_date()",
                     "curtime()",
+                    "'0000-00-00 00:00:00'",
                 ];
                 $allowed_string = array_flip($allowed_string);
                 if( !is_float($dataColumn[0]->COLUMN_DEFAULT) && 

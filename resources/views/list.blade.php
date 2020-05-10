@@ -47,7 +47,7 @@
                     "processing": true,
                     "serverSide": true,
                     "ajax": {
-                        "url": "{{url('/')}}/dataList",
+                        "url": "{{url('/')}}/dataList?select_project={{session('project')['id']}}",
                         "dataSrc": 'data'
                     },
                     columns: [

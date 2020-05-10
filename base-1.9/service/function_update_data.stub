@@ -9,9 +9,9 @@
 
         {{data-filter}}
 
-        {{data-validation}}
-
         $single_data = $this->getSingleData($id);
+
+        {{data-validation}}
 
         // start list belongs to check create
         

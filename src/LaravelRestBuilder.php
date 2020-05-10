@@ -67,6 +67,9 @@ class LaravelRestBuilder
      * @return void
      */
     public function dataList() {
+        
+        ProjectBuilder::setProjectSession();
+        
         \Request::merge([
             'search' => \Request::get('search')['value'],
             'sort_column'   =>  'nomor_baris',
@@ -267,15 +270,17 @@ class LaravelRestBuilder
      */
     public function build()
     {                
+        $data = Request::all();                
 
-        $data = Request::all();
-        
+        ProjectBuilder::setProjectSession();
+
         if( !empty($data['id']) ) {
             \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
                 'name' => [
                         'required', 
                         \Illuminate\Validation\Rule::unique('moduls','name')->where('project_id',config('laravelrestbuilder.project_id'))->ignore($data['id'])
                     ],
+                'select_project'    => ['required']
             ]);
         }else {            
             \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
@@ -283,10 +288,11 @@ class LaravelRestBuilder
                         'required', 
                         \Illuminate\Validation\Rule::unique('moduls','name')->where('project_id',config('laravelrestbuilder.project_id'))
                     ],
+                'select_project'    => ['required']
             ]);
-        }
-        
-        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+        }                
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );        
 
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['name']);
@@ -297,15 +303,18 @@ class LaravelRestBuilder
         if(empty($data['repositories'])) $data['repositories'] = [];
         if(empty($data['casts'])) $data['casts'] = [];
         if(empty($data['get_company_code'])) $data['get_company_code'] = NULL;        
-        
+        $old_name = '';
+
         // save to moduls table
-        $detail_data = json_encode( array_except($data,['column']) );
-        
+        $detail_data = json_encode( array_except($data,['column']) );                
+
         // update modul
         if( !empty($data['id']) ) {
 
-            $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']);
+            $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::getAll()->where('id',$data['id'])->first();
             
+            $old_name = $old_data->name;
+
             // jika beda nama
             if($data['name'] != $old_data->name) {
                 $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()->where('modul_id',$data['id'])->get();
@@ -415,7 +424,8 @@ class LaravelRestBuilder
             
             RouteBuilder::build(
                 $data['name'],
-                $data['route']
+                $data['route'],
+                $old_name
             );
         }
         

@@ -12,9 +12,10 @@ class RouteBuilder
      *
      * @param [type] $name
      * @param [type] $route
+     * @param [type] $old_name
      * @return void
      */
-    static function build( $name, $route )
+    static function build( $name, $route, $old_name )
     {
         $route_file = $name;        
         $base_route = file_get_contents(__DIR__.'/../base/route/base.stub', FILE_USE_INCLUDE_PATH);
@@ -69,6 +70,11 @@ class RouteBuilder
         
         $system_route = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/routes/api.php', FILE_USE_INCLUDE_PATH);
         
+        // hapus route lama, jika ada perubhan nama
+        if( !empty($old_name) ) {
+            $system_route = str_replace("\r\n\r\n"."include '".camel_case($old_name).".php';","",$system_route);            
+        }
+
         if (strpos($system_route, "include '".$route_file.".php';") === false) {
             // $system_route = str_replace('// include file route',"include '".$route_file.".php';\r\n\r\n// include file route",$system_route);
             $system_route = $system_route."\r\n\r\n"."include '".$route_file.".php';";
