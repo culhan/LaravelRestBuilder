@@ -144,43 +144,42 @@ table .fa-close {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 <link href="{{url('/')}}/vendor/khancode/css/chrome-tabs.css" rel="stylesheet">
 
-<div class="col-md-2 tree-block">
-    <div id="jstree"></div>
-</div>
-
-<div class="col-md-10 tree-detail d-inline-block dokumentasi">
-
-    <div class="chrome-tabs col-md-12" style="--tab-content-margin: 9px">
-        <div class="chrome-tabs-content">                        
-        </div>
-        <div class="chrome-tabs-bottom-bar"></div>
-        <!-- Styles to prevent flash after JS initialization -->
-        <style>
-        .chrome-tabs .chrome-tab {
-            width: 258px
-        }
-
-        .chrome-tabs .chrome-tab:nth-child(1) {
-            transform: translate3d(0px, 0, 0)
-        }
-
-        .chrome-tabs .chrome-tab:nth-child(2) {
-            transform: translate3d(239px, 0, 0)
-        }
-        </style>
+<div class="row">
+    <div class="col-md-2 tree-block">
+        <div id="jstree"></div>
     </div>
 
-    <div class="tab-content" id="myTabTopContent">
-        <div class="atas tab-pane fade active show" id="top-tab-content-default" role="tabpanel" aria-labelledby="top-tab">
-            <div class="d-flex justify-content-center" style="padding-top: 100px;padding-bottom: 100px;">
-                <i class="fas fa-laugh-wink fa-10x" style="color:#c2c0c0a8"></i>
+    <div class="col-md-10 tree-detail d-inline-block dokumentasi">
+
+        <div class="chrome-tabs col-md-12" style="--tab-content-margin: 9px">
+            <div class="chrome-tabs-content">                        
             </div>
+            <div class="chrome-tabs-bottom-bar"></div>
+            <!-- Styles to prevent flash after JS initialization -->
+            <style>
+            .chrome-tabs .chrome-tab {
+                width: 258px
+            }
+
+            .chrome-tabs .chrome-tab:nth-child(1) {
+                transform: translate3d(0px, 0, 0)
+            }
+
+            .chrome-tabs .chrome-tab:nth-child(2) {
+                transform: translate3d(239px, 0, 0)
+            }
+            </style>
         </div>
-    </div>    
-</div>   
 
-
-
+        <div class="tab-content" id="myTabTopContent">
+            <div class="atas tab-pane fade active show" id="top-tab-content-default" role="tabpanel" aria-labelledby="top-tab">
+                <div class="d-flex justify-content-center" style="padding-top: 100px;padding-bottom: 100px;">
+                    <i class="fas fa-laugh-wink fa-10x" style="color:#c2c0c0a8"></i>
+                </div>
+            </div>
+        </div>    
+    </div>   
+</div>
 
 <div class="mock-browser-content d-none">
     <div class="buttons">

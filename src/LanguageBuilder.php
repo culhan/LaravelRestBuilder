@@ -48,11 +48,24 @@ class LanguageBuilder
             if (strpos($file, '.php') !== false) {
                 // dd($this->readComment($file));
                 $file_key = str_replace('.php','',$file);
-                $file_key = explode("resources\lang\\",$file_key);
-                $file_key = explode("\\",$file_key[1]);
-                $lang = $file_key[0];
-                unset($file_key[0]);
-                $file_key = implode('/',$file_key);
+                
+                // untuk windows
+                if (strpos($file_key, 'resources\lang\\') !== false) {
+                    $file_key = explode("resources\lang\\",$file_key);
+                    $file_key = explode("\\",$file_key[1]);
+                    $lang = $file_key[0];
+                    unset($file_key[0]);
+                    $file_key = implode('/',$file_key);
+                }
+                
+                // untuk unix
+                if (strpos($file_key, 'resources/lang/') !== false) {
+                    $file_key = explode("resources/lang/",$file_key);
+                    $file_key = explode("/",$file_key[1]);
+                    $lang = $file_key[0];
+                    unset($file_key[0]);
+                    $file_key = implode('/',$file_key); 
+                }                
 
                 $arr_langs = array_merge($this->buildLangArr(include $file,$lang,$file_key),$arr_langs);                
             }
