@@ -1466,7 +1466,7 @@
                 });
             }, 2000); 
         }
-
+        
         function syncRepo() {
             dataResult = '';
             $.ajax({
@@ -1507,13 +1507,16 @@
         }
 
         function commitPush() {
-            var form=$("#file_changes");
+            $("#modal_sync").modal('hide');
+            
+            var form=$("#file_changes");            
             $.ajax({
                 type:"POST",
                 url:'/push',
                 data:form.serialize(),
                 success: function(data){
                     $("#modal_sync .modal-body").html(data);
+                    $("#modal_sync").modal('show');
                 }
             });
         }
