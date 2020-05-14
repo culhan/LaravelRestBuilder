@@ -946,4 +946,10 @@
 
     <script src="<?php echo URL::to('/vendor/khancode/js/list-index.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/submit.js');?>"></script>
+
+    <script>
+        $( document ).ready(function() {
+            $(".loading").hide();
+        });
+    </script>
 @endsection

@@ -47,6 +47,8 @@
 @section('script_add_on')
     <script>
         $( document ).ready(function() {
+                $(".loading").hide();
+                
                 list_table = $( "#table_list" ).DataTable({
                     "pageLength": 10,
                     "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],

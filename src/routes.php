@@ -40,6 +40,11 @@ if( config('laravelrestbuilder.build_active') )
                 Route::post('lang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@save');
                 Route::get('updateLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@update');
                 Route::get('dropLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@dropLang');
+                Route::get('sync', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@sync');
+                Route::get('repoStatus', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@status');
+                Route::post('push', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@push');
+                Route::get('composerUpdate', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@composerUpdate');
+                Route::get('composerUpdateResult', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@composerUpdateResult');
             });
         });
     });

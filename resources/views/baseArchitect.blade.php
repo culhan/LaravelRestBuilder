@@ -241,22 +241,22 @@
                                             <i class="fa fa-angle-down ml-2 opacity-8"></i>
                                         </a>
                                         <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
-                                            <button type="button" tabindex="0" class="dropdown-item">User Account</button>
-                                            <button type="button" tabindex="0" class="dropdown-item">Settings</button>
-                                            <h6 tabindex="-1" class="dropdown-header">Header</h6>
-                                            <button type="button" tabindex="0" class="dropdown-item">Actions</button>
-                                            <div tabindex="-1" class="dropdown-divider"></div>
-                                            <button type="button" tabindex="0" class="dropdown-item">Dividers</button>
+                                            <button type="button" tabindex="0" class="dropdown-item">Logout</button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="widget-content-left  ml-3 header-user-info">
-                                    <div class="widget-heading">
-                                        {{$user->name}}
-                                    </div>
-                                    <div class="widget-subheading">
-                                        VP People Manager
-                                    </div>
+                                <div class="widget-content-left  ml-3 header-user-info">                                    
+                                    {{$user->name}}                                                                        
+                                </div>
+                                <div class="widget-content-left ml-3">
+                                    <button type="button" class="btn btn-info float-right col-sm-12 btn-sm" onclick="syncRepo()">
+                                        <i class="fas fa-refresh fa-sm text-white-50"></i> Sync Repo
+                                    </button>
+                                </div>
+                                <div class="widget-content-left ml-3">
+                                    <button type="button" class="btn btn-success float-right col-sm-12 btn-sm" onclick="composerUpdate()">
+                                        <i class="fas fa-refresh fa-sm text-white-50"></i> Composer Update
+                                    </button>
                                 </div>
                                 <div class="widget-content-left ml-3">
                                     <select class="form-control" name="select_project">                  
@@ -1323,7 +1323,7 @@
         </div>
     </div>
 
-    <div class="loading" style="display:none">
+    <div class="loading" style="display:show">
         <div class="dl">
         <div class="dl__container">
             <div class="dl__corner--top"></div>
@@ -1421,6 +1421,121 @@
           window.location.replace('{{url('/')}}/setProject/'+this.value+'?previous={{Request::url()}}');          
       });
     </script>
+    
+    <!-- haeder function -->
+    <script>
+        function composerUpdate() {
+            dataResult = '';
+            $.ajax({
+                url: '/composerUpdate',
+                type: "GET",
+                // contentType: "application/json; charset=utf-8",
+                // dataType: "json",
+                success: function(data) {
+                    dataResult += data;                                        
+                    $("#modal_sync .modal-body").html(dataResult);
+                    $("#modal_sync").modal('show');
 
+                    getComposerUpdateResult()                   
+                },
+                error: function(data) {
+                    $("#modal_sync .modal-body").html(data);
+                    $("#modal_sync").modal('show');
+                }
+            });
+        }
+
+        function getComposerUpdateResult() {
+            setTimeout(function(){ 
+                $.ajax({
+                    url: '/composerUpdateResult',
+                    type: "GET",
+                    // contentType: "application/json; charset=utf-8",
+                    // dataType: "json",
+                    success: function(data) {
+                        if( data.status != 'done' ) {
+                            $("#modal_sync .modal-body").html('Masih di proses = <br>'+data.result);
+                            getComposerUpdateResult()
+                        }else {
+                            $("#modal_sync .modal-body").html('selesai = <br>'+data.result);
+                        }
+                    },
+                    error: function(data) {
+                        $("#modal_sync .modal-body").html(data);
+                    }
+                });
+            }, 2000); 
+        }
+
+        function syncRepo() {
+            dataResult = '';
+            $.ajax({
+                url: '/sync',
+                type: "GET",
+                // contentType: "application/json; charset=utf-8",
+                // dataType: "json",
+                success: function(data) {
+                    dataResult += 'Branch '+data.branch+'<br><br>';
+                    dataResult += data.pull;
+
+                    if(data.changes[0]) {
+                        jumlah_perubahan = 0;
+                        $.each( data.changes, function( key, value ) {                            
+                            jumlah_perubahan++
+                        });
+                        dataResult += '<br> Changes ('+jumlah_perubahan+'): <br>'
+                        dataResult += '<form id="file_changes">'
+                        $.each( data.changes, function( key, value ) {                            
+                            dataResult += '<input type="checkbox" name="changes[]" value="'+value.file+'" id="file'+key+'">'
+                            dataResult += '<label for="file'+key+'"> '+value.status+' '+value.file+'</label><br>'
+                        });
+                        dataResult += '<div class="form-group">'
+                            dataResult += '<label for="comment">Commit message:</label>'
+                            dataResult += '<textarea class="form-control" rows="5" name="message"></textarea>'
+                        dataResult += '</div>'
+                        dataResult += '<button type="button" class="btn btn-primary" onclick="commitPush()">Commit and Push</button>'
+                        dataResult += '</form>'
+                    }
+                    $("#modal_sync .modal-body").html(dataResult);
+                    $("#modal_sync").modal('show');
+                },
+                error: function(data) {
+                    $("#modal_sync .modal-body").html(data);
+                    $("#modal_sync").modal('show');
+                }
+            });
+        }
+
+        function commitPush() {
+            var form=$("#file_changes");
+            $.ajax({
+                type:"POST",
+                url:'/push',
+                data:form.serialize(),
+                success: function(data){
+                    $("#modal_sync .modal-body").html(data);
+                }
+            });
+        }
+    </script>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal_sync" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">            
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
     @yield('modal')
 </html>
