@@ -231,10 +231,20 @@ class LaravelRestBuilder
             ->where('id',$id)
             ->first();
 
-        $detail = json_decode($data->detail);        
+        $detail = json_decode($data->detail);    
+        
+        $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
+                        ->select([
+                            'id',
+                            'code',
+                            'name'
+                        ])
+                        ->where('modul_id',$data['id'])
+                        ->get();
 
         return ($data->toArray())+[
-            'table' =>  $this->table($detail->table)
+            'table' => $this->table($detail->table),
+            'files' => $files
         ];
     }
 
@@ -278,7 +288,10 @@ class LaravelRestBuilder
             \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
                 'name' => [
                         'required', 
-                        \Illuminate\Validation\Rule::unique('moduls','name')->where('project_id',config('laravelrestbuilder.project_id'))->ignore($data['id'])
+                        \Illuminate\Validation\Rule::unique('moduls','name')
+                            ->whereNull('deleted_at')
+                            ->where('project_id',config('laravelrestbuilder.project_id'))
+                            ->ignore($data['id'])
                     ],
                 'select_project'    => ['required']
             ]);
@@ -286,7 +299,9 @@ class LaravelRestBuilder
             \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
                 'name' => [
                         'required', 
-                        \Illuminate\Validation\Rule::unique('moduls','name')->where('project_id',config('laravelrestbuilder.project_id'))
+                        \Illuminate\Validation\Rule::unique('moduls','name')
+                            ->whereNull('deleted_at')
+                            ->where('project_id',config('laravelrestbuilder.project_id'))
                     ],
                 'select_project'    => ['required']
             ]);
@@ -321,8 +336,9 @@ class LaravelRestBuilder
         
                 foreach ($files as $key => $value) {
                     // chown($value->name, 666); //Insert an Invalid UserId to set to Nobody Owern; 666 is my standard for "Nobody" 
-                    if ( file_exists($value->name) ){
-                        unlink($value->name);
+                    $folder = base_path()."/".config('laravelrestbuilder.copy_to')."/";
+                    if ( file_exists($folder.$value->name) ){
+                        unlink($folder.$value->name);
                     }
                     $value->delete();
                 }
@@ -449,7 +465,15 @@ class LaravelRestBuilder
         // }
         
         return [
-            'data'  =>  \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id'])
+            'data'  => \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']),
+            'files' => \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
+                        ->select([
+                            'id',
+                            'code',
+                            'name'
+                        ])            
+                        ->where('modul_id',$data['id'])
+                        ->get()
         ]+config('laravelrestbuilder.file');
     }
 

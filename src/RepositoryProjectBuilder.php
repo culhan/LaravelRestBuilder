@@ -18,15 +18,18 @@ class RepositoryProjectBuilder
     {
         $returnPull = '';
         $folder = base_path()."/".config('laravelrestbuilder.copy_to');
-        $check_changes = shell_exec('cd '.$folder.' && git log HEAD..origin/master --oneline 2>&1');        
+        $check_changes = shell_exec('cd '.$folder.' && git fetch origin && git log HEAD..origin/master --oneline 2>&1');        
         if( !empty($check_changes) ) {
             $returnPull .= self::write($check_changes).'<br>';
         	$exec = 'cd '.$folder.' 2>&1 && git pull origin master 2>&1';
-        	$commit_hash = shell_exec($exec);
-        	file_put_contents('/var/www/html/deploy.log', date('m/d/Y h:i:s a') . " Deployed branch: master Commit: " . $commit_hash . "\n", "0");
-        	$returnPull .= 'PULL status <br> - repository pulled <br>';
+        	$commit_hash = shell_exec($exec);        	
+            $returnPull .= 'PULL status <br> - repository pulled <br> <br>';
+            if( !empty($commit_hash) ) {
+                $returnPull .= 'Result <br>'.self::write($commit_hash);
+            }
         }else {
-        	$returnPull .= 'PULL status <br> - repository updated <br>';
+            $git_status = self::execute("git status 2>&1",$folder);
+        	$returnPull .= 'PULL status <br> - repository updated <br>'.self::write($git_status['out']).self::write($git_status['err']);
         }   
         
         return [
@@ -97,6 +100,39 @@ class RepositoryProjectBuilder
         return [
             'status'    => (file_exists($folder."/composerUpdateIsRunning")) ? 'run':'done',
             'result'    => self::write(file_get_contents($folder."/processBuilder.txt"))
+        ];
+    }
+
+    /**
+     * Executes a command and reurns an array with exit code, stdout and stderr content
+     * @param string $cmd - Command to execute
+     * @param string|null $workdir - Default working directory
+     * @return string[] - Array with keys: 'code' - exit code, 'out' - stdout, 'err' - stderr
+     */
+    static function execute($cmd, $workdir = null) {
+
+        if (is_null($workdir)) {
+            $workdir = __DIR__;
+        }
+
+        $descriptorspec = array(
+        0 => array("pipe", "r"),  // stdin
+        1 => array("pipe", "w"),  // stdout
+        2 => array("pipe", "w"),  // stderr
+        );
+
+        $process = proc_open($cmd, $descriptorspec, $pipes, $workdir, null);
+
+        $stdout = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        return [
+            'code' => proc_close($process),
+            'out' => trim($stdout),
+            'err' => trim($stderr),
         ];
     }
 }

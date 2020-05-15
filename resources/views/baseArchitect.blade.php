@@ -233,21 +233,7 @@
                 <div class="app-header-right">
                     <div class="header-btn-lg pr-0">
                         <div class="widget-content p-0">
-                            <div class="widget-content-wrapper">
-                                <div class="widget-content-left">
-                                    <div class="btn-group">
-                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
-                                            <img width="42" class="rounded-circle" src="https://img.icons8.com/material-rounded/48/000000/user-male-circle.png" alt="">
-                                            <i class="fa fa-angle-down ml-2 opacity-8"></i>
-                                        </a>
-                                        <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
-                                            <button type="button" tabindex="0" class="dropdown-item">Logout</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="widget-content-left  ml-3 header-user-info">                                    
-                                    {{$user->name}}                                                                        
-                                </div>
+                            <div class="widget-content-wrapper">                                
                                 <div class="widget-content-left ml-3">
                                     <button type="button" class="btn btn-info float-right col-sm-12 btn-sm" onclick="syncRepo()">
                                         <i class="fas fa-refresh fa-sm text-white-50"></i> Sync Repo
@@ -268,6 +254,25 @@
                                             @endif
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="widget-content-left  ml-3 header-user-info">                                    
+                                    {{$user->name}}                                                                        
+                                </div>
+                                <div class="widget-content-left">
+                                    <div class="btn-group">
+                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
+                                            <img width="42" class="rounded-circle" src="https://img.icons8.com/material-rounded/48/000000/user-male-circle.png" alt="">
+                                            <i class="fa fa-angle-down ml-2 opacity-8"></i>
+                                        </a>
+                                        <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                                <button type="button" tabindex="0" class="dropdown-item">
+                                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                                    Logout
+                                                </button>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- <div class="widget-content-right header-user-info ml-3">
                                     <button type="button" class="btn-shadow p-1 btn btn-primary btn-sm show-toastr-example">
@@ -1333,7 +1338,7 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="{{url('/')}}/vendor/khancode/js/main-architect.js"></script></body>
+    <script type="text/javascript" src="{{url('/')}}/vendor/khancode/js/main-architect.min.js"></script></body>
 
 <!-- Bootstrap core JavaScript-->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -1538,6 +1543,25 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+            </div>
+            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="{{url('/')}}/KhanCodeLogout">Logout</a>
+            </div>
+        </div>
         </div>
     </div>
     @yield('modal')

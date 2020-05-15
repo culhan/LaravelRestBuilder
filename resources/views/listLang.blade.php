@@ -66,7 +66,7 @@
                             },
                             "render": function ( data, type, row, meta ) {
                                 html = '';
-                                html += '<a href="{{url('/')}}/updateLang?key='+data.key+'&lang='+data.lang+'&value='+data.value+'"><button type="button" class="btn btn-primary float-right btn-sm" style="margin-right: 15px;"><svg class="icon" viewBox="0 0 8 8" width="100%" height="100%"><path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z"></path></svg></button></a>'
+                                html += '<a href="{{url('/')}}/updateLang?key='+encodeURIComponent(data.key)+'&lang='+encodeURIComponent(data.lang)+'&value='+encodeURIComponent(data.value)+'"><button type="button" class="btn btn-primary float-right btn-sm" style="margin-right: 15px;"><svg class="icon" viewBox="0 0 8 8" width="100%" height="100%"><path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z"></path></svg></button></a>'
                                 html += '<button onclick="dropLang(\''+data.lang+'\',\''+data.key+'\')" type="button" class="btn btn-danger float-right btn-sm" style="margin-right: 15px;"><i class="fa fa-trash" aria-hidden="true"></i></button></a>'
                                 return html;
                             }

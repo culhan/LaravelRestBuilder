@@ -20,38 +20,23 @@ class FileCreator
      */
     static function create( $name_file, $folder, $content = "some text here", $type = 'modul', $copy = true )
     {
+        $file_folder = $folder;
         $folder = config('laravelrestbuilder.copy_to')."/".$folder;        
         if ( file_exists(base_path()."/".$folder."/".$name_file.".php") )
         {           
             if($name_file != 'api') {
-                // check files code
-                $data_modul_files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::where([
-                        'name'  =>  base_path()."/".$folder."/".$name_file.".php",
-                        'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
-                    ])->first();                       
-
-                if(!empty($data_modul_files)){
-
-                    // jika ada dan sama maka kembali
-                    if( $content == $data_modul_files->code ) {
-                        return;
-                    }
-
-                    $data_modul_files->update([                    
-                        'code'  =>  $content,
-                    ]);
-                }else {
-
-                    // jika tidak ada maka di buat
-                    \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
-                        'name'  =>  base_path()."/".$folder."/".$name_file.".php",
-                        'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
-                        'code'  =>  $content,
-                    ]);
+                $modul_files_status = \KhanCode\LaravelRestBuilder\Models\ModulFiles::updateOrCreate([
+                    'name'  =>  $file_folder."/".$name_file.".php",
+                    'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                    'code'  =>  $content,
+                ]);
+                
+                if( $modul_files_status->wasRecentlyCreated ) {
+                    self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
                 }
-            }
-
-            self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";                        
+            }else {
+                self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
+            }            
             
             $old_file = self::getFile($name_file, $folder);
             $custom_code = [];
@@ -90,9 +75,7 @@ class FileCreator
                 //     dd( $custom_code[0], substr($custom_code[0], 0, -4) );
                 // }
             }
-        }
-        else
-        {
+        }else {
             self::createPath(base_path()."/".$folder);
             if($type == 'migration') {
                 self::$file['migration'][] = base_path()."/".$folder."/".$name_file.".php";
@@ -102,8 +85,9 @@ class FileCreator
             }else {
                 self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
                 \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
-                    'name'  =>  base_path()."/".$folder."/".$name_file.".php",
+                    'name'  => $file_folder."/".$name_file.".php",
                     'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                    'code'  => $content
                 ]);
             }
         }

@@ -46,6 +46,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="repository-tab" data-toggle="tab" href="#repository" role="tab" aria-controls="repository" aria-selected="false">Repository</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="files-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">File</a>
+                </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="tabel" role="tabpanel" aria-labelledby="tabel-tab">
@@ -706,7 +709,7 @@
                     </figure>
                 </div>
                 <div class="tab-pane fade" id="repository" role="tabpanel" aria-labelledby="repository-tab">
-                    <!-- route -->
+                    <!-- repository -->
                     <figure class="highlight">
                         <div class="row ">
                             <label for="column1" class="col-sm-12">
@@ -754,6 +757,13 @@
 
                     </figure>
                 </div>
+                <div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="files-tab">
+                    <!-- file -->
+                    <figure class="highlight">
+                        <listfiles_table>
+                        </listfiles_table>
+                    </figure>
+                </div>
             </div>
         </form>
     </div>    
@@ -780,7 +790,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
             </div>
         </div>
@@ -2351,6 +2360,7 @@
             storage_parameter.update('column_function',objModul['column_function'])
             storage_parameter.update('casts',objModul['casts'])
             storage_parameter.update('repositories',objModul['repositories'])
+            storage_parameter.update('files',data['files'])
 
             build_route_tabel(dataDetail['route'])
             build_relation_tabel(dataDetail['relation'])
@@ -2360,7 +2370,8 @@
             build_list_index_tabel(data['table']['list_index'])
             build_list_column_function_tabel(objModul['column_function'])
             build_list_cast_tabel(objModul['casts'])
-            build_list_repository_tabel(objModul['repositories'])
+            build_list_repository_tabel(objModul['repositories'])            
+            build_list_files_tabel(data['files'])
         }
         
         function build_tabel_option_by_column(data) {
@@ -2648,4 +2659,5 @@
     <script src="<?php echo URL::to('/vendor/khancode/js/list-system-modul.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-repository-class.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-repositories.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-files.js');?>"></script>
 @endsection

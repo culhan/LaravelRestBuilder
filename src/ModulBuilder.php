@@ -24,8 +24,9 @@ class ModulBuilder
         
         foreach ($files as $key => $value) {
             // chown($value->name, 666); //Insert an Invalid UserId to set to Nobody Owern; 666 is my standard for "Nobody" 
-            if ( file_exists($value->name) ){
-                unlink($value->name);
+            $folder = base_path()."/".config('laravelrestbuilder.copy_to')."/";
+            if ( file_exists($folder.$value->name) ){
+                unlink($folder.$value->name);
             }
             $value->delete();
         }

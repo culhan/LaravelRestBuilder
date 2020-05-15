@@ -15,39 +15,14 @@
             <tbody>
             </tbody>
         </table>
-    </div> 
-
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
-        Launch demo modal
-    </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="modal_1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-            <div class="modal-header">            
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-            </div>
-        </div>
-    </div>   
+    </div>        
 @endsection
-    
+
 @section('script_add_on')
     <script>
         $( document ).ready(function() {
-                listTable();
-            });
+            listTable();
+        });
         
         function listTable() {
             list_table = $( "#table_list" ).DataTable({
@@ -67,7 +42,7 @@
                             "render": function ( data, type, row, meta ) {
                                 html = '';
                                 html += '<a href="{{url('/')}}/updateTable/'+data+'"><button type="button" class="btn btn-primary float-right btn-sm" style="margin-right: 15px;"><svg class="icon" viewBox="0 0 8 8" width="100%" height="100%"><path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z"></path></svg></button></a>'
-                                html += '<button onclick="dropTable('+data+')" type="button" class="btn btn-danger float-right btn-sm" style="margin-right: 15px;"><i class="fa fa-trash" aria-hidden="true"></i></button></a>'
+                                html += '<button onclick="dropTable(\''+data+'\')" type="button" class="btn btn-danger float-right btn-sm" style="margin-right: 15px;"><i class="fa fa-trash" aria-hidden="true"></i></button></a>'
                                 return html;
                             }
                         }
@@ -131,6 +106,30 @@
         }
 
     </script>    
+@endsection
+
+@section('script_add_on')
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1"></button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal_1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">            
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
     

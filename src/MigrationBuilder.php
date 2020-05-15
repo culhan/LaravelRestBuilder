@@ -1013,12 +1013,11 @@ class MigrationBuilder
                 
     }
 
-    static function dropTable($id) {
+    static function dropTable($table) {
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
 
-        $dataTable = SystemTables::find($id);
-        $table = $dataTable->name;
-        $dataTable->delete();
+        $dataTable = SystemTables::getAll()->where('name',$table)->first();
+        if( !empty($dataTable) ) $dataTable->delete();
 
         LaravelRestBuilder::setLaravelrestbuilderConnection();
         
