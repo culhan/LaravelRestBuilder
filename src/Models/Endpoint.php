@@ -50,12 +50,13 @@ class Endpoint extends BaseModel
                     "id",
                     "type",
                     \DB::raw('if( (select count(e1.id) from endpoint e1 where e1.parent = endpoint.id)>0, TRUE, FALSE) as children'),
+                    'name',
                     \DB::raw('name as text'),
                     \DB::raw('position as position'),
                     \DB::raw('if(parent = 0,"#",parent) as parent'),
                     \DB::raw('REPLACE(type,"file","icon") as icon_tab'),
                     \DB::raw('REPLACE(type,"file-","") as method'),
-                    "data",
+                    \DB::raw('if(data is null or data = "","{}",data) as data'),
                     "example",
                     "url"
                 ])
@@ -75,6 +76,17 @@ class Endpoint extends BaseModel
     public function getChildrenAttribute($value)
     {
         return (bool) $value;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $value
+     * @return void
+     */
+    public function getDataAttribute($value)
+    {        
+        return json_decode($value);
     }
 
     // start list relation function

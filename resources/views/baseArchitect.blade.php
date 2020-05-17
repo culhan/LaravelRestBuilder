@@ -32,7 +32,7 @@
     <style>
       .scroll-to-top{
         z-index:10;
-      }
+      }     
     </style>
 
     <style>
@@ -166,6 +166,39 @@
         }
     </style>
 
+    <!-- cmd like css -->
+    <style>
+        #background {            
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #console {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #consoletext {
+            color: rgb(255, 255, 255);
+            font-family: Monospace;
+            margin: 10px 0px 0px 10px;
+        }
+
+        #textinput {
+            resize: none;
+            margin: 0px 0px 10px 10px;
+            border: none;
+            outline: none;
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+            font-family: Monospace;
+            width: calc(100% - 20px);
+            overflow: hidden;
+        }
+    </style>
     <link href="{{url('/')}}/vendor/khancode/css/main-architect.css" rel="stylesheet"></head>    
 <body>
     <div class="app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header">
@@ -1396,13 +1429,16 @@
             $( "[href$='"+window.location.pathname+"']" ).parent().addClass('active');
         })        
         $(document).ajaxStart(function(){
-          // Show image container
-          $(".loading").show();
+            // Show image container
+            $(".loading").show();
         });
-        $(document).ajaxComplete(function(){
-          // Hide image container
-          $(".loading").hide();
-        });
+        $(document).ajaxComplete(function(data, xhr){
+            if(xhr.status == 401) {
+                location.reload();
+            } 
+            // Hide image container
+            $(".loading").hide();
+        });        
     </script>
 
     <script>
@@ -1439,7 +1475,7 @@
                 success: function(data) {
                     dataResult += data;                                        
                     $("#modal_sync .modal-body").html(dataResult);
-                    $("#modal_sync").modal('show');
+                    $('#modal_sync').modal({backdrop: 'static', keyboard: false})  
 
                     getComposerUpdateResult()                   
                 },
@@ -1458,11 +1494,21 @@
                     // contentType: "application/json; charset=utf-8",
                     // dataType: "json",
                     success: function(data) {
-                        if( data.status != 'done' ) {
-                            $("#modal_sync .modal-body").html('Masih di proses = <br>'+data.result);
+                        
+                        dataResult = '';
+                        dataResult += '<div id = "background">'
+                            dataResult += '<div id = "console">'
+                                dataResult += '<p id = "consoletext">'
+                                    dataResult += data.result
+                                dataResult += '</p>'
+                            dataResult += '</div>'
+                        dataResult += '</div>'
+
+                        if( data.status != 'done' ) {                            
+                            $("#modal_sync .modal-body").html('Masih di proses <br>'+dataResult);
                             getComposerUpdateResult()
                         }else {
-                            $("#modal_sync .modal-body").html('selesai = <br>'+data.result);
+                            $("#modal_sync .modal-body").html('selesai <br>'+dataResult);
                         }
                     },
                     error: function(data) {
@@ -1481,7 +1527,38 @@
                 // dataType: "json",
                 success: function(data) {
                     dataResult += 'Branch '+data.branch+'<br><br>';
+
+                    if( data.check_changes ) {
+                        dataResult += '<div id = "background">'
+                            dataResult += '<div id = "console">'
+                                dataResult += '<p id = "consoletext">'
+                                    dataResult += data.check_changes
+                                dataResult += '</p>'
+                            dataResult += '</div>'
+                        dataResult += '</div>'
+                    }
+
                     dataResult += data.pull;
+                    
+                    if( data.pull_hash ) {
+                        dataResult += '<div id = "background">'
+                            dataResult += '<div id = "console">'
+                                dataResult += '<p id = "consoletext">'
+                                    dataResult += data.pull_hash
+                                dataResult += '</p>'                                
+                            dataResult += '</div>'
+                        dataResult += '</div>'
+                    }
+
+                    dataResult += '<br>'
+                    dataResult += 'GIT status'
+                    dataResult += '<div id = "background">'
+                        dataResult += '<div id = "console">'
+                            dataResult += '<p id = "consoletext">'
+                                dataResult += data.git_status
+                            dataResult += '</p>'
+                        dataResult += '</div>'
+                    dataResult += '</div>'
 
                     if(data.changes[0]) {
                         jumlah_perubahan = 0;
@@ -1500,7 +1577,8 @@
                         dataResult += '</div>'
                         dataResult += '<button type="button" class="btn btn-primary" onclick="commitPush()">Commit and Push</button>'
                         dataResult += '</form>'
-                    }
+                    }                    
+
                     $("#modal_sync .modal-body").html(dataResult);
                     $("#modal_sync").modal('show');
                 },
@@ -1532,9 +1610,9 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
             <div class="modal-header">            
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
+                <!-- <span aria-hidden="true">&times;</span> -->
+                <!-- </button> -->
             </div>
             <div class="modal-body">
                 
@@ -1565,4 +1643,9 @@
         </div>
     </div>
     @yield('modal')
+    <script>
+        $('.modal').on('hidden.bs.modal', function (e) {
+            $(".modal-backdrop").remove();
+        })
+    </script>
 </html>

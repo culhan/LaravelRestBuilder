@@ -28,19 +28,23 @@ class TableBuilder
         $data['name'] = camel_case($data['table']);        
 
         $rename = null;        
-        if( Request::path() == 'build' || empty($data['id']) ) {
-            $data_system_table = SystemTables::where('name',$data['table'])->first();
-            if(empty($data_system_table)) {
-                $data_system_table = SystemTables::create([
-                    'name'  =>  $data['table']
-                ]);
-            }            
-        }else {            
-            $data_system_table = SystemTables::where('name',$data['id'])->first();
-            if( $data_system_table->name != $data['name'] ){
-                $rename = $data_system_table->name;                
-            }
-        }
+        $data_system_table = SystemTables::updateOrCreate([
+            'name'  => $data['id']
+        ]);
+        // if( Request::path() == 'build' || empty($data['id']) ) {
+        //     $data_system_table = SystemTables::where('name',$data['table'])->first();
+        //     if(empty($data_system_table)) {
+        //         $data_system_table = SystemTables::create([
+        //             'name'  =>  $data['table']
+        //         ]);
+        //     }            
+        // }else {            
+        //     $data_system_table = SystemTables::where('name',$data['id'])->first();
+
+        //     if( $data_system_table->name != $data['name'] ){
+        //         $rename = $data_system_table->name;                
+        //     }
+        // }
         
         $data['id'] = $data_system_table->id;
         

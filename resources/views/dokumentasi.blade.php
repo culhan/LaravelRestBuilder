@@ -8,7 +8,7 @@
     background: rgba(86,61,124,.15);
     padding: 10px;
     border-radius: 5px;
-    overflow: scroll;
+    /* overflow: scroll; */
     /* height: 100%; */
 }
 .tree-detail {
@@ -18,7 +18,7 @@
 }
 .select-method {
     border-radius: .35rem 0 0 .35rem;
-    height: calc(1.5em + .75rem - 2px);
+    /* height: calc(1.5em + .75rem - 2px); */
     width: 100%;
     border: 1px solid #d1d3e2;
     color: #6e707e;
@@ -31,7 +31,8 @@
     width: 100%;
 }
 .dokumentasi button {
-    height: calc(1.5em + .75rem - 2px);
+    padding: 8px;
+    /* height: calc(1.5em + .75rem - 2px); */
 }
 .input-url {
     border-radius:  0 .35rem .35rem 0 !important;
@@ -145,11 +146,11 @@ table .fa-close {
 <link href="{{url('/')}}/vendor/khancode/css/chrome-tabs.css" rel="stylesheet">
 
 <div class="row">
-    <div class="col-md-2 tree-block">
+    <div class="tree-block resizeableDiv1" style="width:20%">
         <div id="jstree"></div>
     </div>
 
-    <div class="col-md-10 tree-detail d-inline-block dokumentasi">
+    <div class="tree-detail d-inline-block dokumentasi resizeableDiv2" style="width:80%">
 
         <div class="chrome-tabs col-md-12" style="--tab-content-margin: 9px">
             <div class="chrome-tabs-content">                        
@@ -189,82 +190,49 @@ table .fa-close {
         <button data-remove-tab>Remove active tab</button>
     </div>
 </div>
-
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Konfirmasi</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            Terdapat perubahan data, 
-            Yakin Akan Keluar ?
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
-            <button type="button" class="btn btn-primary" onclick="closeTabChrome()">Ya</button>
-        </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="env_modal" tabindex="-1" role="dialog" aria-labelledby="env_modal" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="env_modal">ENVIRONMENTS</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form id="form-env">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Key</th>
-                        <th scope="col">Value</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row"></th>
-                        <td><input type="text" name="env_params[0][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,0)"></td>
-                        <td><textarea type="text" name="env_params[0][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>
-                        <td><input type="text" name="env_params[0][desc]" placeholder="description" class="input form-control"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Keluar</button>
-            <button type="button" class="btn btn-primary" onclick="simpanApiEnv()">Simpan</button>
-        </div>
-        </div>
-    </div>
-</div>
-
-
 @endsection
 
 @section('script_add_on')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>    
 
     <script>
-        $( document ).ready(function() {
+        // jstree conditional select node
+        (function ($, undefined) {
+        "use strict";
+        $.jstree.defaults.conditionalselect = function () { return true; };
 
+        $.jstree.plugins.conditionalselect = function (options, parent) {
+            // own function
+            this.select_node = function (obj, supress_event, prevent_open) {
+            if(this.settings.conditionalselect.call(this, this.get_node(obj))) {
+                parent.select_node.call(this, obj, supress_event, prevent_open);
+            }
+            };
+        };
+        })(jQuery);
+
+        $( document ).ready(function() {            
+
+            $(".resizeableDiv1").resizable({
+                minWidth: 250,
+                maxWidth: 600,
+            });
+            $('.resizeableDiv1').resize(function(){
+                $('.resizeableDiv2').width($('.resizeableDiv2').parent().width()-$(".resizeableDiv1").width()-30); 
+            });
+            $(window).resize(function(){
+                $('#resizeableDiv2').width($('.resizeableDiv2').parent().width()-$("#resizeableDiv1").width()-30); 
+                $('#resizeableDiv1').height($('.resizeableDiv2').parent().height()); 
+            });
+
+            storage_parameter.add('list_tab')
             // set variable
             getEnv()
             // untuk refresh
             // $("#jstree").jstree(true).refresh_node(1);
 
             $( ".chrome-tabs-content" ).append(htmlAddButton)
+            chromeTabs.addTab({title: 'New Tab',favicon: 'icon-get'})
 
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip()
@@ -272,46 +240,48 @@ table .fa-close {
 
             $('#jstree').on("changed.jstree", function (e, data) {
                 // console.log(data.selected,data);
-                if(data.node.type == "folder") {
-                    return
-                }
-
-                dataOld = storage_parameter.get('list_tab.'+data.node.id)                
-                if( typeof(dataOld) != 'undefined' ) {
-                    dataOld=dataOld[0]
-                    if( $( "#form-"+dataOld.id ).length == 0 ) {
-                        chromeTabs.addTab({
-                            title: dataOld.text,
-                            favicon: dataOld.icon_tab,
-                            dataAjax: dataOld
-                        },tab)                        
-                    }else {
-                        datatab = $( "#form-"+dataOld.id ).parent().attr('data-tab')
-                        chromeTabs.setCurrentTab( $( "[idTab='"+datatab+"']" ).get(0) )
+                if(data.node) {
+                    if(data.node.type == "folder") {
+                        return
                     }
-                }else {                
-                    $.ajax({
-                        url: '{{url('/')}}/endpoint/'+data.node.id,
-                        type: "GET",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {                        
-                            if( $( "#form-"+data.id ).length == 0 ) {
-                                chromeTabs.addTab({
-                                    title: data.text,
-                                    favicon: data.icon_tab,
-                                    dataAjax: data
-                                },tab)
-                                storage_parameter.add('list_tab.'+data.id,data)
-                            }else {
-                                datatab = $( "#form-"+data.id ).parent().attr('data-tab')
-                                chromeTabs.setCurrentTab( $( "[idTab='"+datatab+"']" ).get(0) )
-                            }
-                        },
-                        error: function (data) {
-                            alert(' data tidak ada ')
+                
+
+                    dataOld = storage_parameter.get('list_tab.'+data.node.id)                
+                    if( typeof(dataOld) != 'undefined' ) {                        
+                        if( $( "#form-"+dataOld.id ).length == 0 ) {
+                            chromeTabs.addTab({
+                                title: dataOld.text,
+                                favicon: dataOld.icon_tab,
+                                dataAjax: dataOld
+                            },tab)                        
+                        }else {
+                            datatab = $( "#form-"+dataOld.id ).parent().attr('data-tab')
+                            chromeTabs.setCurrentTab( $( "[idTab='"+datatab+"']" ).get(0) )
                         }
-                    });
+                    }else {                
+                        $.ajax({
+                            url: '{{url('/')}}/endpoint/'+data.node.id,
+                            type: "GET",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {                        
+                                if( $( "#form-"+data.id ).length == 0 ) {
+                                    chromeTabs.addTab({
+                                        title: data.text,
+                                        favicon: data.icon_tab,
+                                        dataAjax: data
+                                    },tab)
+                                    storage_parameter.update('list_tab.'+data.id,data)
+                                }else {
+                                    datatab = $( "#form-"+data.id ).parent().attr('data-tab')
+                                    chromeTabs.setCurrentTab( $( "[idTab='"+datatab+"']" ).get(0) )
+                                }
+                            },
+                            error: function (data) {
+                                alert(' data tidak ada ')
+                            }
+                        });
+                    }
                 }
 
             });
@@ -367,21 +337,25 @@ table .fa-close {
                     }
 
                 }
-            }).bind("move_node.jstree", function (e, data) {
-                // data.rslt.o is a list of objects that were moved
-                // Inspect data using your fav dev tools to see what the properties are
-                // ref = $('#jstree').jstree(true)
-                // v = $('#jstree').jstree(true).get_json('#', {flat:true})
-                // mytext = JSON.stringify(v);
-
-                // rename
-                // $("#demo1").jstree('rename_node', node , text );
-
-                //position index point in group                
+            }).bind("move_node.jstree", function (e, data) {             
                 newPostionIndex = data.position
                 parent = data.parent
-                id = data.node.id
-                console.log(newPostionIndex,parent,id,data)
+                id = data.node.id                
+                formData = new FormData();
+                formData.append('child', data.instance.get_node(data.node.parent).children)
+                formData.append('parent', parent)
+                
+                $.ajax({
+                    url: baseUrl + '/updatePositionApi',
+                    type: 'POST',
+                    crossDomain: true,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    complete: function (data) {
+                        // storage_parameter.update('list_tab.' + data.responseJSON.id, data.responseJSON)
+                    }
+                });
             });
             
         });
@@ -519,6 +493,10 @@ table .fa-close {
             chromeTabs.removeTab( $( "[idTab='"+window.idTabChanged+"']" ).get(0), true )
         }
 
+        function closeTabChromeAfter(tab) {
+            chromeTabs.removeTab( $( "[idTab='"+tab+"']" ).get(0), true )
+        }
+
         function addListQueryParams(e,idFTab) {            
             if( $(e).parent().parent().next().length == 0) {  
                 idFTab++
@@ -590,23 +568,33 @@ table .fa-close {
             $(e).parent().parent().remove()
         }
 
-        function addListEnvParams(e,idFTab) {
+        function addListEnvParams(e,idFTab) {            
             if( $(e).parent().parent().next().length == 0) {  
                 idFTab++
                 htmlTr = ''
                 htmlTr += '<tr>'
                     htmlTr += '<th scope="row"></th>'
                     htmlTr += '<td><input type="text" name="env_params['+idFTab+'][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,'+idFTab+');"></td>'
-                    htmlTr += '<td><texarea type="text" name="env_params['+idFTab+'][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>'
+                    htmlTr += '<td><textarea type="text" name="env_params['+idFTab+'][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>'
                     htmlTr += '<td><input type="text" name="env_params['+idFTab+'][desc]" placeholder="description" class="input form-control"></td>'
                 htmlTr += '</tr>'
 
-                $(e).parent().parent().find('th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')
+                $(e).parent().parent().find('th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')                
                 $(e).parent().parent().parent().append( htmlTr )
             }
         }
 
-        function addTabChrome({ name = 'Untitled Request', id = 0, url = '', method = 'get', deskripsi = '' } = {},idTab) {            
+        function addTabChrome({ 
+                name = 'Untitled Request', 
+                id = 0, 
+                url = '', 
+                method = 'get', 
+                description = '', 
+                parent = '', 
+                position = '',
+                query_params = {}
+            } = {},idTab) {
+
             tab++
 
             htmlTabContent = ''
@@ -614,38 +602,54 @@ table .fa-close {
                 htmlTabContent += '<form id="form-'+id+'" enctype="multipart/form-data">'
                 htmlTabContent += '<div class="row">'
                     htmlTabContent += '<div class="col-md-10">'
-                        htmlTabContent += '<h5>'+name+'</h5>'
+                        htmlTabContent += '<input type="text" class="input-name form-control" aria-label="" value="'+name+'" name="name">'
                     htmlTabContent += '</div>'
                     htmlTabContent += '<div class="col-md-2 d-flex">'
                         htmlTabContent += '<p class="ml-auto"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#env_modal">Environment</button></p>'
                     htmlTabContent += '</div>'
                     htmlTabContent += '<div class="col-md-12">'
-                        htmlTabContent += '<textarea name="data[description]" class="form-control mb-3 desc-textarea" rows="1" placeholder="deskripsi">'+deskripsi+'</textarea>'
+                        htmlTabContent += '<textarea name="description" class="form-control mb-3 desc-textarea" rows="1" placeholder="deskripsi">'+description+'</textarea>'
                     htmlTabContent += '</div>'
                 htmlTabContent += '</div>'
                 htmlTabContent += '<div class="row">'
-                    htmlTabContent += '<div class="col-md-12">'
-                        htmlTabContent += '<div class="input-group mb-3">'
-                            htmlTabContent += '<div class="input-group-prepend prepend-method">'
-                                htmlTabContent += '<select class="select-method" name="method">'
-                                    htmlTabContent += '<option value="get" selected>GET</option>'
-                                    htmlTabContent += '<option value="post">POST</option>'
-                                    htmlTabContent += '<option value="put">PUT</option>'
-                                    htmlTabContent += '<option value="delete">DELETE</option>'
-                                htmlTabContent += '</select>'
-                            htmlTabContent += '</div>'
-                            htmlTabContent += '<input type="hidden" name="id" value="'+id+'">'
-                            htmlTabContent += '<input type="text" class="input-url form-control" aria-label="Text input with dropdown button" value="'+url+'" name="url">'
-                            htmlTabContent += '<button type="button" class="btn btn-primary" style="margin-left:10px;" onclick="submitForm(this,'+tab+')">Send</button>                '
-                            htmlTabContent += '<div class="dropdown">'
-                                htmlTabContent += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:10px;">'
-                                    htmlTabContent += 'Save'
-                                htmlTabContent += '</button>'
-                                htmlTabContent += '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'
-                                    htmlTabContent += '<a class="dropdown-item" href="#">Save As</a>                        '
+                    htmlTabContent += '<div class="col-md-12 mb-3">'
+                        
+                        htmlTabContent += '<div class="col-md-10" style="padding: 0;margin-right: 0;float: left;">'
+                            htmlTabContent += '<div class="input-group">'
+                                htmlTabContent += '<div class="input-group-prepend prepend-method">'
+                                    htmlTabContent += '<select class="select-method" name="method">'
+                                        htmlTabContent += '<option value="get" selected>GET</option>'
+                                        htmlTabContent += '<option value="post">POST</option>'
+                                        htmlTabContent += '<option value="put">PUT</option>'
+                                        htmlTabContent += '<option value="delete">DELETE</option>'
+                                    htmlTabContent += '</select>'
                                 htmlTabContent += '</div>'
-                            htmlTabContent += '</div>                '
+                                htmlTabContent += '<input type="hidden" name="id" value="'+id+'">'
+                                htmlTabContent += '<input type="hidden" name="position" value="'+position+'">'
+                                htmlTabContent += '<input type="hidden" name="parent" value="'+parent+'">'
+                                htmlTabContent += '<input type="text" class="input-url form-control" aria-label="Text input with dropdown button" value="'+url+'" name="url">'
+                            htmlTabContent += '</div>'
                         htmlTabContent += '</div>'
+
+                        htmlTabContent += '<div class="col-md-2" style="padding: 0;float: right;">'
+                            
+                                
+                                htmlTabContent += '<div class="btn-group" style="float:right">'
+                                    htmlTabContent += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:10px;">'
+                                        htmlTabContent += 'Save'
+                                    htmlTabContent += '</button>'
+                                    htmlTabContent += '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'
+                                        htmlTabContent += '<a class="dropdown-item" href="#" onclick="saveApi(this,'+tab+')">Save</a>'
+                                        htmlTabContent += '<a class="dropdown-item" href="#">Save As</a>'
+                                    htmlTabContent += '</div>'
+                                htmlTabContent += '</div>'
+
+                                htmlTabContent += '<button type="button" class="btn btn-primary" style="margin-left: 10px;float: right;" onclick="submitForm(this,'+tab+')">Send</button>'
+                            
+                        htmlTabContent += '</div>'
+                    htmlTabContent += '</div>'
+
+                    htmlTabContent += '<div class="col-md-12">'
                         htmlTabContent += '<ul class="nav nav-tabs" id="myTab" role="tablist">'
                             htmlTabContent += '<li class="nav-item">'
                                 htmlTabContent += '<a class="nav-link active" data-toggle="tab" href="#query_params_'+tab+'" role="tab" aria-controls="query_params_'+tab+'" aria-selected="true">Params</a>'
@@ -740,15 +744,16 @@ table .fa-close {
                                     htmlTabContent += '</table>'
                                 htmlTabContent += '</div>'
                             htmlTabContent += '</div>'
-                        htmlTabContent += '</div>            '
+                        htmlTabContent += '</div>'
                     htmlTabContent += '</div>'
+
                 htmlTabContent += '</div>'
                 htmlTabContent += '<ul class="nav nav-tabs" id="tabResponse'+tab+'" role="tablist">'
                     htmlTabContent += '<li class="nav-item">'
                         htmlTabContent += '<a class="nav-link active" data-toggle="tab" href="#response_'+tab+'" role="tab" aria-controls="response_'+tab+'" aria-selected="true">Response</a>'
                     htmlTabContent += '</li>'
                 htmlTabContent += '</ul>'
-                htmlTabContent += '<div class="tab-content">                  '
+                htmlTabContent += '<div class="tab-content">'                    
                     htmlTabContent += '<div class="tab-pane fade show active" id="response_'+tab+'" role="tabpanel" aria-labelledby="response_'+tab+'-tab">'
                         htmlTabContent += '<div class="col-md text-justify">'
                         htmlTabContent += '<p>Belum ada response</p>'                        
@@ -849,12 +854,16 @@ table .fa-close {
         })        
         el.addEventListener('tabAdd', ({ detail }) => {
             dataAjax = {}
-            if( detail.tabProperties.dataAjax ) {
+            if( detail.tabProperties.dataAjax ) {                
                 dataAjax = {
-                    'id':detail.tabProperties.dataAjax.id,
-                    'name':detail.tabProperties.dataAjax.text,
-                    'url':detail.tabProperties.dataAjax.url,
-                    'method':detail.tabProperties.dataAjax.method
+                    'name' : detail.tabProperties.dataAjax.name, 
+                    'id' : detail.tabProperties.dataAjax.id, 
+                    'url' : detail.tabProperties.dataAjax.url, 
+                    'method' : detail.tabProperties.dataAjax.method, 
+                    'description' : detail.tabProperties.dataAjax.data.description, 
+                    'parent' : detail.tabProperties.dataAjax.parent, 
+                    'position' : detail.tabProperties.dataAjax.position,
+                    'query_params' : detail.tabProperties.dataAjax.data.query_params
                 }
             }
             addTabChrome(dataAjax,tab),
@@ -912,6 +921,91 @@ table .fa-close {
     </script>
     <script src="<?php echo URL::to('/vendor/khancode/js/src/ace.js');?>"></script>
     <script src="{{url('/')}}/vendor/khancode/js/submit.js"></script>
+
+    <script>
+        function openNewTab(tab) {
+            window.open(storage_parameter.get("code_editor_response_editor" + tab)+'&show_html=1', '__new')
+        }
+    </script>
 @endsection
 
-    
+@section('modal')
+<div class="modal fade" id="simpanEndpointModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Konfirmasi</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+            <button type="button" class="btn btn-primary" data-save="modal">Simpan</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Konfirmasi</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Terdapat perubahan data, 
+            Yakin Akan Keluar ?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+            <button type="button" class="btn btn-primary" onclick="closeTabChrome()">Ya</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="env_modal" tabindex="-1" role="dialog" aria-labelledby="env_modal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="env_modal">ENVIRONMENTS</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="form-env">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Key</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row"></th>
+                        <td><input type="text" name="env_params[0][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,0)"></td>
+                        <td><textarea type="text" name="env_params[0][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>
+                        <td><input type="text" name="env_params[0][desc]" placeholder="description" class="input form-control"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Keluar</button>
+            <button type="button" class="btn btn-primary" onclick="simpanApiEnv()">Simpan</button>
+        </div>
+        </div>
+    </div>
+</div>
+@endsection

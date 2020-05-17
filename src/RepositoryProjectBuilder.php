@@ -17,24 +17,25 @@ class RepositoryProjectBuilder
     static function sync()
     {
         $returnPull = '';
+        $pull_hash = '';
         $folder = base_path()."/".config('laravelrestbuilder.copy_to');
         $check_changes = shell_exec('cd '.$folder.' && git fetch origin && git log HEAD..origin/master --oneline 2>&1');        
         if( !empty($check_changes) ) {
-            $returnPull .= self::write($check_changes).'<br>';
         	$exec = 'cd '.$folder.' 2>&1 && git pull origin master 2>&1';
-        	$commit_hash = shell_exec($exec);        	
-            $returnPull .= 'PULL status <br> - repository pulled <br> <br>';
-            if( !empty($commit_hash) ) {
-                $returnPull .= 'Result <br>'.self::write($commit_hash);
-            }
-        }else {
-            $git_status = self::execute("git status 2>&1",$folder);
-        	$returnPull .= 'PULL status <br> - repository updated <br>'.self::write($git_status['out']).self::write($git_status['err']);
+        	$pull_hash = shell_exec($exec);
+            $returnPull .= 'PULL status <br> - repository pulled <br> <br>';            
+        }else {            
+        	$returnPull .= 'PULL status <br> - repository updated <br>';
         }   
         
+        $git_status = self::execute("git status 2>&1",$folder);
+
         return [
             'branch'    => shell_exec('cd '.$folder.' && git rev-parse --abbrev-ref HEAD 2>&1'),
             'pull' => $returnPull,
+            'pull_hash' => self::write($pull_hash),
+            'git_status'    => self::write($git_status['out']).self::write($git_status['err']),
+            'check_changes' => self::write($check_changes),
             'changes'   => self::status()
         ];
     }
@@ -87,7 +88,7 @@ class RepositoryProjectBuilder
     {
         $folder = base_path()."/".config('laravelrestbuilder.copy_to');
         if( !file_exists($folder."/composerUpdateIsRunning") ){            
-            shell_exec("cd ".$folder." && folder=".$folder." /home/composerUpdate.sh >/dev/null 2>&1 &");
+            shell_exec("cd ".$folder." && param=\"".$folder." ".config('laravelrestbuilder.project_id')."\" /home/composerUpdate.sh >/dev/null 2>&1 &");
             echo 'process running';
         }else {
             echo 'another process still running';
@@ -99,8 +100,8 @@ class RepositoryProjectBuilder
         $folder = base_path()."/".config('laravelrestbuilder.copy_to');
         return [
             'status'    => (file_exists($folder."/composerUpdateIsRunning")) ? 'run':'done',
-            'result'    => self::write(file_get_contents($folder."/processBuilder.txt"))
-        ];
+            'result'    => self::write(file_get_contents("/var/www/".config('laravelrestbuilder.project_id')."_process.txt"))
+        ];        
     }
 
     /**

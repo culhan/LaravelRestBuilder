@@ -69,8 +69,65 @@ class DokumentasiBuilder
     {        
         return Endpoint::getAll()
             ->where('id',$id)
-            ->first();
+            ->firstOrFail();
         
+    }
+    
+    /**
+     * Undocumented function
+     *
+     * @param [type] $id
+     * @return void
+     */
+    public function updatePositionApi()
+    {
+        $input = Request::all();
+        
+        $child = explode(',',$input['child']);
+
+        foreach ($child as $key => $value) {
+            $this->endpoint($value)->update([
+                'parent'    => $input['parent'],
+                'position'  => $key,
+            ]);
+        }
+
+        return 'ok';
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function saveEndpoint()
+    {        
+        $input = Request::all();
+        
+        if( empty($input['id']) ) {
+            $result = Endpoint::create([
+                'data'  => json_encode($input),
+                'type'  => 'file-'.$input['method'],
+                'parent'    => $input['parent'],
+                'url'   => $input['url'],
+                'name'  => $input['name'],
+                'position'  => 9999
+            ]);
+
+            $input['id'] = $result->id;
+        }else {
+            $endpoint = Endpoint::getAll()->where('id',$input['id'])->firstOrFail();
+            $result = $endpoint->update([
+                'data'  => json_encode($input),
+                'type'  => 'file-'.$input['method'],
+                // 'parent'    => $input['parent'],
+                'url'   => $input['url'],
+                'name'  => $input['name'],
+                // 'position'  => $input['position']
+            ]);
+        }
+
+        return $this->endpoint($input['id']);
     }
 
     /**
@@ -80,61 +137,92 @@ class DokumentasiBuilder
      * @return void
      */
     public function callApi()
-    {        
-        //Initialise the cURL var
-        $ch = curl_init();
-
-        //Get the response from cURL
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                
-        //Set the Url
-        curl_setopt($ch, CURLOPT_URL, Request::get('url'));
-        
+    {                
         // set header
-        if(Request::has('headers')) {
-            $header_data = [];
+        $header_data = [];
+        if(Request::has('headers')) {            
             foreach (Request::get('headers') as $key => $value) {
-                $header_data[$key] = $value['key'].':'.$value['value'];
+                if( !empty($value['key']) ) {
+                    $header_data[$value['key']] = $value['value'];
+                }
             }
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $header_data);            
         }
         
-        // set method
-        if(Request::get('method') == 'put') {                        
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        $param_data = [];
+        if(Request::has('query_params')) {            
+            foreach (Request::get('query_params') as $key => $value) {
+                if( !empty($value['key']) ) {
+                    $param_data[$value['key']] = $value['value'];
+                }
+            }
         }
-                
-        // Create a POST array with the file in it
+
+        $raw_data = [];
+        if(Request::has('raw_data')) {            
+            $raw_data = Request::get('raw_data');
+        }
+        
+        $postData = [];
         if(Request::get('method') == 'post') {
-            if(Request::has('bodies')) {
-                $postData = [];
-                foreach (Request::get('bodies') as $key => $value) {
+            if(Request::has('bodies')) {                
+                foreach (Request::get('bodies') as $key => $value) {                    
+                    if( empty($value['key']) ) continue;
                     if( $value['type'] == 'text' ) {
-                        $postData[$value['key']] = $value['value'];    
+                        $postData[] = [
+                            'name'  => $value['key'],
+                            'contents'  => $value['value']
+                        ];                 
                     }else {
                         Storage::put($value->getClientOriginalName().date('YmdHis'), file_get_contents($value->getRealPath()));
-                        $postData[$key] = Storage::get($value->getClientOriginalName().date('YmdHis'));
+                        $postData[] = [
+                            'name'  => $value['key'],
+                            'contents'  => Storage::get($value->getClientOriginalName().date('YmdHis')) 
+                        ];
+                    }
+                }                
+                
+            }
+        }
+        
+        $client = new \GuzzleHttp\Client();
+        try {            
+            $res = $client->request(Request::get('method'), Request::get('url'), [
+                    'headers' => $header_data,
+                    'query' => $param_data,
+                    'multipart'   => $postData,                    
+                    'http_errors'   => false,
+                    'request.options'   => [
+                        'exceptions'    => false,
+                    ]
+                ]+(  !empty($raw_data)?['body'  => $raw_data]:[]  ));
+            
+            if(Request::has('bodies')) {
+                foreach (Request::get('bodies') as $key => $value) {
+                    if( $value['type'] == 'file' ) {                
+                        Storage::delete($value->getClientOriginalName().date('YmdHis'));            
                     }
                 }
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
             }
+
+        } catch (\Exception  $exception) {
+            return [
+                'data'  => '',
+                'error' => 1,
+                'message'   => $exception->getMessage()
+            ];
+        }        
+        
+        $body = $res->getBody();
+
+        if(Request::has('show_html')) {
+            return mb_convert_encoding($body->getContents(), 'UTF-8', 'UTF-8');
         }
 
-        // Execute the request
-        $return = curl_exec($ch);
-
-        foreach (Request::get('bodies') as $key => $value) {
-            if( $value['type'] == 'file' ) {                
-                Storage::delete($value->getClientOriginalName().date('YmdHis'));            
-            }
-        }
-
-        // Check the return value of curl_exec(), too
-        if ($return === false) {
-            throw new \Exception(curl_error($ch), curl_errno($ch));
-        }
-
-        return $return;
+        return [
+                'data'  => mb_convert_encoding($body->getContents(), 'UTF-8', 'UTF-8'),
+                'error' => 0,
+                'message'   => ''
+        ];        
     }
 
     /**

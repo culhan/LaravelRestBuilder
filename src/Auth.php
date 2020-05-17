@@ -91,6 +91,8 @@ class Auth
     {
         auth()->guard('laravelrestbuilder_auth')->logout();
 
+        session()->flush();
+
         return redirect('/KhanCodeLogout');
     }
 }

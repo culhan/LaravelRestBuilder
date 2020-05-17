@@ -1685,12 +1685,16 @@
                     '<div class="col-sm-9">'+
                         '<input type="" class="form-control route_sementara[param][name]" placeholder="nama parameter" name="route_sementara[param]['+i_ele+'][name]">'+
                     '</div>'+
+                '</div>'+
+                '<div class="row mb-3">'+
                     '<div class="col-sm-3" style="padding-top:5px;">'+
                         '<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Class</label>'+
                     '</div>'+
                     '<div class="col-sm-9">'+                        
                         '<input class="form-control class_param_'+i_ele+'" type="" name="route_sementara[param]['+i_ele+'][class]">'+
                     '</div>'+
+                '</div>'+
+                '<div class="row mb-3">'+
                     '<div class="col-sm-12">'+
                         '<button type="button" class="btn btn-danger float-right btn-sm btn-delete" onclick="remove_kolom_parameter_route('+i_route+','+i_ele+')">x</button>'+
                     '</div>'+

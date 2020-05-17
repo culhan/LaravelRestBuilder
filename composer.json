@@ -14,7 +14,8 @@
     "require": {
         "illuminate/support": "~5",
         "doctrine/dbal": "v2.9.2",
-        "khancode/laravelbaserest": "dev-master"
+        "khancode/laravelbaserest": "dev-master",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.0",
