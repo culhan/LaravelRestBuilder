@@ -4,6 +4,9 @@
 
 @section('content')
 <style>
+.jstree-contextmenu{
+    z-index:10
+}
 .tree-block {
     background: rgba(86,61,124,.15);
     padding: 10px;
@@ -15,6 +18,9 @@
     padding: 0px;
     border-radius: 5px;
     /* height: 100%; */
+}
+.jstree-anchor {
+    width:100%
 }
 .select-method {
     border-radius: .35rem 0 0 .35rem;
@@ -211,6 +217,31 @@ table .fa-close {
         };
         })(jQuery);
 
+        function customContextMenu($node,tree){
+            var items = {
+                addItem: { // The "rename" menu item
+                    label: "New Folder",
+                    action: function (obj) {
+                        console.log('add',obj)
+                    }
+                },
+                renameItem: { // The "rename" menu item
+                    label: "Rename",
+                    action: function (obj) {
+						console.log('delete',$node,tree, obj)
+					}
+                },
+                deleteItem: { // The "delete" menu item
+                    label: "Delete",
+                    action: function (obj) {
+                        console.log('delete',obj)
+                    }
+                }
+            };
+
+            return items;
+        }
+
         $( document ).ready(function() {            
 
             $(".resizeableDiv1").resizable({
@@ -238,13 +269,12 @@ table .fa-close {
                 $('[data-toggle="tooltip"]').tooltip()
             })
 
-            $('#jstree').on("changed.jstree", function (e, data) {
-                // console.log(data.selected,data);
+            $('#jstree').on("changed.jstree", function (e, data) {                
+
                 if(data.node) {
                     if(data.node.type == "folder") {
                         return
-                    }
-                
+                    }                
 
                     dataOld = storage_parameter.get('list_tab.'+data.node.id)                
                     if( typeof(dataOld) != 'undefined' ) {                        
@@ -297,7 +327,10 @@ table .fa-close {
                     },
                     "check_callback" : true
                 },
-                "plugins" : [ "dnd", "wholerow", "types", "search", "json_data" ],                
+                'contextmenu' : {
+                    'items' : customContextMenu
+                },
+                "plugins" : [ "dnd", "wholerow", "types", "search", "json_data", "contextmenu" ],                
                 'types': {
                     "root" : { // the root node can have only "branch" children
                         "valid_children" : [
@@ -336,7 +369,7 @@ table .fa-close {
                         'icon': "icon-delete"
                     }
 
-                }
+                }                
             }).bind("move_node.jstree", function (e, data) {             
                 newPostionIndex = data.position
                 parent = data.parent
@@ -353,12 +386,26 @@ table .fa-close {
                     processData: false,
                     contentType: false,
                     complete: function (data) {
-                        // storage_parameter.update('list_tab.' + data.responseJSON.id, data.responseJSON)
+                        addLinkRight()
                     }
                 });
+            }).bind("ready.jstree",function(e,data){
+                addLinkRight()
+            }).bind("open_node.jstree",function(e,data){
+                addLinkRight()
+            }).bind("refresh.jstree",function(e,data){
+                addLinkRight()
             });
             
         });
+
+        function addLinkRight() {
+            $("#jstree").find("[class*='folder']").each(function(i,k){                
+                if( !$(k).parent().find("[class*='fa-ellipsis-h']").length ) {
+                    $(k).parent().append('<i class="fa fa-ellipsis-h" style="margin-right:25px;float:right;padding:5px" onclick="editFolder('+$(k).parent().parent().attr('id')+')"></i>')
+                }
+            })
+        }
     </script>
     <script>
         // khusus storage
@@ -592,11 +639,13 @@ table .fa-close {
                 description = '', 
                 parent = '', 
                 position = '',
-                query_params = {}
+                query_params = {},
+                headers = {},
+                bodies = {}
             } = {},idTab) {
 
             tab++
-
+            
             htmlTabContent = ''
             htmlTabContent += '<div class="atas tab-pane fade col-md" id="top-tab-content-'+tab+'" data-tab="'+(idTab+1)+'" role="tabpanel" aria-labelledby="top-tab">'
                 htmlTabContent += '<form id="form-'+id+'" enctype="multipart/form-data">'
@@ -677,12 +726,31 @@ table .fa-close {
                                             htmlTabContent += '</tr>'
                                         htmlTabContent += '</thead>'
                                         htmlTabContent += '<tbody>'
+
+                                        iqp = 0
+                                        $.each(query_params,function(i,k){
+                                            if(k.key) {
+                                                if(!k.value) k.value = ''
+                                                if(!k.desc) k.desc = ''
+                                                htmlTabContent += '<tr>'
+                                                    htmlTabContent += '<th scope="row"></th>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.key+'" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.value+'" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.desc+'" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control"></td>'
+                                                htmlTabContent += '</tr>'
+                                                iqp++
+                                            }
+                                        })
+
+                                        if(iqp==0) {
                                             htmlTabContent += '<tr>'
                                                 htmlTabContent += '<th scope="row"></th>'
-                                                htmlTabContent += '<td><input type="text" name="query_params[0][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
-                                                htmlTabContent += '<td><input type="text" name="query_params[0][value]" placeholder="value" class="input form-control"></td>'
-                                                htmlTabContent += '<td><input type="text" name="query_params[0][desc]" placeholder="description" class="input form-control"></td>'
-                                            htmlTabContent += '</tr>'                                            
+                                                htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
+                                                htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control"></td>'
+                                                htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control"></td>'
+                                            htmlTabContent += '</tr>'
+                                        }
+
                                         htmlTabContent += '</tbody>'
                                     htmlTabContent += '</table>'
                                 htmlTabContent += '</div>'
@@ -702,12 +770,31 @@ table .fa-close {
                                             htmlTabContent += '</tr>'
                                         htmlTabContent += '</thead>'
                                         htmlTabContent += '<tbody>'
+
+                                        ih = 0
+                                        $.each(headers,function(i,k){
+                                            if(k.key) {
+                                                if(!k.value) k.value = ''
+                                                if(!k.desc) k.desc = ''
+                                                htmlTabContent += '<tr>'
+                                                    htmlTabContent += '<th scope="row"></th>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.key+'" name="headers['+ih+'][key]" placeholder="key" class="input form-control" onkeyup="addListHeader(this,'+idTab+');"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.value+'" name="headers['+ih+'][value]" placeholder="value" class="input form-control"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.desc+'" name="headers['+ih+'][desc]" placeholder="description" class="input form-control"></td>'
+                                                htmlTabContent += '</tr>'
+                                                ih++
+                                            }
+                                        })
+
+                                        if(ih==0) {
                                             htmlTabContent += '<tr>'
                                                 htmlTabContent += '<th scope="row"></th>'
                                                 htmlTabContent += '<td><input type="text" name="headers[0][key]" placeholder="key" class="input form-control" onkeyup="addListHeader(this,'+idTab+');"></td>'
                                                 htmlTabContent += '<td><input type="text" name="headers[0][value]" placeholder="value" class="input form-control"></td>'
                                                 htmlTabContent += '<td><input type="text" name="headers[0][desc]" placeholder="description" class="input form-control"></td>'
-                                            htmlTabContent += '</tr>'                                            
+                                            htmlTabContent += '</tr>'
+                                        }
+                                        
                                         htmlTabContent += '</tbody>'
                                     htmlTabContent += '</table>'
                                 htmlTabContent += '</div>'
@@ -728,6 +815,29 @@ table .fa-close {
                                             htmlTabContent += '</tr>'
                                         htmlTabContent += '</thead>'
                                         htmlTabContent += '<tbody>'
+
+                                        ib = 0
+                                        $.each(bodies,function(i,k){
+                                            if(k.key) {
+                                                if(!k.value) k.value = ''
+                                                if(!k.desc) k.desc = ''
+                                                htmlTabContent += '<tr>'
+                                                    htmlTabContent += '<th scope="row"></th>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.key+'" name="bodies['+ib+'][key]" placeholder="key" class="input form-control" onkeyup="addListBody(this,'+idTab+');"></td>'
+                                                    htmlTabContent += '<td>'
+                                                        htmlTabContent += '<select class="form-control" name="bodies['+ib+'][type]" onchange="selectTypeBody(this,'+idTab+');">'
+                                                            htmlTabContent += '<option value="text" '+((k.type == 'text')?'selected':'')+'>Text</option>'
+                                                            htmlTabContent += '<option value="file" '+((k.type == 'file')?'selected':'')+'>File</option>'
+                                                        htmlTabContent += '</select>'
+                                                    htmlTabContent += '</td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.value+'" name="bodies['+ib+'][value]" placeholder="value" class="input form-control"></td>'                                                
+                                                    htmlTabContent += '<td><input type="text" value="'+k.desc+'" name="bodies['+ib+'][desc]" placeholder="description" class="input form-control"></td>'
+                                                htmlTabContent += '</tr>'
+                                                ib++
+                                            }
+                                        })
+
+                                        if(ib==0) {
                                             htmlTabContent += '<tr>'
                                                 htmlTabContent += '<th scope="row"></th>'
                                                 htmlTabContent += '<td><input type="text" name="bodies[0][key]" placeholder="key" class="input form-control" onkeyup="addListBody(this,'+idTab+');"></td>'
@@ -740,6 +850,9 @@ table .fa-close {
                                                 htmlTabContent += '<td><input type="text" name="bodies[0][value]" placeholder="value" class="input form-control"></td>'                                                
                                                 htmlTabContent += '<td><input type="text" name="bodies[0][desc]" placeholder="description" class="input form-control"></td>'
                                             htmlTabContent += '</tr>'
+                                        }
+
+
                                         htmlTabContent += '</tbody>'
                                     htmlTabContent += '</table>'
                                 htmlTabContent += '</div>'
@@ -849,8 +962,15 @@ table .fa-close {
 
         chromeTabs.init(el)
 
-        el.addEventListener('activeTabChange', ({ detail }) => {            
-            openTab( $(detail.tabEl).attr('idTab') )
+        el.addEventListener('activeTabChange', ({ detail }) => {
+            idTab = $(detail.tabEl).attr('idTab')
+            openTab( idTab )
+            
+            $('#jstree').jstree("deselect_all");
+            selected_id = $("#top-tab-content-"+idTab).find("[name='id']").val()
+            if(selected_id) {
+                $('#jstree').jstree('select_node', selected_id);
+            }
         })        
         el.addEventListener('tabAdd', ({ detail }) => {
             dataAjax = {}
@@ -863,7 +983,9 @@ table .fa-close {
                     'description' : detail.tabProperties.dataAjax.data.description, 
                     'parent' : detail.tabProperties.dataAjax.parent, 
                     'position' : detail.tabProperties.dataAjax.position,
-                    'query_params' : detail.tabProperties.dataAjax.data.query_params
+                    'query_params' : detail.tabProperties.dataAjax.data.query_params,
+                    'headers' : detail.tabProperties.dataAjax.data.headers,
+                    'bodies' : detail.tabProperties.dataAjax.data.bodies
                 }
             }
             addTabChrome(dataAjax,tab),

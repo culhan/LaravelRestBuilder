@@ -80,4 +80,71 @@ class Helper
 							$intermediate);
 		return $titleStr;
     }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $data
+     * @param string $append
+     * @return void
+     */
+    static function write($data,$append = '')
+    {
+        return $append.str_replace("\n","<br>".$append,$data);
+    }
+    
+    /**
+     * Executes a command and reurns an array with exit code, stdout and stderr content
+     * @param string $cmd - Command to execute
+     * @param string|null $workdir - Default working directory
+     * @return string[] - Array with keys: 'code' - exit code, 'out' - stdout, 'err' - stderr
+     */
+    static function execute($cmd, $workdir = null) {
+
+        if (is_null($workdir)) {
+            $workdir = __DIR__;
+        }
+
+        $descriptorspec = array(
+        0 => array("pipe", "r"),  // stdin
+        1 => array("pipe", "w"),  // stdout
+        2 => array("pipe", "w"),  // stderr
+        );
+
+        $process = proc_open($cmd, $descriptorspec, $pipes, $workdir, null);
+
+        $stdout = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        return [
+            'code' => proc_close($process),
+            'out' => trim($stdout),
+            'err' => trim($stderr),
+        ];
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $string
+     * @param string $start
+     * @param string $end
+     * @return void
+     */
+    static function get_string_between($string, $start = "", $end = ""){
+        if (strpos($string, $start)) { // required if $start not exist in $string
+            $startCharCount = strpos($string, $start) + strlen($start);
+            $firstSubStr = substr($string, $startCharCount, strlen($string));
+            $endCharCount = strpos($firstSubStr, $end);
+            if ($endCharCount == 0) {
+                $endCharCount = strlen($firstSubStr);
+            }
+            return substr($firstSubStr, 0, $endCharCount);
+        } else {
+            return '';
+        }
+    }
 }

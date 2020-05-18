@@ -108,10 +108,10 @@ class DokumentasiBuilder
             $result = Endpoint::create([
                 'data'  => json_encode($input),
                 'type'  => 'file-'.$input['method'],
-                'parent'    => $input['parent'],
-                'url'   => $input['url'],
-                'name'  => $input['name'],
-                'position'  => 9999
+                'parent'    => !empty($input['parent'])?$input['parent']:0,
+                'url'   => !empty($input['url'])?$input['url']:'',
+                'name'  => !empty($input['name'])?$input['name']:0,
+                'position'  => !empty($input['position'])?$input['position']:9999,
             ]);
 
             $input['id'] = $result->id;
@@ -120,10 +120,10 @@ class DokumentasiBuilder
             $result = $endpoint->update([
                 'data'  => json_encode($input),
                 'type'  => 'file-'.$input['method'],
-                // 'parent'    => $input['parent'],
-                'url'   => $input['url'],
-                'name'  => $input['name'],
-                // 'position'  => $input['position']
+                // 'parent'    => !empty($input['parent'])?$input['parent']:0,
+                'url'   => !empty($input['url'])?$input['url']:'',
+                'name'  => !empty($input['name'])?$input['name']:0,
+                // 'position'  => !empty($input['position'])?$input['position']:9999,
             ]);
         }
 

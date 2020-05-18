@@ -23,6 +23,7 @@ if( config('laravelrestbuilder.build_active') )
                 Route::post('lang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@save');
                 Route::get('updateLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@update');
                 Route::get('dropLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@dropLang');
+                Route::get('dokumentasi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@dokumentasi');
             });                                
         });
     });
@@ -41,8 +42,7 @@ if( config('laravelrestbuilder.build_active') )
         Route::post('buildMigration', 'KhanCode\LaravelRestBuilder\TableBuilder@buildMigration');
         Route::get('systemTable', 'KhanCode\LaravelRestBuilder\TableBuilder@systemTable');
         Route::post('build', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@build');
-        Route::get('middleware', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@middleware');
-        Route::get('dokumentasi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@dokumentasi');
+        Route::get('middleware', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@middleware');        
         Route::get('callApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@callApi');
         Route::post('saveApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@saveEndpoint');
         Route::post('updatePositionApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@updatePositionApi');
@@ -55,7 +55,10 @@ if( config('laravelrestbuilder.build_active') )
         Route::get('sync', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@sync');
         Route::get('repoStatus', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@status');
         Route::post('push', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@push');
-        Route::get('composerUpdate', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@composerUpdate');
-        Route::get('composerUpdateResult', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@composerUpdateResult');
+        Route::get('composerUpdate', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@composerUpdate');
+        Route::get('composerUpdateResult', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@composerUpdateResult');
+        Route::get('listPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@listPackage');
+        Route::post('getVersionPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@getVersionPackage');
+        Route::post('addPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@addPackage');        
     });
 }

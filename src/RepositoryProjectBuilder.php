@@ -28,18 +28,27 @@ class RepositoryProjectBuilder
         	$returnPull .= 'PULL status <br> - repository updated <br>';
         }   
         
-        $git_status = self::execute("git status 2>&1",$folder);
+        // jika ada pending push karena belum pull
+        $push_status = Helper::execute("git push origin master 2>&1",$folder);
+
+        $git_status = Helper::execute("git status 2>&1",$folder);                
 
         return [
             'branch'    => shell_exec('cd '.$folder.' && git rev-parse --abbrev-ref HEAD 2>&1'),
             'pull' => $returnPull,
-            'pull_hash' => self::write($pull_hash),
-            'git_status'    => self::write($git_status['out']).self::write($git_status['err']),
-            'check_changes' => self::write($check_changes),
-            'changes'   => self::status()
+            'pull_hash' => Helper::write($pull_hash),
+            'git_status'    => Helper::write($git_status['out']).Helper::write($git_status['err']),
+            'check_changes' => Helper::write($check_changes),
+            'changes'   => self::status(),
+            're_push'   => Helper::write($push_status['out']).Helper::write($push_status['err']),            
         ];
     }
-
+    
+    /**
+     * git status function
+     *
+     * @return void
+     */
     static function status()
     {
         $folder = base_path()."/".config('laravelrestbuilder.copy_to');
@@ -69,6 +78,11 @@ class RepositoryProjectBuilder
         return $arr_return;        
     }
     
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
     static function push()
     {
         $folder = base_path()."/".config('laravelrestbuilder.copy_to');
@@ -76,64 +90,6 @@ class RepositoryProjectBuilder
         $file_add = implode(" ",$file_add);  
         
         $push_exec = shell_exec('cd '.$folder.' && git config user.name "'.auth()->guard('laravelrestbuilder_auth')->user()->name.'" && git add '.$file_add.' && git commit -m "'.addslashes(Request::get('message')).'" && git push origin master 2>&1');
-        return self::write($push_exec);
-    }
-
-    static function write($data,$append = '')
-    {
-        return $append.str_replace("\n","<br>".$append,$data);
-    }
-
-    static function composerUpdate()
-    {
-        $folder = base_path()."/".config('laravelrestbuilder.copy_to');
-        if( !file_exists($folder."/composerUpdateIsRunning") ){            
-            shell_exec("cd ".$folder." && param=\"".$folder." ".config('laravelrestbuilder.project_id')."\" /home/composerUpdate.sh >/dev/null 2>&1 &");
-            echo 'process running';
-        }else {
-            echo 'another process still running';
-        }
-    }
-
-    static function composerUpdateResult()
-    {
-        $folder = base_path()."/".config('laravelrestbuilder.copy_to');
-        return [
-            'status'    => (file_exists($folder."/composerUpdateIsRunning")) ? 'run':'done',
-            'result'    => self::write(file_get_contents("/var/www/".config('laravelrestbuilder.project_id')."_process.txt"))
-        ];        
-    }
-
-    /**
-     * Executes a command and reurns an array with exit code, stdout and stderr content
-     * @param string $cmd - Command to execute
-     * @param string|null $workdir - Default working directory
-     * @return string[] - Array with keys: 'code' - exit code, 'out' - stdout, 'err' - stderr
-     */
-    static function execute($cmd, $workdir = null) {
-
-        if (is_null($workdir)) {
-            $workdir = __DIR__;
-        }
-
-        $descriptorspec = array(
-        0 => array("pipe", "r"),  // stdin
-        1 => array("pipe", "w"),  // stdout
-        2 => array("pipe", "w"),  // stderr
-        );
-
-        $process = proc_open($cmd, $descriptorspec, $pipes, $workdir, null);
-
-        $stdout = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-
-        $stderr = stream_get_contents($pipes[2]);
-        fclose($pipes[2]);
-
-        return [
-            'code' => proc_close($process),
-            'out' => trim($stdout),
-            'err' => trim($stderr),
-        ];
+        return Helper::write($push_exec);
     }
 }
