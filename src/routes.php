@@ -59,6 +59,10 @@ if( config('laravelrestbuilder.build_active') )
         Route::get('composerUpdateResult', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@composerUpdateResult');
         Route::get('listPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@listPackage');
         Route::post('getVersionPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@getVersionPackage');
-        Route::post('addPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@addPackage');        
+        Route::post('addPackage', 'KhanCode\LaravelRestBuilder\ComposerProjectBuilder@addPackage');
+        Route::get('diffFile/{id}', 'KhanCode\LaravelRestBuilder\RepositoryProjectBuilder@diffFile');
+        Route::delete('deleteEndpoint/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@deleteEndpoint');
+        Route::put('renameEndpoint/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@renameEndpoint');
+        Route::post('tambahFolder', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@tambahFolder');
     });
 }

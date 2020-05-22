@@ -17,7 +17,7 @@ class CreateModulsTable extends Migration {
 			$table->increments('id', true);
 			$table->integer('project_id',false,true);
 			$table->string('name')->index();
-            $table->text('detail');
+            $table->longText('detail');
 			$table->softDeletes();
 			$table->string('created_by')
 				->nullable(false);

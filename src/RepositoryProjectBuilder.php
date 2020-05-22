@@ -31,7 +31,7 @@ class RepositoryProjectBuilder
         // jika ada pending push karena belum pull
         $push_status = Helper::execute("git push origin master 2>&1",$folder);
 
-        $git_status = Helper::execute("git status 2>&1",$folder);                
+        $git_status = Helper::execute("git status 2>&1",$folder);        
 
         return [
             'branch'    => shell_exec('cd '.$folder.' && git rev-parse --abbrev-ref HEAD 2>&1'),
@@ -40,7 +40,7 @@ class RepositoryProjectBuilder
             'git_status'    => Helper::write($git_status['out']).Helper::write($git_status['err']),
             'check_changes' => Helper::write($check_changes),
             'changes'   => self::status(),
-            're_push'   => Helper::write($push_status['out']).Helper::write($push_status['err']),            
+            're_push'   => Helper::write($push_status['out']).Helper::write($push_status['err'])
         ];
     }
     
@@ -73,7 +73,7 @@ class RepositoryProjectBuilder
                     }
                 }
             }
-        }
+        }        
 
         return $arr_return;        
     }
@@ -91,5 +91,29 @@ class RepositoryProjectBuilder
         
         $push_exec = shell_exec('cd '.$folder.' && git config user.name "'.auth()->guard('laravelrestbuilder_auth')->user()->name.'" && git add '.$file_add.' && git commit -m "'.addslashes(Request::get('message')).'" && git push origin master 2>&1');
         return Helper::write($push_exec);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    static function diffFile($id)
+    {
+        $folder = base_path()."/".config('laravelrestbuilder.copy_to');
+        $dataChanges = self::status();
+
+        if( $dataChanges[$id] ) {
+            return [
+                'server'    => Helper::execute("git show master:".$dataChanges[$id]['file']." 2>&1", $folder),
+                'work_dir'   => Helper::execute("cat ".$dataChanges[$id]['file']." 2>&1", $folder),
+                'diff'  => Helper::get_string_between(Helper::execute("git diff ".$dataChanges[$id]['file']." 2>&1",$folder)['out'],"@@ -",",")
+            ];
+        }
+
+        return [
+            'server'    => '',
+            'work_dir'  => ''
+        ];
     }
 }

@@ -20,7 +20,10 @@
     /* height: 100%; */
 }
 .jstree-anchor {
-    width:100%
+    /* width:100%; */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .select-method {
     border-radius: .35rem 0 0 .35rem;
@@ -153,6 +156,21 @@ table .fa-close {
 
 <div class="row">
     <div class="tree-block resizeableDiv1" style="width:20%">
+        <li class="jstree-node  jstree-leaf jstree-last">            
+            <div class="row">
+                <div class="col-md-6">
+                    <span style="font-size:medium">{{ session('project')['name'] }}</span><br>
+                    <span style="font-size:small" id="jumlah_endpoint">{{$data['jumlah_endpoint']}} endpoint</span>
+                </div>
+                <div class="btn-group col-md-6" style="right:10px;position:absolute;padding-top:5px;width:15px;height:30">
+                    <span data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="fa fa-ellipsis-h" style="color: rgb(128, 128, 128); height: 25px; cursor: pointer;"></span>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#" onclick="tambahFolder(0)">Tambah Folder</a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        </li>
         <div id="jstree"></div>
     </div>
 
@@ -217,31 +235,6 @@ table .fa-close {
         };
         })(jQuery);
 
-        function customContextMenu($node,tree){
-            var items = {
-                addItem: { // The "rename" menu item
-                    label: "New Folder",
-                    action: function (obj) {
-                        console.log('add',obj)
-                    }
-                },
-                renameItem: { // The "rename" menu item
-                    label: "Rename",
-                    action: function (obj) {
-						console.log('delete',$node,tree, obj)
-					}
-                },
-                deleteItem: { // The "delete" menu item
-                    label: "Delete",
-                    action: function (obj) {
-                        console.log('delete',obj)
-                    }
-                }
-            };
-
-            return items;
-        }
-
         $( document ).ready(function() {            
 
             $(".resizeableDiv1").resizable({
@@ -250,6 +243,9 @@ table .fa-close {
             });
             $('.resizeableDiv1').resize(function(){
                 $('.resizeableDiv2').width($('.resizeableDiv2').parent().width()-$(".resizeableDiv1").width()-30); 
+                $('.jstree-anchor').each(function(i,k){
+                    $(this).width( $(".resizeableDiv1").width()-(($(this).parents('[role="group"]').length)*24)-20 )
+                })
             });
             $(window).resize(function(){
                 $('#resizeableDiv2').width($('.resizeableDiv2').parent().width()-$("#resizeableDiv1").width()-30); 
@@ -269,7 +265,7 @@ table .fa-close {
                 $('[data-toggle="tooltip"]').tooltip()
             })
 
-            $('#jstree').on("changed.jstree", function (e, data) {                
+            $('#jstree').on("select_node.jstree", function (e, data) {                
 
                 if(data.node) {
                     if(data.node.type == "folder") {
@@ -326,11 +322,8 @@ table .fa-close {
                         },
                     },
                     "check_callback" : true
-                },
-                'contextmenu' : {
-                    'items' : customContextMenu
-                },
-                "plugins" : [ "dnd", "wholerow", "types", "search", "json_data", "contextmenu" ],                
+                },                
+                "plugins" : [ "dnd", "wholerow", "types", "search", "json_data" ],                
                 'types': {
                     "root" : { // the root node can have only "branch" children
                         "valid_children" : [
@@ -395,136 +388,150 @@ table .fa-close {
                 addLinkRight()
             }).bind("refresh.jstree",function(e,data){
                 addLinkRight()
+            }).bind("hover_node.jstree",function(e,data) {                
+                $("#jstree").find('[aria-labelledby="'+data.node.id+'_anchor"]').find('[class="fa fa-ellipsis-h"]:first').show()
+            }).bind("dehover_node.jstree",function(e,data) {
+                $("#jstree").find('[aria-labelledby="'+data.node.id+'_anchor"]').find('[class="fa fa-ellipsis-h"]:first').hide()
             });
             
         });
 
         function addLinkRight() {
-            $("#jstree").find("[class*='folder']").each(function(i,k){                
-                if( !$(k).parent().find("[class*='fa-ellipsis-h']").length ) {
-                    $(k).parent().append('<i class="fa fa-ellipsis-h" style="margin-right:25px;float:right;padding:5px" onclick="editFolder('+$(k).parent().parent().attr('id')+')"></i>')
-                }
+            $(".jstree-anchor").each(function(i,k){
+                $(k).before(linkRigth( $(k).parent().attr('id') ))                
+            })
+
+            $('.jstree-anchor').each(function(i,k){
+                $(this).width( $(".resizeableDiv1").width()-(($(this).parents('[role="group"]').length)*24)-20 )
             })
         }
-    </script>
-    <script>
-        // khusus storage
-        var items = {};
 
-        var storage_parameter = {
-            add(index,value) {
-
-                if(index.indexOf('.') !== -1) {
-                    index = index.split(".");
-                    arr1 = ''
-                    $.each(index, function( index_index, value_index ) {
-                        arr1 += '["'+value_index+'"]'
-                        if( !eval('window.items'+arr1) ) {
-                            eval('window.items'+arr1+'={}')
-                        }
-                    })
-
-                    if(typeof value != 'undefined') {
-                        lengthObj = eval('Object.keys(window.items'+arr1+').length')
-                        eval('window.items'+arr1+'['+lengthObj+'] = value')
-                    }
-                }else {                    
-                    if( !window.items[index] ) {
-                        window.items[index] = {}
-                    }
-
-                    if(typeof value != 'undefined') {
-                        lengthObj = Object.keys(window.items[index]).length
-                        window.items[index][lengthObj] = value
-                    }
+        function linkRigth(id) {            
+            jsonNodes = $('#jstree').jstree(true).get_json('#', { flat: true });            
+            $.each(jsonNodes, function (i, val) {
+                if( val.id == id ){
+                    current_node = val
                 }
-                
-                return true
-            },
-            remove(index) {
-                
-                index = index.split(".");
-                arr1 = ''
-                $.each(index, function( index_items, value_items ) {
-                    if( (index_items+1)!=index.length ) {
-                        arr1 += '["'+value_items+'"]'
-                    }else {
-                        last_item = value_items
-                    }
-                })
-                
-                eval('delete window.items'+arr1+'[last_item]')
+            })            
 
-                // re order jika object key berurutan
-                new_data = {}
-                key_only_number = true
-                start = 0                    
-                $.each( eval('window.items'+arr1), function(i,v){
-                    if( !(/^\d+$/.test(i)) ){
-                        key_only_number = false
-                    }
-                    if(typeof v != 'undefined') {
-                        new_data[ start ] = v
-                        start++
-                    }                        
-                });
-                
-                if( key_only_number ) {
-                    eval('window.items'+arr1+'=new_data')
-                }
-                
-            },
-            update(index,value) {
-                if(index.indexOf('.') !== -1) {
-                    index = index.split(".");
-                    arr1 = ''
-                    $.each(index, function( index_items, value_items ) {
-                        arr1 += '["'+value_items+'"]'
-                    })
-                    return eval('window.items'+arr1+'=value')
-                }else {
-                    return window.items[index] = value
-                }
-            },
-            get(index) {
-                if(index.indexOf('.') !== -1) {
-                    index = index.split(".");
-                    arr1 = ''
-                    $.each(index, function( index_items, value_items ) {
-                        arr1 += '["'+value_items+'"]'
-                        if( typeof eval('window.items'+arr1) == 'undefined' ) {
-                            return false
-                        }
-                    })
-                    return eval('window.items'+arr1)
-                }else {
-                    if( typeof window.items[index] == 'undefined' ) {
-                        return false
-                    }else {
-                        return window.items[index]
-                    }
-                }
-            },
-            find(index,value) {
-                its_obj = storage_parameter.get(index)
-                if( typeof its_obj != 'object') {
-                    return -1
-                }
+            html_dropdown = ''
 
-                return_str = -1
-                $.each(its_obj, function( index_its_obj, value_its_obj ) {
-                    if( value_its_obj == value ) {
-                        return_str = index_its_obj
+            html_dropdown += '<div class="btn-group" style="right:0;position:absolute;padding-top:5px;width:15px;height:30">'
+                html_dropdown += '<span data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="fa fa-ellipsis-h" style="display:none;color:#808080;height:25px;cursor:pointer"></span>'
+                html_dropdown += '<div class="dropdown-menu">'                   
+                    if( current_node.type == 'folder') {
+                        html_dropdown += '<a class="dropdown-item" href="#" onclick="tambahFolder('+id+')">Tambah Folder</a>'
                     }
-                });
+                    html_dropdown += '<a class="dropdown-item" href="#" onclick="ubahNamaEndpoint('+id+')">Ubah Nama</a>'
+                    html_dropdown += '<a class="dropdown-item" href="#" onclick="hapusNode('+id+')">Hapus</a>'
+                html_dropdown += '</div>'
+            html_dropdown += '</div>'
 
-                return return_str
-            },
-            all() {
-                return window.items;
-            }
-        };
-    </script>
+            return html_dropdown
+        }
+
+        function tambahFolder(id) {
+            $("#editNodeModal").find("[data-save='modal']").attr('onclick', "tambahFolderServer(" + id + ")")
+
+            data_modal_body = ''
+            data_modal_body += '<input type="text" class="input-name form-control d-none" aria-label="" value="'+id+'" name="parent">'
+            data_modal_body += '<input type="text" class="input-name form-control d-none" aria-label="" value="folder" name="type">'
+            data_modal_body += '<input type="text" class="input-name form-control" aria-label="" value="" placeholder="Nama Folder" name="name">'
+
+            $("#editNodeModal").find("[class='modal-body']").html(data_modal_body)
+            $("#editNodeModal").modal('show');
+        }
+
+        function tambahFolderServer(id) {
+            formData = new FormData();
+            formData.append('parent',$("#editNodeModal").find("[name='parent']").val())
+            formData.append('name',$("#editNodeModal").find("[name='name']").val())
+
+            $.ajax({
+                url: '/tambahFolder',
+                type: 'POST',
+                crossDomain: true,
+                data: formData,
+                processData: false,
+                contentType: false,
+                complete: function (data) {
+                    $("#jstree").jstree("refresh");
+                    $("#editNodeModal").modal('hide');
+                }
+            });
+        }
+
+        function ubahNamaEndpoint(id) {
+            $("#simpanEndpointModal").find("[data-save='modal']").attr('onclick', "saveEditNode(" + id + ")")
+
+            jsonNodes = $('#jstree').jstree(true).get_json('#', { flat: true });
+            $.each(jsonNodes, function (i, val) {
+                if( val.id == id ){
+                    current_node = val
+                }
+            })
+
+            data_modal_body = ''
+            data_modal_body = '<input type="text" class="d-none" value="'+current_node.id+'" name="id">'
+            data_modal_body = '<input type="text" class="input-name form-control" aria-label="" value="'+current_node.text+'" placeholder="Nama" name="name">'
+
+            $("#editNodeModal").find("[class='modal-body']").html(data_modal_body)
+            $("[data-save*='modal']").attr('onclick','ubahNamaEndpointServer('+id+')');
+            $("#editNodeModal").modal('show');
+        }
+
+        function ubahNamaEndpointServer(id) {
+            data_put = {"name":$("#editNodeModal").find("[name='name']").val()}
+
+            $.ajax({
+                url: '/renameEndpoint/'+id,
+                type: 'PUT',
+                crossDomain: true,
+                data: JSON.stringify(data_put),
+                processData: false,
+                contentType: 'application/json',
+                complete: function (data) {
+                    $("#jstree").jstree("refresh");
+                    $("#editNodeModal").modal('hide');
+                    storage_parameter.update('list_tab.' + data.responseJSON.id, data.responseJSON)
+                    
+                    idTabHapus = $( "#form-"+id ).parent().attr('data-tab')
+                    if(idTabHapus) {
+                        chromeTabs.removeTab( $( "[idTab='"+idTabHapus+"']" ).get(0), true )
+                        chromeTabs.addTab({
+                            title: data.responseJSON.text,
+                            favicon: data.responseJSON.icon_tab,
+                            dataAjax: data.responseJSON
+                        },tab)
+                    }                    
+                }
+            });
+        }
+
+        function hapusNode(id) {
+            $("[data-save*='modal']").attr('onclick','hapusNodeServer('+id+')');
+            $("#deleteNodeModal").modal('show');
+        }
+
+        function hapusNodeServer(id) {
+            $.ajax({
+                url: baseUrl + '/deleteEndpoint/'+id,
+                type: 'delete',
+                crossDomain: true,
+                processData: false,
+                contentType: false,
+                complete: function (data) {                    
+                    $("#jstree").jstree("refresh")
+                    idTabHapus = $( "#form-"+id ).parent().attr('data-tab')
+                    if(idTabHapus) {
+                        chromeTabs.removeTab( $( "[idTab='"+idTabHapus+"']" ).get(0), true )
+                    }
+                    $("#deleteNodeModal").modal('hide');
+                }
+            });
+            
+        }
+    </script>   
 
     <script>
         tab = 0
@@ -943,6 +950,7 @@ table .fa-close {
         };
     </script>   
 
+    <script src="<?php echo URL::to('/vendor/khancode/js/storage.js');?>"></script>
     <script src="https://unpkg.com/draggabilly@2.2.0/dist/draggabilly.pkgd.min.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/chrome-tabs.js"></script>    
 
@@ -1052,6 +1060,45 @@ table .fa-close {
 @endsection
 
 @section('modal')
+<div class="modal fade" id="deleteNodeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Konfirmasi</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Yakin Hapus ?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+            <button type="button" class="btn btn-primary" data-save="modal">Ya</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editNodeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Endpoint</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+            <button type="button" class="btn btn-primary" data-save="modal">Simpan</button>
+        </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="simpanEndpointModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://www.jqueryscript.net/demo/ON-OFF-Toggle-Switches-Switcher/css/switcher.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/ace-diff@^2.0.0/dist/ace-diff.min.css">
 
     <link href="{{url('/')}}/vendor/khancode/css/loading.css" rel="stylesheet">
 
@@ -725,6 +726,12 @@
     <!-- script modul table -->
     <script src="{{url('/')}}/vendor/khancode/js/modul-table.js"></script>
     <script src="{{url('/')}}/vendor/khancode/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- script diff -->
+    <script src="{{url('/')}}/vendor/khancode/js/src/ace.js"></script>
+    <script src="{{url('/')}}/vendor/khancode/js/src/ext-language_tools.js"></script>
+    <script src="{{url('/')}}/vendor/khancode/js/codeEditorCustom.js"></script>    
+    <script src="https://unpkg.com/ace-diff@^2.0.0"></script>
     
     <script>
       function arrayUnique(array) {
@@ -1034,7 +1041,7 @@
 
                     dataResult += '<br>'
                     dataResult += 'GIT status'
-                    dataResult += '<div id = "background">'
+                    dataResult += '<div id = "background" class="mb-3">'
                         dataResult += '<div id = "console">'
                             dataResult += '<p id = "consoletext">'
                                 dataResult += data.git_status
@@ -1047,17 +1054,35 @@
                         $.each( data.changes, function( key, value ) {                            
                             jumlah_perubahan++
                         });
-                        dataResult += '<br> Changes ('+jumlah_perubahan+'): <br>'
+                        dataResult += '<p> File yang berubah ('+jumlah_perubahan+') : <p>'
                         dataResult += '<form id="file_changes">'
-                        $.each( data.changes, function( key, value ) {                            
-                            dataResult += '<input type="checkbox" name="changes[]" value="'+value.file+'" id="file'+key+'">'
-                            dataResult += '<label for="file'+key+'"> '+value.status+' '+value.file+'</label><br>'
-                        });
-                        dataResult += '<div class="form-group">'
-                            dataResult += '<label for="comment">Commit message:</label>'
-                            dataResult += '<textarea class="form-control" rows="5" name="message"></textarea>'
-                        dataResult += '</div>'
-                        dataResult += '<button type="button" class="btn btn-primary" onclick="commitPush()">Commit and Push</button>'
+
+                            dataResult += '<table id="example_list_changes" class="table table-striped" style="width:100%">'
+                                dataResult += '<thead>'
+                                    dataResult += '<tr>'
+                                    dataResult += '<th scope="col">#</th>'
+                                    dataResult += '<th scope="col">File</th>'
+                                    dataResult += '<th scope="col"></th>'
+                                    dataResult += '</tr>'
+                                dataResult += '</thead>'
+                                dataResult += '<tbody>'
+
+                                $.each(data.changes,function(i,k){
+                                    dataResult += '<tr>'
+                                        dataResult += '<td><input type="checkbox" name="changes[]" value="'+k.file+'" id="file'+i+'"></td>'
+                                        dataResult += '<td>'+k.file+'</td>'
+                                        dataResult += '<td><button type="button" class="btn btn-info float-right btn-sm" onclick="showfilesChanges('+i+')" style="margin-right: 15px;"><i class="fas fa-file fa-sm text-white-50"></i></button></td>'
+                                    dataResult += '</tr>'
+                                })
+                                    
+                                dataResult += '</tbody>'
+                            dataResult += '</table>'                            
+
+                            dataResult += '<div class="form-group">'
+                                dataResult += '<label for="comment">Commit message:</label>'
+                                dataResult += '<textarea class="form-control" rows="5" name="message"></textarea>'
+                            dataResult += '</div>'
+                            dataResult += '<button type="button" class="btn btn-primary" onclick="commitPush()">Commit and Push</button>'
                         dataResult += '</form>'
                     }                    
 
@@ -1069,6 +1094,57 @@
                     $("#modal_sync").modal('show');
                 }
             });
+        }
+        
+        function showfilesChanges(id) {
+
+            $.ajax({
+                url: '/diffFile/'+id,
+                type: "GET",
+                success: function(data) {                    
+                    dataResult = ''
+                    dataResult += '<div class="acediff" style="height:500px"></div>'                    
+
+                    window.oldHtml = $("#modal_sync .modal-body").html();
+                    $("#modal_sync .modal-body").html(dataResult);
+                    $("[onclick='backSyncRepo()']").removeClass('d-none');
+
+                    differ = new AceDiff({
+                        element: '.acediff',
+                        left: {
+                            content: data.server.out,
+                            mode: "ace/mode/php",
+                            editable: false
+                        },
+                        right: {
+                            content: data.work_dir.out,
+                            mode: "ace/mode/php",
+                            editable: false
+                        },
+                    });                    
+
+                    differ.editors.left.ace.getSession().on('changeScrollTop', function(scroll) {
+                        differ.editors.right.ace.getSession().setScrollTop(parseInt(scroll) || 0)
+                    });
+
+                    differ.editors.right.ace.getSession().on('changeScrollTop', function(scroll) {
+                        // differ.editors.left.ace.getSession().setScrollTop(parseInt(scroll) || 0)
+                    });
+
+                    differ.editors.left.ace.resize('true')
+                    differ.editors.right.ace.resize('true')
+                    differ.editors.left.ace.gotoLine(data.diff, 7, true);
+                    differ.editors.right.ace.gotoLine(data.diff, 7, true);
+                },
+                error: function(data) {
+                    $("#modal_sync .modal-body").html(data);
+                }
+            });
+        }
+
+        function backSyncRepo() {
+            $("#modal_sync .modal-body").html(window.oldHtml);
+            $("[onclick='backSyncRepo()']").addClass('d-none');
         }
 
         function commitPush() {
@@ -1111,7 +1187,7 @@
 
     <!-- Modal -->
     <div class="modal fade" id="modal_sync" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
             <div class="modal-header">            
                 <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
@@ -1123,6 +1199,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-info" type="button" data-dismiss="modal" onclick="syncRepo()">Re-sync</button>
+                <button class="btn btn-info d-none" type="button" onclick="backSyncRepo()">Kembali</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
             </div>

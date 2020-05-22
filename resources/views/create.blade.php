@@ -798,10 +798,7 @@
     <div class="modal"><!-- Place at bottom of page --></div>
 @endsection
 
-@section('script_add_on')
-    <script src="<?php echo URL::to('/vendor/khancode/js/src/ace.js');?>"></script>
-    <script src="<?php echo URL::to('/vendor/khancode/js/src/ext-language_tools.js');?>"></script>
-    <script src="<?php echo URL::to('/vendor/khancode/js/codeEditorCustom.js');?>"></script>    
+@section('script_add_on')    
 
     <?php        
         $dir = app_path().'/..'.session('project')['folder'].'/app/';        

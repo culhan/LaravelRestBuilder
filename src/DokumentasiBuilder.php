@@ -21,7 +21,8 @@ class DokumentasiBuilder
     {
         return view('khancode::dokumentasi', [
                 'data'  =>  [
-                    'tambah_dokumentasi' =>   1
+                    'tambah_dokumentasi' =>   1,
+                    'jumlah_endpoint'   => Endpoint::getAll()->where('type','!=','folder')->count(),
                 ],
                 'projects'   =>  Projects::get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
@@ -72,6 +73,39 @@ class DokumentasiBuilder
             ->firstOrFail();
         
     }
+
+    /**
+     * for endpoint detail
+     *
+     * @param [type] $id
+     * @return void
+     */
+    public function deleteEndpoint($id)
+    {                
+        $data = Endpoint::getAll()
+            ->where('id',$id)
+            ->firstOrFail();
+
+        if($data->children){
+            $dataChild = Endpoint::getAll()
+                ->where('parent',$id)
+                ->get();
+            
+            foreach ($dataChild as $key => $value) {
+                $this->deleteEndpoint($value->id);
+            }
+        }
+
+        if($data->delete()){
+            return [
+                'error' => 0
+            ];
+        }
+        
+        return [
+            'error' => 1
+        ];
+    }
     
     /**
      * Undocumented function
@@ -100,6 +134,41 @@ class DokumentasiBuilder
      *
      * @return void
      */
+    public function renameEndpoint($id)
+    {
+        $input = Request::all();
+
+        $endpoint = Endpoint::getAll()->where('id',$id)->firstOrFail();
+        $result = $endpoint->update([            
+            'name'  => !empty($input['name'])?$input['name']:'',
+        ]);
+
+        return $this->endpoint($id);
+    }
+    
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function tambahFolder()
+    {
+        $input = Request::all();
+        $result = Endpoint::create([
+            'parent'    => !empty($input['parent'])?$input['parent']:0,
+            'name'  => !empty($input['name'])?$input['name']:'',
+            'type'  => 'folder',
+            'position'  => Endpoint::getAll()->where('parent', (!empty($input['parent'])?$input['parent']:0) )->count()+1,
+        ]);
+
+        return $this->endpoint($result->id);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
     public function saveEndpoint()
     {        
         $input = Request::all();
@@ -111,7 +180,7 @@ class DokumentasiBuilder
                 'parent'    => !empty($input['parent'])?$input['parent']:0,
                 'url'   => !empty($input['url'])?$input['url']:'',
                 'name'  => !empty($input['name'])?$input['name']:0,
-                'position'  => !empty($input['position'])?$input['position']:9999,
+                'position'  => Endpoint::getAll()->where('parent', (!empty($input['parent'])?$input['parent']:0) )->count()+1
             ]);
 
             $input['id'] = $result->id;
@@ -122,7 +191,7 @@ class DokumentasiBuilder
                 'type'  => 'file-'.$input['method'],
                 // 'parent'    => !empty($input['parent'])?$input['parent']:0,
                 'url'   => !empty($input['url'])?$input['url']:'',
-                'name'  => !empty($input['name'])?$input['name']:0,
+                'name'  => !empty($input['name'])?$input['name']:'',
                 // 'position'  => !empty($input['position'])?$input['position']:9999,
             ]);
         }
