@@ -37,7 +37,7 @@ class SetConfigMiddleware
             'laravelrestbuilder.project_id'   => Arr::get(session('project'),'id'),
             'laravelrestbuilder.copy_to'   => Arr::get(session('project'),'folder') 
         ]);
-
+        
         return $next($request);
     }
 }

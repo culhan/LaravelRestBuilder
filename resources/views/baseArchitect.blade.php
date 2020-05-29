@@ -130,6 +130,7 @@
         .table th, .table td {
             padding: 0.35rem 0.75rem;
         }
+        .pointer {cursor: pointer;}
     </style>
 
     <style>
@@ -1070,7 +1071,7 @@
                                 $.each(data.changes,function(i,k){
                                     dataResult += '<tr>'
                                         dataResult += '<td><input type="checkbox" name="changes[]" value="'+k.file+'" id="file'+i+'"></td>'
-                                        dataResult += '<td>'+k.file+'</td>'
+                                        dataResult += '<td><label class="form-check-label pointer" for="file'+i+'">'+k.file+'</label></td>'
                                         dataResult += '<td><button type="button" class="btn btn-info float-right btn-sm" onclick="showfilesChanges('+i+')" style="margin-right: 15px;"><i class="fas fa-file fa-sm text-white-50"></i></button></td>'
                                     dataResult += '</tr>'
                                 })

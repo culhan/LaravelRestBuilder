@@ -56,9 +56,10 @@ class Projects extends BaseModel
                 ;
     }
 
-    // start list relation function
-    
-    // end list relation function
+    public function getFolderAttribute($value)
+    {
+        return '/../'.$value;
+    }
 
     /**
      * [boot description]

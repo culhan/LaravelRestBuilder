@@ -46,12 +46,13 @@ class MigrationBuilder
         // jika table belum di buat
         if( !Schema::hasTable($table) )
         {            
+            $migration_file = self::generatedMigration();
             if( empty($rename) ) {
-                $migration_file_name = date('Y_m_d_His').'_create_'.$name.'_table'.date('His');
+                $migration_file_name = (date('Y_m_d_His').$migration_file).'_create_'.$name.'_table'.date('His');
                 $migration_class_name = ucfirst(camel_case('create_'.$name.'_table'.date('His')));
                 $base_migration = file_get_contents(__DIR__.'/../base/migration/migration.stub', FILE_USE_INCLUDE_PATH);
             }else {
-                $migration_file_name = date('Y_m_d_His').'_rename_'.$name.'_table'.date('His');
+                $migration_file_name = (date('Y_m_d_His').$migration_file).'_rename_'.$name.'_table'.date('His');
                 $migration_class_name = ucfirst(camel_case('rename_'.$name.'_table'.date('His')));
                 $base_migration = file_get_contents(__DIR__.'/../base/migration/rename_migration.stub', FILE_USE_INCLUDE_PATH);
                 $base_migration = str_replace('{{rename}}',$rename,$base_migration);
@@ -152,7 +153,8 @@ class MigrationBuilder
             // excute for build
             if( !empty($check_for_drop_column) || !empty($check_for_add_column) || !empty($check_for_change_column) || !empty($check_for_index_change) )
             {
-                $migration_file_name = date('Y_m_d_His').'_update_'.$name.'_table'.date('His');
+                $migration_file = self::generatedMigration();
+                $migration_file_name = (date('Y_m_d_His').$migration_file).'_update_'.$name.'_table'.date('His');
                 $migration_class_name = ucfirst(camel_case('update_'.$name.'_table'.date('His')));
                 $base_migration = file_get_contents(__DIR__.'/../base/migration/update_migration.stub', FILE_USE_INCLUDE_PATH);
                 $base_migration = str_replace('{{migration_name}}',$migration_class_name,$base_migration);
@@ -898,7 +900,8 @@ class MigrationBuilder
     static function reorderColumn(array $column,$table) {
 
         $nowHis = date('His');
-        $migration_file_name = date('Y_m_d_His').'_reorder_'.$table.'_table'.$nowHis;
+        $migration_file = self::generatedMigration();
+        $migration_file_name = (date('Y_m_d_His').$migration_file).'_reorder_'.$table.'_table'.$nowHis;
         $migration_class_name = ucfirst(camel_case('reorder_'.$table.'_table'.$nowHis));
         $base_migration = file_get_contents(__DIR__.'/../base/migration/reorder_migration.stub', FILE_USE_INCLUDE_PATH);
         $base_migration = str_replace('{{migration_name}}',$migration_class_name,$base_migration);
@@ -1024,8 +1027,10 @@ class MigrationBuilder
         // jika table ada
         if( Schema::hasTable($table) )
         {
-            $migration_file_name = date('Y_m_d_His').'_drop_'.camel_case($table).'_table'.date('His');
-            $migration_class_name = ucfirst(camel_case('drop_'.camel_case($table).'_table'.date('His')));            
+            $nowHis = date('His');
+            $migration_file = self::generatedMigration();
+            $migration_file_name = (date('Y_m_d_His').$migration_file).'_drop_'.camel_case($table).'_table'.$nowHis;
+            $migration_class_name = ucfirst(camel_case('drop_'.camel_case($table).'_table'.$nowHis));
             $base_migration = file_get_contents(__DIR__.'/../base/migration/drop_migration.stub', FILE_USE_INCLUDE_PATH);
             $base_migration = str_replace([
                 '{{table}}',
@@ -1043,5 +1048,11 @@ class MigrationBuilder
         }
 
         return [];
+    }
+
+    static function generatedMigration() {
+        $gen    = config('generated_file_migration',0);
+        config(['generated_file_migration'=> $gen++]);
+        return $gen;
     }
 }
