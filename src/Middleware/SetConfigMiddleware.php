@@ -6,6 +6,7 @@ use Arr;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use KhanCode\LaravelRestBuilder\Models\Users;
+use KhanCode\LaravelRestBuilder\Models\Projects;
 
 class SetConfigMiddleware
 {
@@ -33,9 +34,13 @@ class SetConfigMiddleware
             ]
         ]);
 
+        if($request->has('select_project')) {
+            $project = Projects::first();
+        }
+
         config([
-            'laravelrestbuilder.project_id'   => Arr::get(session('project'),'id'),
-            'laravelrestbuilder.copy_to'   => Arr::get(session('project'),'folder') 
+            'laravelrestbuilder.project_id'   => ($project->id)??Arr::get(session('project'),'id'),
+            'laravelrestbuilder.copy_to'   => '/../'.(($project->folder)??Arr::get(session('project'),'folder'))
         ]);
         
         return $next($request);

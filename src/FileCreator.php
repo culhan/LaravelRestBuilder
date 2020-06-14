@@ -27,11 +27,14 @@ class FileCreator
             if($name_file != 'api') {
                 $modul_files_status = \KhanCode\LaravelRestBuilder\Models\ModulFiles::updateOrCreate([
                     'name'  =>  $file_folder."/".$name_file.".php",
-                    'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
-                    'code'  =>  $content,
+                    'modul_id'    =>  config('laravelrestbuilder.modul')['id']                    
+                ],[
+                    'code'  =>  $content
                 ]);
                 
                 if( $modul_files_status->wasRecentlyCreated ) {
+                    self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
+                }else {
                     self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
                 }
             }else {

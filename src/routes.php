@@ -64,5 +64,6 @@ if( config('laravelrestbuilder.build_active') )
         Route::delete('deleteEndpoint/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@deleteEndpoint');
         Route::put('renameEndpoint/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@renameEndpoint');
         Route::post('tambahFolder', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@tambahFolder');
+        Route::get('modulFile/{id}', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@modulFile');
     });
 }

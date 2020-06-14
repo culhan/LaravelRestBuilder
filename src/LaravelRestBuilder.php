@@ -236,7 +236,7 @@ class LaravelRestBuilder
         $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
                         ->select([
                             'id',
-                            'code',
+                            // 'code',
                             'name'
                         ])
                         ->where('modul_id',$data['id'])
@@ -246,6 +246,23 @@ class LaravelRestBuilder
             'table' => $this->table($detail->table),
             'files' => $files
         ];
+    }
+
+    /**
+     * modulFile function
+     *
+     * @return void
+     */
+    public function modulFile($id)
+    {
+        return \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
+                        ->select([
+                            'id',
+                            'code',
+                            'name'
+                        ])
+                        ->where('id',$id)
+                        ->firstOrFail();
     }
 
     /**
@@ -469,7 +486,6 @@ class LaravelRestBuilder
             'files' => \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
                         ->select([
                             'id',
-                            'code',
                             'name'
                         ])            
                         ->where('modul_id',$data['id'])
