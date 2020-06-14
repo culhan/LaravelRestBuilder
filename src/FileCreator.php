@@ -34,7 +34,8 @@ class FileCreator
                 
                 if( $modul_files_status->wasRecentlyCreated ) {
                     self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
-                }else {
+                }
+                if( $modul_files_status->wasRecentlyUpdated ) {
                     self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
                 }
             }else {
@@ -58,7 +59,7 @@ class FileCreator
                 }
 
                 $index = 0;                
-                $content = preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use ($custom_code,&$index,$type) {
+                $content = preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use ($custom_code,&$index,$type) {                    
                     if(!empty($custom_code[$index]))
                     {                        
                         // hapus \r\n
@@ -67,7 +68,13 @@ class FileCreator
                         }else {
                             $custom_code[$index] = substr($custom_code[$index], 0, -1);
                         }
-                        $return = $m[0].$custom_code[$index];
+
+                        // remove if only whitespace
+                        if (ctype_space($custom_code[$index])) {
+                            $custom_code[$index] = '';
+                        }
+
+                        $return = $m[0].$custom_code[$index];                        
                         $index++;
                         return $return;                                                
                     }

@@ -35,14 +35,14 @@ class SetConfigMiddleware
         ]);
 
         if($request->has('select_project')) {
-            $project = Projects::first();
+            $project = Projects::where('id',$request->get('select_project'))->first();
         }
 
         config([
             'laravelrestbuilder.project_id'   => ($project->id)??Arr::get(session('project'),'id'),
             'laravelrestbuilder.copy_to'   => '/../'.(($project->folder)??Arr::get(session('project'),'folder'))
         ]);
-        
+        // dd(config('laravelrestbuilder.copy_to'));
         return $next($request);
     }
 }

@@ -801,7 +801,7 @@
 @section('script_add_on')    
 
     <?php        
-        $dir = app_path().'/..'.session('project')['folder'].'/app/';        
+        $dir = app_path().'/../../'.session('project')['folder'].'/app/';        
         $models = array();
         
         $files = scandir($dir.'Http/Controllers/');

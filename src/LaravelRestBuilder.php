@@ -71,9 +71,9 @@ class LaravelRestBuilder
         ProjectBuilder::setProjectSession();
         
         \Request::merge([
-            'search' => \Request::get('search')['value'],
-            'sort_column'   =>  'nomor_baris',
-            'sort_type'   =>  \Request::get('order')[0]['dir'],
+                'search' => \Request::get('search')['value'],
+                'sort_column'   =>  'nomor_baris',
+                'sort_type'   =>  \Request::get('order')[0]['dir'],
             ]);
                     
         $model = new \KhanCode\LaravelRestBuilder\Models\Moduls;
