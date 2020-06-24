@@ -3,7 +3,7 @@
      * @return [type] [description]
      */
     public function get{{camel_case_name}}Attribute($value){
-        return {{value}};
+        {{value}}
     }
 
     // end list accessor function

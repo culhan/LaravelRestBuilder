@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelBaseRest\Helpers;
+use KhanCode\LaravelBaseRest\ValidationException;
 
 class ProjectBuilder
 {    

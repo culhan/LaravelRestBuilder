@@ -188,6 +188,13 @@ class ModelBuilder
                 $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
                 $value_column_function['response_code'] = !empty($value_column_function['json']) ? $json_converter : $value_column_function['response_code']; 
 
+                // check response code
+                $last_str = substr(preg_replace('/\s+/', '', $value_column_function['response_code']), -1);
+
+                if( $last_str != ";" ){
+                    $value_column_function['response_code'] = "return ".$value_column_function['response_code'].";";
+                }
+
                 // column accessor
                 $current_function_accessor = $function_accessor;
                 $current_function_accessor = str_replace([
@@ -228,6 +235,13 @@ class ModelBuilder
                     ],[
                         '$value'
                     ],$option_isJson);
+                    
+                    // check response code
+                    $last_str = substr(preg_replace('/\s+/', '', $json_converter), -1);
+
+                    if( $last_str != ";" ){
+                        $json_converter = "return ".$json_converter.";";
+                    }
 
                     $current_function_accessor = $function_accessor;
                     $current_function_accessor = str_replace([

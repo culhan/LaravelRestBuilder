@@ -2,6 +2,8 @@
 
 namespace KhanCode\LaravelRestBuilder;
 
+use KhanCode\LaravelRestBuilder\Models\ModulFiles;
+
 class FileCreator   
 {
 
@@ -23,26 +25,8 @@ class FileCreator
         $file_folder = $folder;
         $folder = config('laravelrestbuilder.copy_to')."/".$folder;        
         if ( file_exists(base_path()."/".$folder."/".$name_file.".php") )
-        {           
-            if($name_file != 'api') {
-                $modul_files_status = \KhanCode\LaravelRestBuilder\Models\ModulFiles::updateOrCreate([
-                    'name'  =>  $file_folder."/".$name_file.".php",
-                    'modul_id'    =>  config('laravelrestbuilder.modul')['id']                    
-                ],[
-                    'code'  =>  $content
-                ]);
-                
-                if( $modul_files_status->wasRecentlyCreated ) {
-                    self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
-                }
-                if( $modul_files_status->wasRecentlyUpdated ) {
-                    self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
-                }
-            }else {
-                self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
-            }            
-            
-            $old_file = self::getFile($name_file, $folder);
+        {        
+            $old_file = self::getFile($name_file, $folder);                                  
             $custom_code = [];
             if(strpos($old_file, '// start custom code') !== false)
             {
@@ -85,6 +69,43 @@ class FileCreator
                 //     dd( $custom_code[0], substr($custom_code[0], 0, -4) );
                 // }
             }
+
+            if($name_file != 'api') {
+                $old_data   = ModulFiles::where('name', $file_folder."/".$name_file.".php")
+                    ->where('modul_id', config('laravelrestbuilder.modul')['id'])
+                    ->first();
+
+                // jika kosong
+                if( empty($old_data) ){
+                    ModulFiles::create([
+                        'name'  =>  $file_folder."/".$name_file.".php",
+                        'modul_id'    =>    config('laravelrestbuilder.modul')['id'],
+                        'code'  =>  $content,
+                    ]);
+
+                    self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
+                }else { // jika sudah ada                    
+
+                    if( $old_data->code != $content ) {
+                        ModulFiles::updateOrCreate([
+                            'name'  =>  $file_folder."/".$name_file.".php",
+                            'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                        ],[
+                            'code'  =>  $content
+                        ]);
+                        
+                        // jika old data code beda dengan file asli
+                        if( $old_file != $old_data->code ){
+                            self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php (file di update di luar system)";
+                        }else {
+                            self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
+                        }
+                    }
+
+                }
+            }else {
+                self::$file['updated'][] = base_path()."/".$folder."/".$name_file.".php";
+            }  
         }else {
             self::createPath(base_path()."/".$folder);
             if($type == 'migration') {
