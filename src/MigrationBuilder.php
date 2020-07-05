@@ -8,6 +8,24 @@ use KhanCode\LaravelRestBuilder\Exceptions\DataEmptyException;
 
 class MigrationBuilder
 {    
+    static $allowed_string = [
+            "CURRENT_USER",
+            "CURRENT_TIME",
+            "CURRENT_TIMESTAMP",
+            "CURRENT_DATE",
+            "CURTIME",
+            "current_user",
+            "current_time",
+            "current_timestamp",
+            "current_date",
+            "curtime",
+            "current_user()",
+            "current_time()",
+            "current_timestamp()",
+            "current_date()",
+            "curtime()",
+            "'0000-00-00 00:00:00'",
+        ];
 
     /**
      * create migration
@@ -729,7 +747,17 @@ class MigrationBuilder
                     if(strtolower($value['default'])=='null') {
                         // $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default();',$code_column);
                     }else {
-                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default(\DB::raw("'.$value['default'].'"));',$code_column);
+                        $allowed_string = array_flip(self::$allowed_string);
+                        $string_default = $value['default'];
+                        if( !is_float($string_default) && 
+                            !is_numeric($string_default) && 
+                            !is_int($string_default) && 
+                            empty($allowed_string[$string_default]) &&
+                            !($string_default[0] == '\'' && $string_default[strlen($string_default) - 1] == '\'')
+                        ) {
+                            $string_default = "'".addslashes($string_default)."'";
+                        }
+                        $code_column = Helper::str_lreplace(';',"\r\n\t\t\t\t".'->default(\DB::raw("'.$string_default.'"));',$code_column);
                     }
                 }
 
@@ -952,12 +980,14 @@ class MigrationBuilder
                     "'0000-00-00 00:00:00'",
                 ];
                 $allowed_string = array_flip($allowed_string);
+                $string_default = $dataColumn[0]->COLUMN_DEFAULT;
                 if( !is_float($dataColumn[0]->COLUMN_DEFAULT) && 
                     !is_numeric($dataColumn[0]->COLUMN_DEFAULT) && 
                     !is_int($dataColumn[0]->COLUMN_DEFAULT) && 
-                    empty($allowed_string[$dataColumn[0]->COLUMN_DEFAULT]) 
+                    empty($allowed_string[$dataColumn[0]->COLUMN_DEFAULT]) &&
+                    !($string_default[0] == '\'' && $string_default[strlen($string_default) - 1] == '\'')
                 ) {
-                    $dataColumn[0]->COLUMN_DEFAULT = "'".$dataColumn[0]->COLUMN_DEFAULT."'";
+                    $dataColumn[0]->COLUMN_DEFAULT = "'".addslashes($dataColumn[0]->COLUMN_DEFAULT)."'";
                 }
                 $default = "default ".$dataColumn[0]->COLUMN_DEFAULT;
             }

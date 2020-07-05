@@ -5,8 +5,8 @@ use App;
 use Request;
 use KhanCode\LaravelBaseRest\Helpers;
 use KhanCode\LaravelBaseRest\Locking;
-use App\Exceptions\DataEmptyException;
-use App\Exceptions\ValidationException;
+use KhanCode\LaravelBaseRest\DataEmptyException;
+use KhanCode\LaravelBaseRest\ValidationException;
 use KhanCode\LaravelBaseRest\BaseService;
 
 /**

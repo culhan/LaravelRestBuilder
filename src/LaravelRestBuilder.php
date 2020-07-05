@@ -182,7 +182,8 @@ class LaravelRestBuilder
                 'strict' => false,
                 'engine' => null,
             ],
-            'laravelRestBuilder.base'    =>  !empty(Arr::get(session('project'),'base_version',NULL)) ? '-'.Arr::get(session('project'),'base_version'):NULL
+            'laravelRestBuilder.base'    =>  !empty(Arr::get(session('project'),'base_version',NULL)) ? '-'.Arr::get(session('project'),'base_version'):NULL,
+            'laravelRestBuilder.mysql_version'    =>  !empty(Arr::get(session('project'),'mysql_version',NULL)) ? Arr::get(session('project'),'mysql_version'):NULL,
         ]);
         
         \DB::purge('mysql');

@@ -38,6 +38,13 @@ class ModelBuilder
     static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
     {
         $base = config('laravelRestBuilder.base');
+        $mysql_version = config('laravelRestBuilder.mysql_version');
+
+        if( $mysql_version > 5.6 ){
+            $mysql_version = '';
+        }else {
+            $mysql_version .= '_';
+        }
         
         $model_file_name = UCWORDS($name_model);
         $name = UCWORDS($name_model);
@@ -191,7 +198,7 @@ class ModelBuilder
                 // check response code
                 $last_str = substr(preg_replace('/\s+/', '', $value_column_function['response_code']), -1);
 
-                if( $last_str != ";" ){
+                if( $last_str != ";" && !strpos($value_column_function['response_code'], "\n")){
                     $value_column_function['response_code'] = "return ".$value_column_function['response_code'].";";
                 }
 
@@ -386,7 +393,7 @@ class ModelBuilder
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column has many
-                    $has_many_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_has_many.stub', FILE_USE_INCLUDE_PATH);
+                    $has_many_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_has_many'.$mysql_version.'.stub', FILE_USE_INCLUDE_PATH);
                     $column_has_many = self::generateColumnRelation($value_relation['select_column']);                                                    
                     
                     $value_relation['relation_key'] = (!empty($value_relation['relation_key']) ? $value_relation['relation_key']:'id' );
@@ -614,43 +621,53 @@ class ModelBuilder
      */
     static function generateColumnRelation($column_to_generate)
     {
+        $mysql_version = config('laravelRestBuilder.mysql_version');
+
         $column_code = '';
         foreach ($column_to_generate as $column_key => $column_value) {
             $column_value['column'] = str_replace("\n","\n\t\t\t\t\t\t\t\t\t",$column_value['column']);
-            $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$column_value['name']."', ".$column_value['column']."";
-            if( count($column_to_generate)-1 != $column_key )
-            {          
-                $column_code .= ",\r\n";
+            
+            if( $mysql_version > 5.6 ){
+                $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$column_value['name']."', ".$column_value['column']."";
+                if( count($column_to_generate)-1 != $column_key )
+                {          
+                    $column_code .= ",\r\n";
+                }
+            }else {
+            
+                // code mysql <= 5.6
+                if($column_value['type'] =='integer')
+                {
+                    $name = '\"'.$column_value['name'].'\"';                
+                    if( count($column_to_generate)-1 != $column_key )
+                    {
+                        $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";
+                    }
+                    else
+                    {
+                        $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), '', ";
+                    }
+                }
+                if($column_value['type'] =='string')
+                {
+                    $name = '\"'.$column_value['name'].'\"';
+                    if( count($column_to_generate)-1 != $column_key )
+                    {
+                        $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\",';
+                    }
+                    else
+                    {
+                        $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\"\',';
+                    }
+                    $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$name.": ".$column_value['column']." ";
+                }
+                if( count($column_to_generate)-1 != $column_key )
+                {          
+                    $column_code .= "',\r\n";
+                }
+
             }
-            // if($column_value['type'] =='integer')
-            // {
-            //     $name = '\"'.$column_value['name'].'\"';                
-            //     if( count($column_to_generate)-1 != $column_key )
-            //     {
-            //         $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";
-            //     }
-            //     else
-            //     {
-            //         $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), '', ";
-            //     }
-            // }
-            // if($column_value['type'] =='string')
-            // {
-            //     $name = '\"'.$column_value['name'].'\"';
-            //     if( count($column_to_generate)-1 != $column_key )
-            //     {
-            //         $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\",';
-            //     }
-            //     else
-            //     {
-            //         $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\"\',';
-            //     }
-            //     $column_code .= "\t\t\t\t\t\t\t\t\t'".$name.": ".$column_value['column']." ";
-            // }
-            // if( count($column_to_generate)-1 != $column_key )
-            // {          
-            //     $column_code .= "',\r\n";
-            // }
+
         }
 
         return $column_code;

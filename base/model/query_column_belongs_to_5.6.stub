@@ -1,0 +1,16 @@
+                    \DB::raw("(CASE WHEN (? = 0)
+                           THEN NULL
+                           ELSE 
+                           ". \DB::raw("(
+                                    select IFNULL(group_concat(distinct concat('{'
+{{column_belongs_to}}
+                                    '}') {{custom_order}} 
+                                ),'{}')
+                                from {{table_belongs_to}}
+                                -- start list belongs to join option
+                                -- end list belongs to join option
+                                where {{column_belongs_to_relation_key}} = {{column_belongs_to_foreign_key}}
+                                -- start list belongs to query option
+                                -- end list belongs to query option
+                            ) ")."
+                    END) as '{{belongs_to_name}}' "),
