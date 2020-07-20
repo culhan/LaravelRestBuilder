@@ -4,11 +4,11 @@ namespace KhanCode\LaravelRestBuilder\Models;
 
 use KhanCode\LaravelBaseRest\BaseModel;
 
-class Projects extends BaseModel
+class ManageUsers extends BaseModel
 {
     // public $connection = "laravelrestbuilder_mysql";
 
-    public $table = "projects";
+    public $table = "users";
 
     public $timestamps = true;
             
@@ -47,33 +47,19 @@ class Projects extends BaseModel
     public function scopeGetAll($query)
     {
         return $query->select([
-                    "projects.*",					
+                    "*",
+                    \DB::raw("(
+                            select concat('[',IFNULL(group_concat(distinct concat(
+                                    project_id
+                                ) -- order by name asc 
+                            ),'{}'), ']')
+                            from users_projects
+                            where users_projects.user_id = users.id
+                        )
+                    as 'projects' "),			
                 ])
                 // start list query option
-                ->whereNull("projects.deleted_at")
-                ->where('project_id',config('laravelrestbuilder.project_id'))
-                // end list query option
-                ;
-    }
-
-    /**
-     * [scopeUserData description]
-     * @param  [type] $query [description]
-     * @return [type]        [description]
-     */
-    public function scopeUserData($query)
-    {
-        return $query->select([
-                    "projects.*",					
-                ])
-                // start list query option
-                ->whereNull("projects.deleted_at")
-                ->whereRaw('(
-                    select user_id from users_projects 
-                    where user_id = '.user()->id.'
-                    and project_id = projects.id
-                    limit 1
-                ) is not null')
+                ->whereNull("deleted_at")
                 // end list query option
                 ;
     }

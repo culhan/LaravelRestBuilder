@@ -7,37 +7,13 @@ use Request;
 use Session;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use KhanCode\LaravelRestBuilder\Models\ManageUsers;
 use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelBaseRest\Helpers;
 use KhanCode\LaravelBaseRest\ValidationException;
 
-class ProjectBuilder
+class UserBuilder
 {    
-    static function setProjectSession()
-    {
-        $data = Request::all();
-
-        \KhanCode\LaravelRestBuilder\Models\Moduls::validate($data,[
-                'select_project'    => ['required']
-            ]);
-
-        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
-
-        session(['project'   => \KhanCode\LaravelRestBuilder\Models\Projects::find($data['select_project'])->toArray() ]);
-    }
-
-    /**
-     * setProject function
-     *
-     * @return void
-     */
-    public function setProject($id)
-    {        
-        session(['project'   => Projects::find($id)->toArray() ]);
-
-        return redirect(Request::get('previous'));
-    }
-
     /**
      * get function
      *
@@ -45,9 +21,9 @@ class ProjectBuilder
      */
     public function get()
     {
-        return view('khancode::listProject', [
+        return view('khancode::listUser', [
                 'data'  =>  [
-                    'tambah_project' =>   1
+                    'tambah_user' =>   1
                 ],
                 'projects'   =>  Projects::userData()->get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
@@ -73,9 +49,9 @@ class ProjectBuilder
      *
      * @return void
      */
-    public function createProject() 
+    public function createUser() 
     {
-        return view('khancode::createProject', [
+        return view('khancode::createUser', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
             'projects'   =>  Projects::userData()->get(),
             'data'=>[
@@ -89,19 +65,16 @@ class ProjectBuilder
      *
      * @return void
      */
-    public function updateProjects($id) 
+    public function updateUser($id) 
     {
-        $project    = Projects::find($id)->toArray();        
-        if(session('project')['id'] == $id) {
-            session(['project' => $project]);
-        }
-
-        return view('khancode::createProject', [
+        $data    = ManageUsers::getAll()->where('id',$id)->first()->toArray();
+        
+        return view('khancode::createUser', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
             'projects'   =>  Projects::userData()->get(),
             'data'=>[
                 'simpan_api'    =>  1,                
-            ]+$project,
+            ]+$data,
         ]);
     }
 
@@ -155,7 +128,7 @@ class ProjectBuilder
      *
      * @return void
      */
-    public function projects()
+    public function list()
     {   
         \Request::merge([
             'search' => \Request::get('search')['value'],
@@ -163,7 +136,7 @@ class ProjectBuilder
             'sort_type'   =>  \Request::get('order')[0]['dir'],
             ]);
                     
-        $model = new Projects;
+        $model = new ManageUsers;
         
         \DB::connection( $model->connection )->statement(\DB::raw('set @nomorbaris = 0;'));
         

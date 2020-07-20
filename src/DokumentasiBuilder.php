@@ -24,7 +24,7 @@ class DokumentasiBuilder
                     'tambah_dokumentasi' =>   1,
                     'jumlah_endpoint'   => Endpoint::getAll()->where('type','!=','folder')->count(),
                 ],
-                'projects'   =>  Projects::get(),
+                'projects'   =>  Projects::userData()->get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
             ]);
     }

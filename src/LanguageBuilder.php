@@ -76,7 +76,7 @@ class LanguageBuilder
                     'tambah_lang' =>   1,
                     'lang'  => $arr_langs
                 ],
-                'projects'   =>  Projects::get(),
+                'projects'   =>  Projects::userData()->get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
             ]);
     
@@ -191,7 +191,7 @@ class LanguageBuilder
                 'data'  =>  Request::all()+[
                     'simpan_api'    => 1
                 ],
-                'projects'   =>  Projects::get(),
+                'projects'   =>  Projects::userData()->get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
             ]);
     }

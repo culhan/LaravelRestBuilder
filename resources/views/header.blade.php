@@ -8,8 +8,10 @@
         <a href="{{url('/')}}/create" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah modul</a>
     @elseif( isset($data['tambah_tabel']) )
         <a href="{{url('/')}}/createTable" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah tabel</a>
-        @elseif( isset($data['tambah_project']) )
+    @elseif( isset($data['tambah_project']) )
         <a href="{{url('/')}}/createProject" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah project</a>
+    @elseif( isset($data['tambah_user']) )
+        <a href="{{url('/')}}/createUser" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah user</a>
     @endif
 </div>
 @endif

@@ -10,6 +10,16 @@ return [
     'theme' => 'Architect',
     'menu'  => [
         'Menu'   => [
+            'User' =>  [
+                [
+                    'name'  => 'User',
+                    'url'   => "/user"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/createUser"
+                ],
+            ],
             'Project' =>  [
                 [
                     'name'  => 'List',

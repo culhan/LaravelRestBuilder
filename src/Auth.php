@@ -57,7 +57,10 @@ class Auth
      */
     public function setAuth()
     {        
-        $user = Users::where('name',Request::get('username'))->first();
+        $user = Users::where(function ($query) {
+                    $query->orWhere('name', '=', Request::get('username'))
+                        ->orWhere('email', '=', Request::get('username'));
+                })->first();
         
         if( $user == null ){
             Session::flash('flash_message', 'No Data Found!');            

@@ -54,7 +54,7 @@ class LaravelRestBuilder
     public function list() {                
         return view('khancode::list', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
-            'projects'   =>  Projects::get(),
+            'projects'   =>  Projects::userData()->get(),
             'data'  =>  [
                 'tambah_modul' =>   1
             ],
@@ -119,7 +119,7 @@ class LaravelRestBuilder
             'data'=>[
                 'simpan_api'    =>  1
             ],
-            'projects'   =>  Projects::get(),
+            'projects'   =>  Projects::userData()->get(),
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
         ]);
     }
@@ -136,7 +136,7 @@ class LaravelRestBuilder
                 'id'    =>  $id,
                 'simpan_api'    =>  1
             ],
-            'projects'   =>  Projects::get(),
+            'projects'   =>  Projects::userData()->get(),
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
         ]);
     }

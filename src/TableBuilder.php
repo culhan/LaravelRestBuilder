@@ -131,7 +131,7 @@ class TableBuilder
 
         return view('khancode::createTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
-            'projects'   =>  Projects::get(),
+            'projects'   =>  Projects::userData()->get(),
             'data'=>[
                 'simpan_api'    =>  1,                
             ]+$table_data
@@ -147,7 +147,7 @@ class TableBuilder
     {
         return view('khancode::createTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
-            'projects'   =>  Projects::get(),
+            'projects'   =>  Projects::userData()->get(),
             'data'=>[
                 'simpan_api'    =>  1
             ],
@@ -163,7 +163,7 @@ class TableBuilder
     {
         return view('khancode::listTable', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
-            'projects'   =>  Projects::get(),
+            'projects'   =>  Projects::userData()->get(),
             'data'=>[
                 'tambah_tabel'    =>  1
             ],

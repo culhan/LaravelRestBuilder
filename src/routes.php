@@ -24,6 +24,9 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('updateLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@update');
                 Route::get('dropLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@dropLang');
                 Route::get('dokumentasi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@dokumentasi');
+                Route::get('user', 'KhanCode\LaravelRestBuilder\UserBuilder@get');
+                Route::get('createUser', 'KhanCode\LaravelRestBuilder\UserBuilder@createUser');
+                Route::get('updateUser/{id}', 'KhanCode\LaravelRestBuilder\UserBuilder@updateUser');
             });                                
         });
     });
@@ -65,5 +68,6 @@ if( config('laravelrestbuilder.build_active') )
         Route::put('renameEndpoint/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@renameEndpoint');
         Route::post('tambahFolder', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@tambahFolder');
         Route::get('modulFile/{id}', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@modulFile');
+        Route::get('listUser', 'KhanCode\LaravelRestBuilder\UserBuilder@list');
     });
 }
