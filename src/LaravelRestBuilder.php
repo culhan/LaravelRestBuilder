@@ -431,6 +431,7 @@ class LaravelRestBuilder
                 $data['relation'],
                 $data['hidden'],
                 $data['with_company_restriction'],
+                $data['with_delete_restriction'],
                 $data['casts'],
                 $data['with_authenticable'],
                 $data['get_company_code'],

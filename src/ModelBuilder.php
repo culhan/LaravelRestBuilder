@@ -8,34 +8,34 @@ class ModelBuilder
 {
 
     /**
-     * [build description]
+     * Undocumented function
      *
-     * @param   [type]  $name_model                [$name_model description]
-     * @param   [type]  $table                     [$table description]
-     * @param   [type]  $key                       [$key description]
-     * @param   [type]  $increment_key             [$increment_key description]
-     * @param   [type]  $column                    [$column description]
-     * @param   [type]  $column_function           [$column_function description]
-     * @param   [type]  $with_timestamp            [$with_timestamp description]
-     * @param   [type]  $with_authstamp            [$with_authstamp description]
-     * @param   [type]  $with_ipstamp              [$with_ipstamp description]
-     * @param   [type]  $with_companystamp         [$with_companystamp description]
-     * @param   [type]  $custom_filter             [$custom_filter description]
-     * @param   [type]  $custom_union              [$custom_union description]
-     * @param   [type]  $custom_join               [$custom_join description]
-     * @param   [type]  $relation                  [$relation description]
-     * @param   [type]  $hidden                    [$hidden description]
-     * @param   [type]  $with_company_restriction  [$with_company_restriction description]
-     * @param   [type]  $casts                     [$casts description]
-     * @param   [type]  $with_authenticable        [$with_authenticable description]
-     * @param   [type]  $get_company_code          [$get_company_code description]
-     * @param   [type]  $custom_creating           [$custom_creating description]
-     * @param   [type]  $custom_updating           [$custom_updating description]
-     * @param   [type]  $hidden_relation           [$hidden_relation description]
-     *
-     * @return  [type]                             [return description]
+     * @param [type] $name_model
+     * @param [type] $table
+     * @param [type] $key
+     * @param [type] $increment_key
+     * @param [type] $column
+     * @param array $column_function
+     * @param [type] $with_timestamp
+     * @param [type] $with_authstamp
+     * @param [type] $with_ipstamp
+     * @param [type] $with_companystamp
+     * @param [type] $with_delete_restriction
+     * @param [type] $custom_filter
+     * @param [type] $custom_union
+     * @param [type] $custom_join
+     * @param [type] $relation
+     * @param [type] $hidden
+     * @param [type] $with_company_restriction
+     * @param [type] $casts
+     * @param [type] $with_authenticable
+     * @param [type] $get_company_code
+     * @param [type] $custom_creating
+     * @param [type] $custom_updating
+     * @param [type] $hidden_relation
+     * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
     {
         $base = config('laravelRestBuilder.base');
         $mysql_version = config('laravelRestBuilder.mysql_version');
@@ -75,16 +75,22 @@ class ModelBuilder
         }
 
         if( $with_timestamp == 1 ) {
-            $option_timestamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_timestamp.stub', FILE_USE_INCLUDE_PATH);
-            $base_model = str_replace('// end list query option',$option_timestamp,$base_model);
+
+            if( !empty($with_delete_restriction) ) {
+                $option_timestamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_timestamp.stub', FILE_USE_INCLUDE_PATH);
+                $base_model = str_replace('// end list query option',$option_timestamp,$base_model);
+            }
 
             $option_timestamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_timestamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list option',$option_timestamp,$base_model);
         }
 
         if( $with_authstamp == 1 ) {
-            $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_authstamp.stub', FILE_USE_INCLUDE_PATH);
-            $base_model = str_replace('// end list query option',$option_authstamp,$base_model);
+
+            if( !empty($with_delete_restriction) ) {
+                $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_authstamp.stub', FILE_USE_INCLUDE_PATH);
+                $base_model = str_replace('// end list query option',$option_authstamp,$base_model);
+            }
 
             $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_updating_authstamp.stub', FILE_USE_INCLUDE_PATH);
             $base_model = str_replace('// end list updating option',$option_authstamp,$base_model);

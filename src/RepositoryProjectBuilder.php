@@ -89,7 +89,7 @@ class RepositoryProjectBuilder
         $file_add = Request::get('changes');
         $file_add = implode(" ",$file_add);  
         
-        $push_exec = shell_exec('cd '.$folder.' && git config user.name "'.auth()->guard('laravelrestbuilder_auth')->user()->name.'" && git add '.$file_add.' && git commit -m "'.addslashes(Request::get('message')).'" && git push origin master 2>&1');
+        $push_exec = shell_exec('cd '.$folder.' && git config --global user.name "'.auth()->guard('laravelrestbuilder_auth')->user()->name.'" 2>&1 && git config --global user.email "'.auth()->guard('laravelrestbuilder_auth')->user()->email.'" 2>&1 &&  git add '.$file_add.' && git commit -m "'.addslashes(Request::get('message')).'" && git push origin master 2>&1');
         return Helper::write($push_exec);
     }
 

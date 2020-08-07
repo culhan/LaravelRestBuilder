@@ -1,1 +1,1 @@
-json_decode_recursive({{json}})
+json_decode({{json}})
