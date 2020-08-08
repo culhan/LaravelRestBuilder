@@ -76,7 +76,7 @@ class ModelBuilder
 
         if( $with_timestamp == 1 ) {
 
-            if( !empty($with_delete_restriction) ) {
+            if( empty($with_delete_restriction) ) {
                 $option_timestamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_timestamp.stub', FILE_USE_INCLUDE_PATH);
                 $base_model = str_replace('// end list query option',$option_timestamp,$base_model);
             }
@@ -87,7 +87,7 @@ class ModelBuilder
 
         if( $with_authstamp == 1 ) {
 
-            if( !empty($with_delete_restriction) ) {
+            if( empty($with_delete_restriction) ) {
                 $option_authstamp = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_authstamp.stub', FILE_USE_INCLUDE_PATH);
                 $base_model = str_replace('// end list query option',$option_authstamp,$base_model);
             }

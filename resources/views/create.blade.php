@@ -211,9 +211,9 @@
                         </div>
                         <div class="form-group">
                             <label>Delete Restriction</label>
-                            <input class="d-none" name="with_delete_restriction" value="0">
+                            <input class="d-none" name="with_delete_restriction" value="1">
                             <div class="form-check form-check-inline with-check col-md">
-                                <input class="form-check-input" type="checkbox" id="with_delete_restriction" name="with_delete_restriction" value="1">
+                                <input class="form-check-input" type="checkbox" id="with_delete_restriction" name="with_delete_restriction" value="0">
                             </div> 
                         </div>
                         <div class="form-group">
@@ -2408,7 +2408,7 @@
             $( '[name="with_ipstamp"]' ).val(0).change();
             $( '[name="with_companystamp"]' ).val(0)            
             $( '[name="with_company_restriction"]' ).prop('checked',false).change();
-            $( '[name="with_delete_restriction"]' ).prop('checked',false).change();
+            $( '[name="with_delete_restriction"]' ).prop('checked',true).change();
             $( '[name="with_authenticable"]' ).prop('checked',false).change();
             $( '[name="custom_filter"]' ).val('');
             eval("code_editor_custom_filter.setValue('')")
@@ -2430,7 +2430,7 @@
             if(!data.with_company_restriction) data.with_company_restriction = 0;
             if(data.with_company_restriction == 1) $( '[name="with_company_restriction"]' ).prop('checked',true).change();
 
-            if(!data.with_delete_restriction) data.with_delete_restriction = 0;
+            if(!data.with_delete_restriction) data.with_delete_restriction = 1;
             if(data.with_delete_restriction == 1) $( '[name="with_delete_restriction"]' ).prop('checked',true).change();
 
             if(!data.with_authenticable) data.with_authenticable = 0;
