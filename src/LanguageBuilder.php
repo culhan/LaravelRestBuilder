@@ -151,7 +151,18 @@ class LanguageBuilder
      * @return  [type]         [return description]
      */
     public function readComment($file)
-    {        
+    {   
+        $folder = explode('/',$file);
+        unset($folder[count($folder)-1]);
+        $folder = implode('/',$folder);
+
+        if ( !file_exists($file) ){
+            FileCreator::createPath($folder);
+            $fp = fopen($file,"wb");
+            fwrite($fp,"<?php return [];");
+            fclose($fp);
+        }
+
         $source = file_get_contents( $file );        
         
         $tokens = token_get_all( $source );
@@ -178,6 +189,22 @@ class LanguageBuilder
 
         return $comment_arr;
         
+    }
+
+    /**
+     * [update description]
+     *
+     * @return  [type]  [return description]
+     */
+    public function create()
+    {
+        return view('khancode::createLang', [
+                'data'  =>  Request::all()+[
+                    'simpan_api'    => 1
+                ],
+                'projects'   =>  Projects::userData()->get(),
+                'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
+            ]);
     }
 
     /**

@@ -256,6 +256,11 @@
                             <textarea name="get_custom_updating" class="d-none"></textarea>
                             <textarea id="tab_get_custom_updating"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="get_custom_deleting">Custom Deleting</label>
+                            <textarea name="get_custom_deleting" class="d-none"></textarea>
+                            <textarea id="tab_get_custom_deleting"></textarea>
+                        </div>
                     </figure>
                 </div>
                 <div class="tab-pane fade" id="listindex" role="tabpanel" aria-labelledby="listindex-tab">
@@ -1943,6 +1948,11 @@
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
 
+            nama_kolom_fungsi = 'get_custom_deleting'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_custom_deleting', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
+
             nama_kolom_fungsi = 'get_custom_creating'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_custom_creating', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
@@ -2344,6 +2354,7 @@
                     },
                     error: function(e) {
                         alert('data modul tidak ada')
+                        window.history.back()
                         objModul = []
                         build_semua_kolom([],'')
                     }

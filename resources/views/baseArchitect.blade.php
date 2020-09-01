@@ -200,6 +200,22 @@
             width: calc(100% - 20px);
             overflow: hidden;
         }
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-left: 3px solid #186bc4;
+            color: #666;
+            page-break-inside: avoid;
+            font-family: monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 1.6em;
+            max-width: 100%;
+            overflow: auto;
+            padding: 1em 1.5em;
+            display: block;
+            word-wrap: break-word;
+        }
     </style>
     <link href="{{url('/')}}/vendor/khancode/css/main-architect.css" rel="stylesheet"></head>    
 <body>
@@ -731,7 +747,8 @@
     <!-- script diff -->
     <script src="{{url('/')}}/vendor/khancode/js/src/ace.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/src/ext-language_tools.js"></script>
-    <script src="{{url('/')}}/vendor/khancode/js/codeEditorCustom.js"></script>    
+    <script src="{{url('/')}}/vendor/khancode/js/codeEditorCustom.js"></script>
+    <script src="{{url('/')}}/vendor/khancode/js/ace-generator.js"></script>    
     <script src="https://unpkg.com/ace-diff@^2.0.0"></script>
     
     <script>
@@ -765,7 +782,7 @@
 
     @yield('script_add_on')
 
-    <!-- set nav active -->
+    <!-- set nav active --> 
     <script>
         $( document ).ready(function() {
             $( "[href$='"+window.location.pathname+"']" ).parent().addClass('active');
@@ -1160,6 +1177,14 @@
                     $("#modal_sync .modal-body").html(data);
                     $("#modal_sync").modal('show');
                 }
+            });
+        }
+
+        function camelize(str) {
+            return str.replace(/(?:^\w|[A-Z]|\b\w|\s+|_\w)/g, function(match, index) {
+                if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+                if (match.charAt(0) === '_') return match.charAt(1).toUpperCase();
+                return match.toUpperCase();
             });
         }
     </script>    

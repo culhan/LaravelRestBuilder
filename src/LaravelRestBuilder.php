@@ -437,6 +437,7 @@ class LaravelRestBuilder
                 $data['get_company_code'],
                 $data['get_custom_creating'],
                 $data['get_custom_updating'],
+                $data['get_custom_deleting'],
                 $data['hidden_relation']
             );    
 

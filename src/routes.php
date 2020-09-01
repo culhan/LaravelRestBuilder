@@ -20,6 +20,7 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('createProject', 'KhanCode\LaravelRestBuilder\ProjectBuilder@createProject');
                 Route::get('setProject/{id}', 'KhanCode\LaravelRestBuilder\ProjectBuilder@setProject');                
                 Route::get('lang/list', 'KhanCode\LaravelRestBuilder\LanguageBuilder@index');
+                Route::get('lang/create', 'KhanCode\LaravelRestBuilder\LanguageBuilder@create');
                 Route::post('lang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@save');
                 Route::get('updateLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@update');
                 Route::get('dropLang', 'KhanCode\LaravelRestBuilder\LanguageBuilder@dropLang');
@@ -27,6 +28,19 @@ if( config('laravelrestbuilder.build_active') )
                 Route::get('user', 'KhanCode\LaravelRestBuilder\UserBuilder@get');
                 Route::get('createUser', 'KhanCode\LaravelRestBuilder\UserBuilder@createUser');
                 Route::get('updateUser/{id}', 'KhanCode\LaravelRestBuilder\UserBuilder@updateUser');
+
+                Route::get('emails', 'KhanCode\LaravelRestBuilder\EmailBuilder@get');
+                Route::get('createEmail', 'KhanCode\LaravelRestBuilder\EmailBuilder@createEmail');
+                Route::post('buildEmail', 'KhanCode\LaravelRestBuilder\EmailBuilder@buildEmail');
+                Route::get('updateEmail/{id}', 'KhanCode\LaravelRestBuilder\EmailBuilder@updateEmail');
+                Route::get('preview/{id}', 'KhanCode\LaravelRestBuilder\EmailBuilder@preview');
+
+                Route::get('events', 'KhanCode\LaravelRestBuilder\EventBuilder@get');
+                Route::get('createEvent', 'KhanCode\LaravelRestBuilder\EventBuilder@createEvent');
+                Route::post('buildEvent', 'KhanCode\LaravelRestBuilder\EventBuilder@buildEvent');
+                Route::get('updateEvent/{id}', 'KhanCode\LaravelRestBuilder\EventBuilder@updateEvent');
+                
+                
             });                                
         });
     });
@@ -69,5 +83,8 @@ if( config('laravelrestbuilder.build_active') )
         Route::post('tambahFolder', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@tambahFolder');
         Route::get('modulFile/{id}', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@modulFile');
         Route::get('listUser', 'KhanCode\LaravelRestBuilder\UserBuilder@list');
+        Route::get('listEmail', 'KhanCode\LaravelRestBuilder\EmailBuilder@list');
+        Route::get('listEvent', 'KhanCode\LaravelRestBuilder\EventBuilder@list');
+        Route::delete('delete/event/{id}', 'KhanCode\LaravelRestBuilder\EventBuilder@destroy');
     });
 }

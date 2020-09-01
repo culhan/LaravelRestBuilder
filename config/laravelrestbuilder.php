@@ -40,6 +40,26 @@ return [
                     'url'   => "/create"
                 ],
             ],
+            'Emails'    => [
+                [
+                    'name'  => 'List',
+                    'url'   => "/emails"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/createEmail"
+                ],
+            ],
+            'Events'    => [
+                [
+                    'name'  => 'List',
+                    'url'   => "/events"
+                ],
+                [
+                    'name'  => 'Create',
+                    'url'   => "/createEvent"
+                ],
+            ],
             'Tables'    => [
                 [
                     'name'  => 'List',

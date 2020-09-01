@@ -3,6 +3,8 @@
 namespace KhanCode\LaravelRestBuilder;
 
 use KhanCode\LaravelRestBuilder\Models\ModulFiles;
+use KhanCode\LaravelRestBuilder\Models\EmailFiles;
+use KhanCode\LaravelRestBuilder\Models\EventFiles;
 
 class FileCreator   
 {
@@ -23,6 +25,23 @@ class FileCreator
     static function create( $name_file, $folder, $content = "some text here", $type = 'modul', $copy = true )
     {
         $file_folder = $folder;
+        
+        $file_model = new ModulFiles;
+        $file_key = 'modul_id';
+        $data_file_key = config('laravelrestbuilder.modul')['id'];
+
+        if($type == 'email') {
+            $file_model = new EmailFiles;
+            $file_key = 'email_id';
+            $data_file_key = config('laravelrestbuilder.email')['id'];
+        }
+
+        if($type == 'event') {
+            $file_model = new EventFiles;
+            $file_key = 'event_id';
+            $data_file_key = config('laravelrestbuilder.event')['id'];
+        }
+
         $folder = config('laravelrestbuilder.copy_to')."/".$folder;        
         if ( file_exists(base_path()."/".$folder."/".$name_file.".php") )
         {        
@@ -71,15 +90,16 @@ class FileCreator
             }
 
             if($name_file != 'api') {
-                $old_data   = ModulFiles::where('name', $file_folder."/".$name_file.".php")
-                    ->where('modul_id', config('laravelrestbuilder.modul')['id'])
+                $old_data   = $file_model->where('name', $file_folder."/".$name_file.".php")
+                    ->where($file_key, $data_file_key)
+                    ->whereNull('deleted_by')
                     ->first();
 
                 // jika kosong
                 if( empty($old_data) ){
-                    ModulFiles::create([
+                    $file_model->create([
                         'name'  =>  $file_folder."/".$name_file.".php",
-                        'modul_id'    =>    config('laravelrestbuilder.modul')['id'],
+                        $file_key    =>    $data_file_key,
                         'code'  =>  $content,
                     ]);
 
@@ -87,9 +107,10 @@ class FileCreator
                 }else { // jika sudah ada                    
 
                     if( $old_data->code != $content ) {
-                        ModulFiles::updateOrCreate([
+                        $file_model->updateOrCreate([
                             'name'  =>  $file_folder."/".$name_file.".php",
-                            'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                            $file_key    =>  $data_file_key,
+                            'deleted_by'    => null
                         ],[
                             'code'  =>  $content
                         ]);
@@ -115,9 +136,10 @@ class FileCreator
                 // }
             }else {
                 self::$file['created'][] = base_path()."/".$folder."/".$name_file.".php";
-                \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
+
+                $file_model->create([
                     'name'  => $file_folder."/".$name_file.".php",
-                    'modul_id'    =>  config('laravelrestbuilder.modul')['id'],
+                    $file_key    =>  $data_file_key,
                     'code'  => $content
                 ]);
             }

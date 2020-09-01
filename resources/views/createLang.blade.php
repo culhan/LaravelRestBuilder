@@ -11,13 +11,21 @@
         <form id="modul">
 
             <div class="form-group">                
-                <label>Lang</label>                    
-                <input type="" class="form-control" id="lang" placeholder="lang" name='lang' value='{{ Arr::get($data, 'lang', '') }}' readonly>
+                <label>Lang</label>
+                @if( !empty(Arr::get($data, 'lang', '')) )
+                    <input type="" class="form-control" id="lang" placeholder="lang" name='lang' value='{{ Arr::get($data, 'lang', '') }}' readonly>
+                @else
+                    <input type="" class="form-control" id="lang" placeholder="lang" name='lang'>
+                @endif
             </div>
             
             <div class="form-group">                
                 <label>Key</label>
-                <input type="" class="form-control" placeholder="key" name='key' value='{{ Arr::get($data, 'key', '') }}'>
+                @if( !empty(Arr::get($data, 'key', '')) )
+                    <input type="" class="form-control" placeholder="key" name='key' value='{{ Arr::get($data, 'key', '') }}' readonly>
+                @else
+                    <input type="" class="form-control" placeholder="key" name='key'>
+                @endif
             </div>
 
             <div class="form-group">                
@@ -26,8 +34,10 @@
             </div>
 
         </form>
-    </div>    
+    </div>
+@endsection
 
+@section('modal')
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
         Launch demo modal

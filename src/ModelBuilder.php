@@ -35,7 +35,7 @@ class ModelBuilder
      * @param [type] $hidden_relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $hidden_relation )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation )
     {
         $base = config('laravelRestBuilder.base');
         $mysql_version = config('laravelRestBuilder.mysql_version');
@@ -147,6 +147,11 @@ class ModelBuilder
         if ( !empty($custom_updating) ) {
             $custom_updating = str_replace("\n","\n\t\t\t",$custom_updating."\n\n// end list updating option");
             $base_model = str_replace('// end list updating option',$custom_updating,$base_model);
+        }
+
+        if ( !empty($custom_deleting) ) {
+            $custom_deleting = str_replace("\n","\n\t\t\t",$custom_deleting."\n\n// end list deleting option");
+            $base_model = str_replace('// end list deleting option',$custom_deleting,$base_model);
         }
 
         $cols_table_model = "";        
