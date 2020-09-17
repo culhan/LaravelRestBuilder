@@ -23,6 +23,7 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.2.5/css/rowReorder.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://www.jqueryscript.net/demo/ON-OFF-Toggle-Switches-Switcher/css/switcher.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -200,7 +201,7 @@
             width: calc(100% - 20px);
             overflow: hidden;
         }
-        pre {
+        .codeHint {
             background: #f4f4f4;
             border: 1px solid #ddd;
             border-left: 3px solid #186bc4;
@@ -736,7 +737,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/rowreorder/1.2.5/js/dataTables.rowReorder.min.js"></script>    
+    <script src="https://cdn.datatables.net/rowreorder/1.2.5/js/dataTables.rowReorder.min.js"></script>  
+    <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>  
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
     <!-- Custom scripts for all pages-->
     <!-- <script src="{{url('/')}}/vendor/khancode/js/sb-admin-2.min.js"></script> -->

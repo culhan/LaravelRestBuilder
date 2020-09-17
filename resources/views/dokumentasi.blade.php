@@ -85,7 +85,7 @@
 </style>
 <style>
 .icon-get {
-    margin-left:20px !important;
+    margin-left:10px !important;
 }
 .icon-get:before {
     content:'GET';
@@ -155,17 +155,18 @@ table .fa-close {
 <link href="{{url('/')}}/vendor/khancode/css/chrome-tabs.css" rel="stylesheet">
 
 <div class="row">
-    <div class="tree-block resizeableDiv1" style="width:20%">
+    <div class="tree-block resizeableDiv1" style="width:25%">
         <li class="jstree-node  jstree-leaf jstree-last">            
             <div class="row">
                 <div class="col-md-6">
                     <span style="font-size:medium">{{ session('project')['name'] }}</span><br>
                     <span style="font-size:small" id="jumlah_endpoint">{{$data['jumlah_endpoint']}} endpoint</span>
                 </div>
-                <div class="btn-group col-md-6" style="right:10px;position:absolute;padding-top:5px;width:15px;height:30">
+                <div class="btn-group col-md-6" style="right:20px;position:absolute;padding-top:5px;width:15px;height:30px;">
                     <span data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="fa fa-ellipsis-h" style="color: rgb(128, 128, 128); height: 25px; cursor: pointer;"></span>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="#" onclick="tambahFolder(0)">Tambah Folder</a>
+                        <a class="dropdown-item" href="#" onclick="importPostman(0)">Import Postaman</a>
                     </div>
                 </div>
             </div>
@@ -174,7 +175,7 @@ table .fa-close {
         <div id="jstree"></div>
     </div>
 
-    <div class="tree-detail d-inline-block dokumentasi resizeableDiv2" style="width:80%">
+    <div class="tree-detail d-inline-block dokumentasi resizeableDiv2" style="width:75%">
 
         <div class="chrome-tabs col-md-12" style="--tab-content-margin: 9px">
             <div class="chrome-tabs-content">                        
@@ -244,7 +245,8 @@ table .fa-close {
             $('.resizeableDiv1').resize(function(){
                 $('.resizeableDiv2').width($('.resizeableDiv2').parent().width()-$(".resizeableDiv1").width()-30); 
                 $('.jstree-anchor').each(function(i,k){
-                    $(this).width( $(".resizeableDiv1").width()-(($(this).parents('[role="group"]').length)*24)-20 )
+                    // $(this).width( $(".resizeableDiv1").width()-(($(this).parents('[role="group"]').length)*24)-20 )
+                    $(this).width( $(this).parent().width()*75/100 )
                 })
             });
             $(window).resize(function(){
@@ -402,7 +404,7 @@ table .fa-close {
             })
 
             $('.jstree-anchor').each(function(i,k){
-                $(this).width( $(".resizeableDiv1").width()-(($(this).parents('[role="group"]').length)*24)-20 )
+                $(this).width( $(".resizeableDiv1").width()-(($(this).parents('[role="group"]').length)*24)-30 )
             })
         }
 
@@ -416,7 +418,7 @@ table .fa-close {
 
             html_dropdown = ''
 
-            html_dropdown += '<div class="btn-group" style="right:0;position:absolute;padding-top:5px;width:15px;height:30">'
+            html_dropdown += '<div class="btn-group" style="right:10px;position:absolute;padding-top:5px;width:15px;height:30px" onmouseover="$(this).find(\'span\').show();$(this).next().mouseover();" onmouseout="$(this).find(\'span\').hide();$(this).next().mouseout();">'
                 html_dropdown += '<span data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="fa fa-ellipsis-h" style="display:none;color:#808080;height:25px;cursor:pointer"></span>'
                 html_dropdown += '<div class="dropdown-menu">'                   
                     if( current_node.type == 'folder') {
@@ -428,6 +430,37 @@ table .fa-close {
             html_dropdown += '</div>'
 
             return html_dropdown
+        }
+
+        function importPostman() {
+            $("#editNodeModal").find("[data-save='modal']").attr('onclick', "importPostmanServer()")
+
+            data_modal_body = ''
+            data_modal_body +='<div class="form-group">'
+                data_modal_body +='<label for="json_postman">Json Postman</label>'
+                data_modal_body +='<textarea class="form-control" id="json_postman" rows="12"></textarea>'
+            data_modal_body +='</div>'
+
+            $("#editNodeModal").find("[class='modal-body']").html(data_modal_body)
+            $("#editNodeModal").modal('show');
+        }
+
+        function importPostmanServer(id) {
+            formData = new FormData();
+            formData.append('json',$("#editNodeModal").find("#json_postman").val())
+
+            $.ajax({
+                url: '/importPostman',
+                type: 'POST',
+                crossDomain: true,
+                data: formData,
+                processData: false,
+                contentType: false,
+                complete: function (data) {
+                    $("#jstree").jstree("refresh");
+                    $("#editNodeModal").modal('hide');
+                }
+            });
         }
 
         function tambahFolder(id) {

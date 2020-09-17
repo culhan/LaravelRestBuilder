@@ -16,7 +16,7 @@
                 <input type="" class="form-control" placeholder="nama" name='name' value='{{ (Arr::get($data, 'name', '')) }}' onkeyup="change_code(this)">
             </div>
                         
-            <pre id="code_hint">event(new \App\Events\{{ ucwords(camel_case(Arr::get($data, 'name', ''))) }}());</pre>
+            <div class="codeHint">event(new \App\Events\{{ ucwords(camel_case(Arr::get($data, 'name', ''))) }}());</div>
 
             <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom:0px">
                 <li class="nav-item">
@@ -167,7 +167,7 @@
                 paramString += '$' + v['code']
             })
 
-            $("#code_hint").html('event(new \\App\\Events\\'+camelize(e.value)+'('+paramString+'));')
+            $(".codeHint").html('event(new \\App\\Events\\'+camelize(e.value)+'('+paramString+'));')
         }
 
         // untuk data parameter

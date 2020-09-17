@@ -5,7 +5,7 @@ if( config('laravelrestbuilder.build_active') )
     Route::group(['middleware' => [\Illuminate\Session\Middleware\StartSession::class]], function () {
         Route::group(['middleware' => [KhanCode\LaravelRestBuilder\Middleware\SetConfigMiddleware::class]], function () {
         Route::get('login', 'KhanCode\LaravelRestBuilder\Auth@login');
-            Route::post('login', 'KhanCode\LaravelRestBuilder\Auth@setAuth');
+        Route::post('login', 'KhanCode\LaravelRestBuilder\Auth@setAuth');
             Route::group(['middleware' => [KhanCode\LaravelRestBuilder\Middleware\AuthMiddleware::class]], function () {
                 Route::get('KhanCodeLogout', 'KhanCode\LaravelRestBuilder\Auth@logout');
                 Route::get('list', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@list');                
@@ -86,5 +86,8 @@ if( config('laravelrestbuilder.build_active') )
         Route::get('listEmail', 'KhanCode\LaravelRestBuilder\EmailBuilder@list');
         Route::get('listEvent', 'KhanCode\LaravelRestBuilder\EventBuilder@list');
         Route::delete('delete/event/{id}', 'KhanCode\LaravelRestBuilder\EventBuilder@destroy');
+        Route::get('dataTable/{table_name}', 'KhanCode\LaravelRestBuilder\TableBuilder@dataTable');
+        Route::post('saveData', 'KhanCode\LaravelRestBuilder\TableBuilder@saveData');
+        Route::post('deleteData', 'KhanCode\LaravelRestBuilder\TableBuilder@deleteData');
     });
 }

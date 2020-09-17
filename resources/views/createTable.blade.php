@@ -7,6 +7,20 @@
 @endif
 
 @section('content')
+    <style>
+        .datatable-data {
+            display: block
+        }
+        .datatable-editor {
+            display: none
+        }
+        .show-editor .datatable-data {
+            display: none
+        }
+        .show-editor .datatable-editor {
+            display: block
+        }
+    </style>
     <div class="col-lg-12">        
         <form id="modul">
             <input type="" class="form-control d-none" id="table_id" name='id' value='{{ Arr::get($data, 'id', 0) }}'>
@@ -24,7 +38,10 @@
 
             <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom:0px">
                 <li class="nav-item">
-                    <a class="nav-link active" id="tabel-tab" data-toggle="tab" href="#tabel" role="tab" aria-controls="tabel" aria-selected="true">Tabel</a>
+                    <a class="nav-link active" id="tabel-data" data-toggle="tab" href="#tabdata" role="tabdata" aria-controls="tabdata" aria-selected="true">Data</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tabel-tab" data-toggle="tab" href="#tabel" role="tab" aria-controls="tabel" aria-selected="true">Tabel</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="tabeloption-tab" data-toggle="tab" href="#tabeloption" role="tab" aria-controls="tabeloption" aria-selected="false">Tabel Option</a>
@@ -34,7 +51,18 @@
                 </li>                                
             </ul>
             <div class="tab-content" id="myTabContent">
-                <div class="tab-pane fade show active" id="tabel" role="tabpanel" aria-labelledby="tabel-tab">
+                <div class="tab-pane fade show active" id="tabdata" role="tabpanel" aria-labelledby="tabdata-tab" style="max-width: 100%;">
+                    <!-- kolom -->
+                    <figure class="highlight"> 
+
+                        <input class="btn btn-primary" type="button" value="Tambah" height='10px' id='add_kolom' onclick="showModalAddData()">    
+                        <br>
+                        <br>
+
+                        <list-data></list-data>
+                    </figure>
+                </div>
+                <div class="tab-pane fade show" id="tabel" role="tabpanel" aria-labelledby="tabel-tab">
                     
                     <!-- kolom -->
                     <figure class="highlight"> 
@@ -241,13 +269,54 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalData" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">            
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                dataaa
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+            </div>
+        </div>
+    </div>
     
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Konfirmasi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Yakin Akan Hapus ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-primary" onclick="confirm_delete(this)" id="confirm_delete">Ya</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal"><!-- Place at bottom of page --></div>
 @endsection
 
 @section('script_add_on')
     <script src="<?php echo URL::to('/vendor/khancode/js/ace.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/storage.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-edit-datatables.js');?>"></script>
     
     <script>
         ;(function ($) {
@@ -427,6 +496,7 @@
                             build_tabel_option_by_column(objModul['column'])
                             build_modul_tabel(objModul['column'],objForbiddenCOlumn);
                             build_list_index_tabel(json['list_index'])
+                            buildListData(objModul['column'])
                         }else {
                             objColumn = []
                             objModul['column'] = []
@@ -436,6 +506,7 @@
                             build_tabel_option_by_column([])
                             build_modul_tabel([]);
                             build_list_index_tabel([])
+                            buildListData([])
                         }
                     },
                     error: function(e) {
@@ -447,6 +518,7 @@
                         build_tabel_option_by_column([])
                         build_modul_tabel([]);
                         build_list_index_tabel([])
+                        buildListData([])
                     }
                 });
             }, 500);
@@ -823,6 +895,163 @@
                     removeColumnModulTable(String(index_company_column))
                 }
             }
+        }
+    </script>
+
+    <script>
+        function deleteModal(ele){
+            $( "#deleteModal" ).modal('show')
+            $( "#confirm_delete" ).attr('onclick','confirm_delete('+$(ele).attr('data_id')+')')
+        }
+
+        function confirm_delete(id) {
+            data = {
+                'old_data': storage_parameter.get('list_data.'+id),
+                'table':$( '[name*="table"]' ).val()
+            }
+
+            $.ajax({
+                url: '/deleteData',
+                type: 'POST',
+                crossDomain: true,
+                data: JSON.stringify(data),
+                processData: false,
+                contentType: 'application/json',
+                success: function (data) {
+                    list_data.ajax.reload( null, false )
+                    $( "#deleteModal" ).modal('hide')
+                },
+                error:function (data) {
+                    $('#modal_1 .modal-body').html('delete data failed')
+                    $( "#modal_1" ).modal('show')
+                }
+
+            })
+        }
+        
+        function showModalAddData() {
+            
+            column = storage_parameter.get('list_column')
+
+            html = ''
+            $.each(column, function( index, value ) {
+                html += '<div class="form-group">'
+                    html += '<label>'+value.name+'</label>'
+                    html += '<input type="" class="form-control" value="">'
+                html += '</div>'
+                
+            })
+
+            $('#modalData .modal-body').html(html)
+            $('#modalData').modal('toggle');
+        }
+
+        function buildListData(cols) {
+            storage_parameter.update('list_column',cols)
+
+            arr_list = [];
+            html = ''
+            html += '<table id="list-data" class="table table-striped table-bordered table-hover" style="width:100%;">'
+                html += '<thead>'
+                    html += '<tr>'
+                        html += '<th scope="col">#</th>'
+                        arr_list.push({ 
+                            data:'nomor_baris',
+                        })
+                        $.each(cols, function( index, value ) {
+                            html += '<th scope="col">'+value['name']+'</th>'
+                            arr_list.push({ 
+                                data:value['name'],
+                                render: function (data, type, row, meta) {
+                                    return '<span class="datatable-data">'+data+'</span><input value="'+data+'" class="datatable-editor" style="width: 100%;" data_index="'+row.nomor_baris+'" data_column="'+value.name+'">'
+                                }    
+                            })
+                        })
+                        html += '<th scope="col">Action</th>'
+                    html += '</tr>'
+                html += '</thead>'
+                html += '<tbody>'
+                html += '</tbody>'
+            html += '</table>'
+
+            $('list-data').html(html)
+
+            arr_list.push({ 
+                data: 'nomor_baris',
+                "render": function ( data, type, row, meta ) {
+                    return '<button type="button" onclick="deleteModal(this)" data_id="'+data+'" class="btn btn-danger float-right btn-sm" style="margin-right: 15px;"><svg class="icon" viewBox="0 0 8 8" width="100%" height="100%"><path d="M1.406 0l-1.406 1.406.688.719 1.781 1.781-1.781 1.781-.688.719 1.406 1.406.719-.688 1.781-1.781 1.781 1.781.719.688 1.406-1.406-.688-.719-1.781-1.781 1.781-1.781.688-.719-1.406-1.406-.719.688-1.781 1.781-1.781-1.781-.719-.688z"></path></svg></button>';
+                }
+            })
+
+            list_data = $( "#list-data" ).DataTable({
+                "scrollX": true,
+                "autoWidth": true,
+                "pageLength": 10,
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                "processing": false,
+                "serverSide": true,
+                // "select":true,
+                "ajax": {
+                    "url": "{{url('/')}}/dataTable/"+$( '[name*="table"]' ).val(),
+                    "dataSrc": function ( data ) {
+                        data_to_index = []
+                        $.each(data.data, function( index, value ) {
+                            data_to_index[value.nomor_baris] = value
+                        })
+                        storage_parameter.update('list_data',data_to_index)
+                        return data.data ;
+                    },
+                    "data": function ( d ) {
+                        delete d['columns']
+                        d.order[0]['column'] = arr_list[d.order[0]['column']]['data']
+                        return d
+                    }
+                },
+                "columns": arr_list
+            });
+
+            // list_data.on( 'select', function ( e, dt, type, indexes ) {
+            //     if ( type === 'row' ) {
+            //         var data = list_data.rows( indexes ).data().pluck( 'id' );
+            //         console.log(e,dt,type,indexes)
+            //         // do something with the ID of the selected items
+            //     }
+            // } );
+
+            $('#tabdata div.dataTables_wrapper').css('max-width','1100px')
+
+            elem = $("#tabdata")[0]; 
+  
+            let resizeObserver = new ResizeObserver(() => { 
+                $('#tabdata div.dataTables_wrapper').css('max-width',(93.3/100*elem.offsetWidth)+'px')
+            }); 
+    
+            resizeObserver.observe(elem);
+
+            $('#list-data tbody').on( 'click', 'td', function () {
+                thisele = $(this)
+                $(this).addClass('show-editor')
+                thiseditor = $(this).find('.datatable-editor')
+                thiseditor.focus()
+
+                $(this).find('.datatable-editor').unbind().focusout(function(){
+                    index = thiseditor.attr('data_index')
+                    column = thiseditor.attr('data_column')
+                    value = thiseditor.val()
+
+                    simpanDataTable({
+                        'old_data':storage_parameter.get('list_data.'+index),
+                        'column':column,
+                        'value':value,
+                        'table':$( '[name*="table"]' ).val()
+                    })
+
+                    thisele.removeClass('show-editor')
+
+                    list_data.ajax.reload( null, false )
+                })
+
+            } );
         }
     </script>
     

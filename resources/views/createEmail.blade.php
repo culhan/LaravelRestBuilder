@@ -16,7 +16,7 @@
                 <input type="" class="form-control" placeholder="nama" name='name' value='{{ (Arr::get($data, 'name', '')) }}' onkeyup="change_code(this)">
             </div>
 
-            <pre id="code_hint">\Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\{{ ucwords(camel_case(Arr::get($data, 'name', ''))) }}());</pre>
+            <div class="codeHint">\Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\{{ ucwords(camel_case(Arr::get($data, 'name', ''))) }}());</div>
 
             <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom:0px">
                 <li class="nav-item">
@@ -37,7 +37,7 @@
                     
                     <!-- kolom -->
                     <figure class="highlight"> 
-                        
+
                         <div class="container ">
 
                             <div class="form-group">                
@@ -55,7 +55,9 @@
                             <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_cols('parameter')">
                         </div>
 
-                        <br><br>
+                        <div class="row container mb-4">
+                            <input class="btn btn-success" type="button" value="import from view" height="10px" onclick="exportVariable('parameter')">
+                        </div>
 
                         <!-- parameter -->
                         <modul_parameter>
@@ -90,7 +92,9 @@
                             <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_cols('variable')">
                         </div>
 
-                        <br><br>
+                        <div class="row container mb-4">
+                            <input class="btn btn-success" type="button" value="import from view" height="10px" onclick="exportVariable('variable')">
+                        </div>
 
                         <!-- variable -->
                         <modul_variable>
@@ -181,7 +185,7 @@
                 paramString += '$' + v['code']
             })
 
-            $("#code_hint").html('\\Illuminate\\Support\\Facades\\Mail::to($email)->send(new \\App\\Mail\\'+camelize(e.value)+'('+paramString+'));')
+            $(".codeHint").html('\\Illuminate\\Support\\Facades\\Mail::to($email)->send(new \\App\\Mail\\'+camelize(e.value)+'('+paramString+'));')
         }
 
         // untuk data parameter
@@ -265,5 +269,40 @@
 
             after_build_table_parameter()
         });
+
+        function exportVariable(index) {
+            str = $('[name="view"]').val()
+            listVar = str.match(/\$(([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(->)*)*(\[[^\]]*\])*)/g);
+
+            index_cari = 'name'
+            if( index == 'parameter' ) {
+                index_cari = 'code'
+            }
+
+            $.each(listVar, function (key, value) {
+
+                // replace $
+                value = value.replace(/(\$)/g, function(match, index) {
+                    return ''
+                })
+
+                pass = 0
+                $.each(storage_parameter.get(index), function (key2, value2) {
+                    if(value2[index_cari] == value) pass = 1
+                })
+                
+                if( pass == 1 ) return
+
+                arr = {}
+                arr[index_cari] = value
+
+                if( index == 'variable') arr['code'] = '$'+value
+
+                storage_parameter.add(index, arr)
+            })
+
+            
+            build_tabel(index, storage_parameter.get(index))
+        }
     </script>
 @endsection

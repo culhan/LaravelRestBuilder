@@ -179,7 +179,7 @@ class EmailBuilder
                 '{{after_code}}',
             ],[
                 ucwords( camel_case($data['name']) ),
-                $data['name'],
+                camel_case($data['name']),
                 str_replace("\n", "\n\t\t", $data['before_code']),
                 $data['after_code'],
             ],$base_email);
@@ -212,7 +212,7 @@ class EmailBuilder
         $base_email = str_replace('{{parameter}}',$parameter_code,$base_email);
 
         FileCreator::create( ucwords( camel_case($data['name']) ), 'app/Mail', $base_email, 'email' );
-        FileCreator::create( $data['name'].'.blade', 'resources/views/emails', $data['view'], 'email' );
+        FileCreator::create( camel_case($data['name']).'.blade', 'resources/views/emails', $data['view'], 'email' );
 
         return [
             'data'  => $return,
@@ -273,6 +273,8 @@ class EmailBuilder
     public function preview($id)
     {
         $data    = Emails::getAll()->where('id',$id)->first();
+
+        \URL::forceRootUrl('https://zenwelecommerce.builder.my.id/');   
 
         if( empty($data) ) {
             $data = [

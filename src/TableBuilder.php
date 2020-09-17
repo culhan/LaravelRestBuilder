@@ -218,4 +218,129 @@ class TableBuilder
         return $data;
         
     }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function dataTable($table_name)
+    {   
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+
+        $table = MigrationBuilder::getColumnExist($table_name);
+        $column = isset($table[$table_name]) ? $table[$table_name]:[];
+
+        $sortableAndSearchableColumn = [];
+        $cols = [];
+        foreach ($column as $key => $value) {
+            $cols[] = $value['name'];
+            $sortableAndSearchableColumn[$value['name']] = $value['name'];
+        }
+        
+        \Request::merge([
+            'search' => \Request::get('search')['value'],
+            'sort_column'   =>  \Request::get('order')[0]['column']??'nomor_baris',
+            'sort_type'   =>  \Request::get('order')[0]['dir']??'asc',
+            ]);
+                    
+        $model = new SchemaTables;
+        $model->setTable($table_name);
+
+        \DB::statement(\DB::raw('set @nomorbaris = 0;'));
+        
+        $data['data'] = $model
+            ->select(array_merge([
+                \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
+            ],$cols))
+            ->setSortableAndSearchableColumn([
+                    'nomor_baris'   =>  'nomor_baris',
+                ]+$sortableAndSearchableColumn)
+            ->search()
+            ->sort()
+            ->distinct()
+            ->take(request('length',10))            
+            ->skip(request('start',0))
+            ->get();
+
+        $data['draw'] = request('draw');
+        $data['recordsTotal'] = $model->select(['*'])->count();
+        $data['recordsFiltered'] = $model
+            ->select(['*'])
+            ->setSortableAndSearchableColumn([
+                    'nomor_baris'   =>  'nomor_baris',
+                ]+$sortableAndSearchableColumn)
+            ->search()            
+            ->count();
+        
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+
+        return $data;
+        
+    }
+
+    function IsNullOrEmptyString($str){
+        return (!isset($str) || trim($str) === '');
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $table_name
+     * @return void
+     */
+    public function saveData()
+    {
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        \DB::enableQueryLog();
+        $model = \DB::table(Request::get('table'));
+        
+        foreach (json_decode(Request::getContent(),true)['old_data'] as $key => $value) {
+            if($key!='nomor_baris') {
+                if( is_null($value)){
+                    $model->whereNull($key);
+                }else {
+                    $model->where($key,'=',$value);
+                }
+            }
+        }
+        
+        $model->take(1)->update([
+            Request::get('column')  => (strtolower(Request::get('value'))=='null') ? NULL:Request::get('value')
+        ]);
+        dd(\DB::getQueryLog());
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+
+        return [
+            'message'   => 'success',
+            'status'    => 200,
+            'error' => 0
+        ];
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function deleteData()
+    {
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        
+        $model = \DB::table(Request::get('table'));
+        
+        foreach (Request::get('old_data') as $key => $value) {
+            if($key!='nomor_baris') $model->where($key,$value);
+        }
+
+        $model->take(1)->delete();
+        
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+
+        return [
+            'message'   => 'success',
+            'status'    => 200,
+            'error' => 0
+        ];
+    }
 }

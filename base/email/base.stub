@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 #for type queue implement class to this ------
 class {{Name}} extends Mailable implements ShouldQueue
 #for type queue implement class to this ------
-// class {{Name}}tePasswordStaff extends Mailable
+//class {{Name}} extends Mailable
 {
     use Queueable, SerializesModels;
 

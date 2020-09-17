@@ -58,19 +58,21 @@ class FileCreator
                 for ($i=0; $i < $count_mathces ; $i++) { 
                     $this_custom_code = self::get_string_between($old_file,'// start custom code', '// end custom code');
                     $custom_code[] = $this_custom_code;
-                    $old_file = preg_replace('#'.preg_quote('// start custom code'.$this_custom_code.'// end custom code')."#", " ", $old_file, 1);
+                    $rep = "\001".preg_quote('// start custom code'.$this_custom_code."\t".'// end custom code')."\001";
+                    $old_file = preg_replace($rep, " ", $old_file, 1);
                 }
 
                 $index = 0;                
-                $content = preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use ($custom_code,&$index,$type) {                    
+                $content = preg_replace_callback("\001".preg_quote("// start custom code")."\001",function ($m) use ($custom_code,&$index,$type) {                    
                     if(!empty($custom_code[$index]))
-                    {                        
+                    {        
                         // hapus \r\n
                         if( $type != "routes" ) {
                             $custom_code[$index] = substr($custom_code[$index], 0, -6);
                         }else {
                             $custom_code[$index] = substr($custom_code[$index], 0, -1);
                         }
+                        $custom_code[$index] = trim($custom_code[$index]," ");
 
                         // remove if only whitespace
                         if (ctype_space($custom_code[$index])) {

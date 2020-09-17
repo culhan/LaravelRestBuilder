@@ -202,8 +202,17 @@ class ModelBuilder
             }
 
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) ) {                                                
-                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$value';
+                
+                // if( !empty($value_column_function['json']) ) {
+                //     $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : $value_column_function['name'];
+                //     $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
+                // }else {
+                //     $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']';
+                // }
+
+                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']';
                 $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
+
                 $value_column_function['response_code'] = !empty($value_column_function['json']) ? $json_converter : $value_column_function['response_code']; 
 
                 // check response code
@@ -251,7 +260,7 @@ class ModelBuilder
                     $json_converter = str_replace([
                         "{{json}}"
                     ],[
-                        '$value'
+                        '$this->attributes[\''.$value_relation['name'].'\']'
                     ],$option_isJson);
                     
                     // check response code
