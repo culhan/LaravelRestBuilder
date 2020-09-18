@@ -121,7 +121,7 @@ class {{Name}} extends BaseModel
 	 */
     public function searchOperator($query, $column, $text, $operator = 'like', $conditions = 'and')
 	{	
-        if( $operator == 'like' ) {
+        if( $operator == 'like' && !is_array($column)) {
             $this->sortableAndSearchableColumn[$column] = 'LOWER('.$this->sortableAndSearchableColumn[$column].')';
             $text = strtolower($text);
         }
