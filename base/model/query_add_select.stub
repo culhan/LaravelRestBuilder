@@ -1,0 +1,5 @@
+if( array_get($data,'show_{{column_function_name}}',1) ){
+                        $query = $query->addSelect([
+                            \DB::raw("({{function_query}}) as '{{column_function_name}}' ")
+                        ]);
+                    }

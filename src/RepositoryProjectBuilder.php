@@ -31,7 +31,9 @@ class RepositoryProjectBuilder
         // jika ada pending push karena belum pull
         $push_status = Helper::execute("git push origin master 2>&1",$folder);
 
-        $git_status = Helper::execute("git status 2>&1",$folder);        
+        $git_status = Helper::execute("git status 2>&1",$folder);
+
+        $folder_chmod = Helper::execute("chown -R www-data:www-data . 2>&1",$folder);
 
         return [
             'branch'    => shell_exec('cd '.$folder.' && git rev-parse --abbrev-ref HEAD 2>&1'),
@@ -40,7 +42,7 @@ class RepositoryProjectBuilder
             'git_status'    => Helper::write($git_status['out']).Helper::write($git_status['err']),
             'check_changes' => Helper::write($check_changes),
             'changes'   => self::status(),
-            're_push'   => Helper::write($push_status['out']).Helper::write($push_status['err'])
+            're_push'   => Helper::write($push_status['out']).Helper::write($push_status['err']),
         ];
     }
     

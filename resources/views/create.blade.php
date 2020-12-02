@@ -529,6 +529,19 @@
                                 </div>
                                 <input class="btn btn-secondary mb-3" type="button" value="Tambah Parameter" height="10px" onclick="tambah_route_parameter('route_sementara',1)">
                             </div>
+                            
+                            <div class="row mb-3 route_custom_check_single_data">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_parameter_custom_check_single_data" aria-expanded="true" aria-controls="route_parameter_custom_check_single_data"><b>Custom check single data</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm route_parameter_custom_check_single_data collapse">
+                                <div class="form-group">
+                                    <textarea name="route_sementara[custom_check_single_data]" class="d-none"></textarea>
+                                    <textarea id="tab_route_sementara[custom_check_single_data]"></textarea>
+                                    <pre>*input ".code." akan di baca kode php</pre>
+                                </div>
+                            </div>
 
                             <data-filter style="display:none">
                                 <div class="row mb-3">
@@ -812,8 +825,15 @@
 
 @section('script_add_on')    
 
-    <?php        
-        $dir = app_path().'/../../'.session('project')['folder'].'/app/';        
+    <?php
+        $dir = app_path().'/../../'.session('project')['folder'].'/app/';
+
+        \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Controllers/');
+        \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Models/');
+        \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Services/');
+        \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Repositories/');
+        \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Resources/');
+        
         $models = array();
         
         $files = scandir($dir.'Http/Controllers/');
@@ -982,6 +1002,14 @@
                 $( ".route_fungsi_relasi + div" ).addClass('d-none')
             }
 
+            if( ele.value == 'update_data' || ele.value == 'delete_data' ) {
+                $('.route_custom_check_single_data').removeClass('d-none')
+                $('.route_parameter_custom_check_single_data').removeClass('d-none')
+            }else{
+                $('.route_custom_check_single_data').addClass('d-none')
+                $('.route_parameter_custom_check_single_data').addClass('d-none')
+            }
+
             if(ele.value == 'custom_data') {
                 html_code_php = 
                     '<div class="mt-3 custom_data_'+i+' ">'+
@@ -1050,7 +1078,7 @@
                     eval("")
                 }            
             }else {
-                
+
                 if( ele.value == 'delete_data' ) {
                     $( "[name^='route_sementara[validation]']" ).prop('disabled',true)                
                     $( ".route_advanced_validation" ).addClass('d-none')
@@ -1964,7 +1992,7 @@
             
             nama_kolom_fungsi = 'custom_union'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_union', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
-            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")            
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
 
             nama_kolom_fungsi = 'custom_join'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_join', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
@@ -1974,6 +2002,8 @@
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('route_sementara_advanced_validation_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"route_sementara[advanced_validation_code]\"]' ).val(val_code);})")
+            
+            aceGenerate({ name_cols : 'route_sementara[custom_check_single_data]', mode : 'php_inline', default_code : '$single_data = $this->getSingleData($id);'});
 
             @if (!empty($data['id']) )
                 ambil_data_modul({{$data['id']}})

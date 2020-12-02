@@ -1,17 +1,17 @@
-                    \DB::raw("(CASE WHEN (? = 0)
-                           THEN NULL
-                           ELSE 
-                           ". \DB::raw("(
-                                   select concat('[',IFNULL(group_concat(distinct concat('{'
+        if( array_get($data,'show_{{belongs_to_many_name}}',1) ){
+            $query = $query->addSelect([
+                \DB::raw("(
+                        select concat('[',IFNULL(group_concat(distinct concat('{'
 {{column_belongs_to_many}}                                
-                                   '}') {{custom_order}} 
-                                ),''),']') 
-                                from {{belongs_to_many_intermediate_table}}
-                                left join {{belongs_to_many_table}} on ({{belongs_to_many_table}}.id = {{belongs_to_many_intermediate_table}}.{{foreign_key_joining_model}})
-                                -- start list belongs to many join option
-                                -- end list belongs to many join option
-                                where {{belongs_to_many_intermediate_table}}.{{foreign_key_model}} = {{table}}.id
-                                -- start list belongs to many query option
-                                -- end list belongs to many query option
-                            ) ")."
-                    END) as '{{belongs_to_many_name}}' "),
+                        '}') {{custom_order}} 
+                    ),''),']') 
+                    from {{belongs_to_many_intermediate_table}}
+                    left join {{belongs_to_many_table}} on ({{belongs_to_many_table}}.id = {{belongs_to_many_intermediate_table}}.{{foreign_key_joining_model}})
+                    -- start list belongs to many join option
+                    -- end list belongs to many join option
+                    where {{belongs_to_many_intermediate_table}}.{{foreign_key_model}} = {{table}}.id
+                    -- start list belongs to many query option
+                    -- end list belongs to many query option
+                ) as '{{belongs_to_many_name}}' ")
+            ]);
+        }

@@ -1,16 +1,16 @@
-                    \DB::raw("(CASE WHEN (? = 0)
-                           THEN NULL
-                           ELSE 
-                           ". \DB::raw("(
-                                    select IFNULL(group_concat(distinct JSON_OBJECT(
+        if( array_get($data,'show_{{belongs_to_name}}',1) ){
+            $query = $query->addSelect([
+                \DB::raw("(
+                        select IFNULL(group_concat(distinct JSON_OBJECT(
 {{column_belongs_to}}
-                                    ) {{custom_order}} 
-                                ),'{}')
-                                from {{table_belongs_to}}
-                                -- start list belongs to join option
-                                -- end list belongs to join option
-                                where {{column_belongs_to_relation_key}} = {{column_belongs_to_foreign_key}}
-                                -- start list belongs to query option
-                                -- end list belongs to query option
-                            ) ")."
-                    END) as '{{belongs_to_name}}' "),
+                        ) {{custom_order}} 
+                    ),'{}')
+                    from {{table_belongs_to}}
+                    -- start list belongs to join option
+                    -- end list belongs to join option
+                    where {{column_belongs_to_relation_key}} = {{column_belongs_to_foreign_key}}
+                    -- start list belongs to query option
+                    -- end list belongs to query option
+                ) as '{{belongs_to_name}}' ")
+            ]);
+        }

@@ -9,7 +9,7 @@
 
         {{data-filter}}
 
-        $single_data = $this->getSingleData($id);
+        {{check_single_data}}
 
         {{data-validation}}
 

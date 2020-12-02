@@ -12,13 +12,13 @@
         // custom code before
         {{custom_code_before}}
 
-        $result = $this->repository->getSingleData($id);
+        {{check_single_data}}
 
         // start list belongs to many delete
         
         // end list belongs to many delete
 
-        $return = $result->delete();
+        $return = $single_data->delete();
         
         // custom code after
         {{custom_code_after}}        

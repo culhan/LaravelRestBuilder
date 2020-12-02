@@ -158,6 +158,7 @@ class ModelBuilder
         $fillable_table_model = "";
         $hidden = array_flip($hidden);
         $base_column_function_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_function.stub', FILE_USE_INCLUDE_PATH);
+        $base_column_function_query = str_replace('\t',"\t",$base_column_function_query);
         $option_isJson = file_get_contents(__DIR__.'/../base'.$base.'/model/option_isJson.stub', FILE_USE_INCLUDE_PATH);
         $base_set_bindings = "{{column}}";
         $column_set_bindings = "";
@@ -174,7 +175,7 @@ class ModelBuilder
                     '{{table}}.'.$value['name']
                 ],$base_column_function_query);
 
-                $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'').$column_query;
+                $cols_table_model .= (!empty($cols_table_model) ? "\t\t":'').$column_query;
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\"".'{{table}}.'.$value['name']."\",\r\n";
                 $column_set_bindings .= 'array_get($data, "show_'.$value['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
@@ -187,7 +188,7 @@ class ModelBuilder
         }
 
         foreach ($column_function as $key_column_function => $value_column_function) {
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) && !empty($value_column_function['function']) ){      
+            if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) && isset($value_column_function['function']) ){      
                 $column_function_query = str_replace([
                     '{{column_function_name}}',
                     '{{function_query}}'
@@ -196,7 +197,7 @@ class ModelBuilder
                     str_replace("\n","\n\t\t\t\t\t",$value_column_function['function'])
                 ],$base_column_function_query);
 
-                $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'').$column_function_query;          
+                $cols_table_model .= (!empty($cols_table_model) ? "\t\t":'').$column_function_query;          
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\DB::raw(\"".str_replace("\n","\n\t\t\t\t\t",$value_column_function['function'])." as ".$value_column_function['name']."\"),\r\n";
                 $column_set_bindings .= 'array_get($data, "show_'.$value_column_function['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
@@ -327,11 +328,11 @@ class ModelBuilder
 
                     if( !empty($value_relation['custom_join']) )
                     {
-                        $belongs_to_query = str_replace('-- end list belongs to join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t\t\t".'-- end list belongs to join option',$belongs_to_query);
+                        $belongs_to_query = str_replace('-- end list belongs to join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list belongs to join option',$belongs_to_query);
                     }
                     if( !empty($value_relation['custom_option']) )
                     {
-                        $belongs_to_query = str_replace('-- end list belongs to query option',$value_relation['custom_option']."\r\n\t\t\t\t\t\t\t\t".'-- end list belongs to query option',$belongs_to_query);
+                        $belongs_to_query = str_replace('-- end list belongs to query option',$value_relation['custom_option']."\r\n\t\t\t\t\t".'-- end list belongs to query option',$belongs_to_query);
                     }
                     
                     $cols_table_model .= $belongs_to_query."\r\n";
@@ -383,11 +384,11 @@ class ModelBuilder
 
                     if( !empty($value_relation['custom_join']) )
                     {
-                        $has_one_query = str_replace('-- end list has one join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t\t\t".'-- end list has one join option',$has_one_query);
+                        $has_one_query = str_replace('-- end list has one join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list has one join option',$has_one_query);
                     }
                     if( !empty($value_relation['custom_option']) )
                     {
-                        $has_one_query = str_replace('-- end list has one query option',$value_relation['custom_option']."\r\n\t\t\t\t\t\t".'-- end list has one query option',$has_one_query);
+                        $has_one_query = str_replace('-- end list has one query option',$value_relation['custom_option']."\r\n\t\t\t".'-- end list has one query option',$has_one_query);
                     }
                     
                     $cols_table_model .= $has_one_query."\r\n";
@@ -438,11 +439,11 @@ class ModelBuilder
 
                     if( !empty($value_relation['custom_join']) )
                     {
-                        $has_many_query = str_replace('-- end list has many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t\t\t".'-- end list has many join option',$has_many_query);
+                        $has_many_query = str_replace('-- end list has many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list has many join option',$has_many_query);
                     }
                     if( !empty($value_relation['custom_option']) )
                     {
-                        $has_many_query = str_replace('-- end list has many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t\t\t\t".'-- end list has many query option',$has_many_query);
+                        $has_many_query = str_replace('-- end list has many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t".'-- end list has many query option',$has_many_query);
                     }
                     
                     $cols_table_model .= $has_many_query."\r\n";
@@ -547,11 +548,11 @@ class ModelBuilder
                     $belongs_to_many_query = str_replace('{{belongs_to_many_name}}',$value_relation['name'],$belongs_to_many_query);
                     if( !empty($value_relation['custom_join']) )
                     {
-                        $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
+                        $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
                     }
                     if( !empty($value_relation['custom_option']) )
                     {
-                        $belongs_to_many_query = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t\t\t\t".'-- end list belongs to many query option',$belongs_to_many_query);
+                        $belongs_to_many_query = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t".'-- end list belongs to many query option',$belongs_to_many_query);
                     }
                     
                     $cols_table_model .= $belongs_to_many_query."\r\n";
@@ -607,19 +608,22 @@ class ModelBuilder
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
 
         if( !empty($custom_union) ) {
-            $union = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
-            $union = str_replace([
-                '{{table}}',
-                '{{union}}'
-            ],[
-                $table,
-                str_replace("\n","\n\t\t\t",$custom_union)
-            ],$union);
+            $union_file = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
+            $arr_union = explode('union',$custom_union);
 
-            $base_model = str_replace('{{table}}',$union,$base_model);
-        }else {
-            $base_model = str_replace('{{table}}',$table,$base_model);
+            foreach ($arr_union as $arr_union_key => $arr_union_value) {
+                if( !empty($arr_union_value) ){
+                    $union = str_replace([
+                        '{{union}}',
+                    ],[
+                        str_replace("\n","\n\t\t\t\t\t",$arr_union_value)
+                    ],$union_file);
+
+                    $base_model = str_replace('// end list query union',$union."\r\n\t\t\t\t".'// end list query union',$base_model);
+                }
+            }
         }
+        $base_model = str_replace('{{table}}',$table,$base_model);
         
         if(empty($get_company_code)){
             $base_model = str_replace('{{company_id_code}}',config('laravelrestbuilder.company_id_code'),$base_model);
@@ -645,10 +649,10 @@ class ModelBuilder
 
         $column_code = '';
         foreach ($column_to_generate as $column_key => $column_value) {
-            $column_value['column'] = str_replace("\n","\n\t\t\t\t\t\t\t\t\t",$column_value['column']);
+            $column_value['column'] = str_replace("\n","\n\t\t\t\t\t\t",$column_value['column']);
             
             if( $mysql_version > 5.6 ){
-                $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$column_value['name']."', ".$column_value['column']."";
+                $column_code .= "\t\t\t\t\t\t\t'".$column_value['name']."', ".$column_value['column']."";
                 if( count($column_to_generate)-1 != $column_key )
                 {          
                     $column_code .= ",\r\n";
@@ -661,11 +665,11 @@ class ModelBuilder
                     $name = '\"'.$column_value['name'].'\"';                
                     if( count($column_to_generate)-1 != $column_key )
                     {
-                        $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";
+                        $column_code .= "\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), ', ";
                     }
                     else
                     {
-                        $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), '', ";
+                        $column_code .= "\t\t\t\t\t\t\t'".$name.": ', IFNULL(".$column_value['column'].",''), '', ";
                     }
                 }
                 if($column_value['type'] =='string')
@@ -679,7 +683,7 @@ class ModelBuilder
                     {
                         $column_value['column'] = '\"\',IFNULL('.$column_value['column'].",'')".',\'\"\',';
                     }
-                    $column_code .= "\t\t\t\t\t\t\t\t\t\t'".$name.": ".$column_value['column']." ";
+                    $column_code .= "\t\t\t\t\t\t\t'".$name.": ".$column_value['column']." ";
                 }
                 if( count($column_to_generate)-1 != $column_key )
                 {          

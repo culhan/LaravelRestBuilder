@@ -26,7 +26,13 @@ class MigrationBuilder
             "curtime()",
             "'0000-00-00 00:00:00'",
         ];
-
+    
+    static $list_type = [
+            'boolean'   => 'tinyint(1)',
+            'tinyInteger'   => 'tinyint(4)',
+            'char'  => 'char(191)',
+            'timestamp' => 'timestamp',
+        ];
     /**
      * create migration
      *
@@ -133,12 +139,12 @@ class MigrationBuilder
             // The following column types can not be "changed": 
             // char, double, enum, mediumInteger, timestamp, tinyInteger, ipAddress, json, jsonb, macAddress, mediumIncrements, morphs, nullableMorphs, nullableTimestamps, softDeletes, timeTz, timestampTz, timestamps, timestampsTz, unsignedMediumInteger, unsignedTinyInteger, uuid.
             $unableChanged = [
-                "char",
+                // "char",
                 "double",
                 "enum",
                 "mediumInteger",
-                "timestamp",
-                "tinyInteger",
+                // "timestamp",
+                // "tinyInteger",
                 "ipAddress",
                 "json",
                 "jsonb",
@@ -159,7 +165,7 @@ class MigrationBuilder
             $unableChanged = array_flip($unableChanged);
             
             foreach ($check_for_change_column as $key_check_for_change_column => $value_check_for_change_column) {
-                if( !empty($unableChanged[$value_check_for_change_column['type']]) ) {
+                if( isset($unableChanged[$value_check_for_change_column['type']]) ) {
                     $check_for_drop_column[] = $value_check_for_change_column;
                     unset($check_for_change_column[$key_check_for_change_column]);
                     $check_for_add_column[] = $value_check_for_change_column;
@@ -203,8 +209,8 @@ class MigrationBuilder
                 
                 if(!empty($code_column_text)) $base_migration = str_replace('// end list new column',$code_column_text."\t\t\t// end list new column",$base_migration);
 
-                // check untuk boolean dengan raw query
-                $raw_query = self::generateRawMigrationColumn($table, $column);
+                // check untuk custom dengan raw query, utk column yg masuk di unable list
+                $raw_query = self::generateRawMigrationColumn($table, $column, $check_for_change_column);
                 if(!empty($raw_query)) $base_migration = str_replace('// raw statement','// raw statement'."\n".$raw_query,$base_migration);
 
                 // check untuk drop default
@@ -445,39 +451,31 @@ class MigrationBuilder
      * @param [type] $column
      * @return void
      */
-    static function generateRawMigrationColumn($table, $column)
+    static function generateRawMigrationColumn($table, $column, $change = [])
     {
         $raw_query = '';
         $templatesQueryRaw = "\t\t\DB::statement(\"ALTER TABLE {{table}} MODIFY {{column}} {{type}} {{null}} {{extra}} {{default}} {{comment}} {{ordinal_position}} \");\n";
         
-        foreach ($column as $key => $value) {         
+        foreach ( $column as $key => $value) {         
             
-            if( $value['type'] != 'boolean' ) {
+            if( !isset(self::$list_type[$value['type']]) ) {
                 continue;
-            }            
+            }
+
+            // check data pakah berubah atau tidak
+            $isdataChanged = array_where($change, function($k, $v) use ($value)
+            {
+                return $k['name'] == $value['name'];
+            });
+            if ( empty($isdataChanged)) {
+                continue;
+            };
             
             $comment = !empty($value['comment']) ? 'COMMENT \"'.strip_tags($value['comment']).'\"':'';
 
             $default = "default NULL";
             if( !empty($value['default']) ) {
-                $allowed_string = [
-                    "CURRENT_USER",
-                    "CURRENT_TIME",
-                    "CURRENT_TIMESTAMP",
-                    "CURRENT_DATE",
-                    "CURTIME",
-                    "current_user",
-                    "current_time",
-                    "current_timestamp",
-                    "current_date",
-                    "curtime",
-                    "current_user()",
-                    "current_time()",
-                    "current_timestamp()",
-                    "current_date()",
-                    "curtime()",
-                ];
-                $allowed_string = array_flip($allowed_string);
+                $allowed_string = array_flip(self::$allowed_string);
                 if( !is_float($value['default']) && 
                     !is_numeric($value['default']) && 
                     !is_int($value['default']) && 
@@ -522,7 +520,7 @@ class MigrationBuilder
             [
                 $table,
                 "`".$value['name']."`",
-                'tinyint(1)',
+                self::$list_type[$value['type']],
                 $null,
                 '',
                 $default,
@@ -715,6 +713,14 @@ class MigrationBuilder
         $code_column_text = '';
         
         foreach ($column as $key => $value) {
+
+            // untuk di lempar ke raw query modify
+            if($migration_type=='alter') {
+                if( isset(self::$list_type[$value['type']]) ){
+                    continue;
+                }
+            }
+
             $file_name_column = 'column_'.$value['type'].'.stub';            
             if(in_array($file_name_column,$list_file))
             {

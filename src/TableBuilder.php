@@ -258,15 +258,23 @@ class TableBuilder
                 ]+$sortableAndSearchableColumn)
             ->search()
             ->sort()
-            ->distinct()
-            ->take(request('length',10))            
-            ->skip(request('start',0))
-            ->get();
+            ->distinct();
+
+        if(request('length') > 0) {
+            $data['data'] = $data['data']->take(request('length',10))
+                            ->skip(request('start',0));
+        }
+            
+        $data['data'] = $data['data']->get();
 
         $data['draw'] = request('draw');
-        $data['recordsTotal'] = $model->select(['*'])->count();
+        $data['recordsTotal'] = $model->select(array_merge([
+                \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
+            ],$cols))->count();
         $data['recordsFiltered'] = $model
-            ->select(['*'])
+            ->select(array_merge([
+                \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
+            ],$cols))
             ->setSortableAndSearchableColumn([
                     'nomor_baris'   =>  'nomor_baris',
                 ]+$sortableAndSearchableColumn)
@@ -335,6 +343,30 @@ class TableBuilder
 
         $model->take(1)->delete();
         
+        LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
+
+        return [
+            'message'   => 'success',
+            'status'    => 200,
+            'error' => 0
+        ];
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $table_name
+     * @return void
+     */
+    public function addData()
+    {
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+        // \DB::enableQueryLog();
+        $model = \DB::table(Request::get('table'));
+
+        $model->insert([Request::get('data')]);
+        
+        // dd(\DB::getQueryLog());
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
 
         return [

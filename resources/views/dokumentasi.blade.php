@@ -85,7 +85,7 @@
 </style>
 <style>
 .icon-get {
-    margin-left:10px !important;
+    margin-left:20px !important;
 }
 .icon-get:before {
     content:'GET';
@@ -146,9 +146,6 @@
 table .fa-close {
     margin-top: 8px;
     cursor: pointer;
-}
-.ace_editor {
-    min-height:520px;
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
@@ -681,7 +678,8 @@ table .fa-close {
                 position = '',
                 query_params = {},
                 headers = {},
-                bodies = {}
+                bodies = {},
+                bodies_raw = {}
             } = {},idTab) {
 
             tab++
@@ -716,7 +714,7 @@ table .fa-close {
                                 htmlTabContent += '<input type="hidden" name="id" value="'+id+'">'
                                 htmlTabContent += '<input type="hidden" name="position" value="'+position+'">'
                                 htmlTabContent += '<input type="hidden" name="parent" value="'+parent+'">'
-                                htmlTabContent += '<input type="text" class="input-url form-control" aria-label="Text input with dropdown button" value="'+url+'" name="url">'
+                                htmlTabContent += '<input type="text" class="input-url form-control" aria-label="Text input with dropdown button" value="'+url+'" name="url" onkeyup="changeUrl(this)">'
                             htmlTabContent += '</div>'
                         htmlTabContent += '</div>'
 
@@ -782,14 +780,12 @@ table .fa-close {
                                             }
                                         })
 
-                                        if(iqp==0) {
-                                            htmlTabContent += '<tr>'
-                                                htmlTabContent += '<th scope="row"></th>'
-                                                htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
-                                                htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control"></td>'
-                                                htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control"></td>'
-                                            htmlTabContent += '</tr>'
-                                        }
+                                        htmlTabContent += '<tr>'
+                                            htmlTabContent += '<th scope="row"></th>'
+                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
+                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control"></td>'
+                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control"></td>'
+                                        htmlTabContent += '</tr>'
 
                                         htmlTabContent += '</tbody>'
                                     htmlTabContent += '</table>'
@@ -826,14 +822,12 @@ table .fa-close {
                                             }
                                         })
 
-                                        if(ih==0) {
-                                            htmlTabContent += '<tr>'
-                                                htmlTabContent += '<th scope="row"></th>'
-                                                htmlTabContent += '<td><input type="text" name="headers[0][key]" placeholder="key" class="input form-control" onkeyup="addListHeader(this,'+idTab+');"></td>'
-                                                htmlTabContent += '<td><input type="text" name="headers[0][value]" placeholder="value" class="input form-control"></td>'
-                                                htmlTabContent += '<td><input type="text" name="headers[0][desc]" placeholder="description" class="input form-control"></td>'
-                                            htmlTabContent += '</tr>'
-                                        }
+                                        htmlTabContent += '<tr>'
+                                            htmlTabContent += '<th scope="row"></th>'
+                                            htmlTabContent += '<td><input type="text" name="headers[0][key]" placeholder="key" class="input form-control" onkeyup="addListHeader(this,'+idTab+');"></td>'
+                                            htmlTabContent += '<td><input type="text" name="headers[0][value]" placeholder="value" class="input form-control"></td>'
+                                            htmlTabContent += '<td><input type="text" name="headers[0][desc]" placeholder="description" class="input form-control"></td>'
+                                        htmlTabContent += '</tr>'
                                         
                                         htmlTabContent += '</tbody>'
                                     htmlTabContent += '</table>'
@@ -841,10 +835,21 @@ table .fa-close {
                             htmlTabContent += '</div>'
                             htmlTabContent += '<div class="tab-pane fade" id="body_'+tab+'" role="tabpanel" aria-labelledby="body_'+tab+'-tab">'
                                 htmlTabContent += '<div class="col-md">'
-                                    htmlTabContent += '<h6>Body Params</h6>'
+                                    htmlTabContent += '<h6>'
+                                    htmlTabContent += '<select class="form-control" name="body-mode" id="body-mode" onchange="bodyModeChanged()">'
+                                        htmlTabContent += '<option value="form-data">Form Data</option>'
+                                        htmlTabContent += '<option value="raw">raw</option>'
+                                    htmlTabContent += '</select>'
+                                    htmlTabContent += '</h6>'
                                 htmlTabContent += '</div>'
                                 htmlTabContent += '<div class="col-md">'
-                                    htmlTabContent += '<table class="table">'
+                                    
+                                    htmlTabContent += '<div class="form-group bodies_raw">'
+                                        htmlTabContent += '<textarea name="bodies_raw" class="d-none"></textarea>'
+                                        htmlTabContent += '<textarea id="tab_bodies_raw"></textarea>'
+                                    htmlTabContent += '</div>'
+
+                                    htmlTabContent += '<table class="table bodies">'
                                         htmlTabContent += '<thead>'
                                             htmlTabContent += '<tr>'
                                                 htmlTabContent += '<th scope="col">#</th>'
@@ -877,24 +882,22 @@ table .fa-close {
                                             }
                                         })
 
-                                        if(ib==0) {
-                                            htmlTabContent += '<tr>'
-                                                htmlTabContent += '<th scope="row"></th>'
-                                                htmlTabContent += '<td><input type="text" name="bodies[0][key]" placeholder="key" class="input form-control" onkeyup="addListBody(this,'+idTab+');"></td>'
-                                                htmlTabContent += '<td>'
-                                                    htmlTabContent += '<select class="form-control" name="bodies[0][type]" onchange="selectTypeBody(this,'+idTab+');">'
-                                                        htmlTabContent += '<option value="text" selected="">Text</option>'
-                                                        htmlTabContent += '<option value="file">File</option>'
-                                                    htmlTabContent += '</select>'
-                                                htmlTabContent += '</td>'
-                                                htmlTabContent += '<td><input type="text" name="bodies[0][value]" placeholder="value" class="input form-control"></td>'                                                
-                                                htmlTabContent += '<td><input type="text" name="bodies[0][desc]" placeholder="description" class="input form-control"></td>'
-                                            htmlTabContent += '</tr>'
-                                        }
-
+                                        htmlTabContent += '<tr>'
+                                            htmlTabContent += '<th scope="row"></th>'
+                                            htmlTabContent += '<td><input type="text" name="bodies[0][key]" placeholder="key" class="input form-control" onkeyup="addListBody(this,'+idTab+');"></td>'
+                                            htmlTabContent += '<td>'
+                                                htmlTabContent += '<select class="form-control" name="bodies[0][type]" onchange="selectTypeBody(this,'+idTab+');">'
+                                                    htmlTabContent += '<option value="text" selected="">Text</option>'
+                                                    htmlTabContent += '<option value="file">File</option>'
+                                                htmlTabContent += '</select>'
+                                            htmlTabContent += '</td>'
+                                            htmlTabContent += '<td><input type="text" name="bodies[0][value]" placeholder="value" class="input form-control"></td>'                                                
+                                            htmlTabContent += '<td><input type="text" name="bodies[0][desc]" placeholder="description" class="input form-control"></td>'
+                                        htmlTabContent += '</tr>'
 
                                         htmlTabContent += '</tbody>'
                                     htmlTabContent += '</table>'
+                                        
                                 htmlTabContent += '</div>'
                             htmlTabContent += '</div>'
                         htmlTabContent += '</div>'
@@ -933,9 +936,34 @@ table .fa-close {
                 }
             });
 
+            if( !jQuery.isEmptyObject(bodies_raw) ){
+                aceGenerate({ name_cols : 'bodies_raw', mode : 'json', default_code : bodies_raw, maxLines : 5});
+                $('#body-mode').val('raw').change()
+            }else {
+                aceGenerate({ name_cols : 'bodies_raw', mode : 'json', default_code : '', maxLines : 5});
+                $('#body-mode').val('form-data').change()
+            }
+
             // update method            
             $( '#form-'+id ).find('[name*=method]').val(method).change()
 
+        }
+
+        function changeUrl(e) {
+            idTabFormChanged = $(e).closest('form').parent().data('tab')
+            $("#query_params_"+idTabFormChanged+" tbody").html("")
+            // console.log(  )
+        }
+
+        function bodyModeChanged() {
+            $('.bodies').hide()
+            $('.bodies_raw').hide()
+            if($('#body-mode').val() == 'form-data'){
+                $('.bodies').show()
+            }
+            if($('#body-mode').val() == 'raw'){
+                $('.bodies_raw').show()
+            }
         }
 
         function changeIcon(e,tab) {            
@@ -1026,7 +1054,8 @@ table .fa-close {
                     'position' : detail.tabProperties.dataAjax.position,
                     'query_params' : detail.tabProperties.dataAjax.data.query_params,
                     'headers' : detail.tabProperties.dataAjax.data.headers,
-                    'bodies' : detail.tabProperties.dataAjax.data.bodies
+                    'bodies' : detail.tabProperties.dataAjax.data.bodies,
+                    'bodies_raw' : detail.tabProperties.dataAjax.data.bodies_raw
                 }
             }
             addTabChrome(dataAjax,tab),
@@ -1084,6 +1113,7 @@ table .fa-close {
     </script>
     <script src="<?php echo URL::to('/vendor/khancode/js/src/ace.js');?>"></script>
     <script src="{{url('/')}}/vendor/khancode/js/submit.js"></script>
+    <script src="{{url('/')}}/vendor/khancode/js/ace-generator.js"></script>
 
     <script>
         function openNewTab(tab) {

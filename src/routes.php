@@ -89,5 +89,7 @@ if( config('laravelrestbuilder.build_active') )
         Route::get('dataTable/{table_name}', 'KhanCode\LaravelRestBuilder\TableBuilder@dataTable');
         Route::post('saveData', 'KhanCode\LaravelRestBuilder\TableBuilder@saveData');
         Route::post('deleteData', 'KhanCode\LaravelRestBuilder\TableBuilder@deleteData');
+        Route::post('addData', 'KhanCode\LaravelRestBuilder\TableBuilder@addData');
+        Route::post('importPostman', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@importPostman');
     });
 }

@@ -40,12 +40,24 @@ class {{Name}} extends BaseModel
      */
     public function scopeGetSelect($query, $data = [])
     {
-        return $query->select([
-                    {{column}}
-                ])
-                ->addBinding([
-                    {{binding_columns}}
-                ],'select');
+        {{column}}
+        return $query;
+    }
+
+    /**
+     * [scopeGetUnion description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetUnion($query, $data = [])
+    {
+        return $query
+                // start list query union
+                // end list query union
+                ;
     }
 
     /**
@@ -76,7 +88,8 @@ class {{Name}} extends BaseModel
     {
         return $query->getJoin($data)
                     ->getSelect($data)                
-                    ->getOption($data);
+                    ->getOption($data)
+                    ->getUnion($data);
     }
 
     // start list accessor function

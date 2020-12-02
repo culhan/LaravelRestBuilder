@@ -25,11 +25,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.2.5/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://www.jqueryscript.net/demo/ON-OFF-Toggle-Switches-Switcher/css/switcher.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://unpkg.com/ace-diff@^2.0.0/dist/ace-diff.min.css">
 
     <link href="{{url('/')}}/vendor/khancode/css/loading.css" rel="stylesheet">
+    <link href="{{url('/')}}/vendor/khancode/css/switcher.css" rel="stylesheet">
 
     <style>
       .scroll-to-top{
@@ -740,6 +740,7 @@
     <script src="https://cdn.datatables.net/rowreorder/1.2.5/js/dataTables.rowReorder.min.js"></script>  
     <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>  
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://legacy.datatables.net/extras/thirdparty/ColReorderWithResize/ColReorderWithResize.js"></script>
     <!-- Custom scripts for all pages-->
     <!-- <script src="{{url('/')}}/vendor/khancode/js/sb-admin-2.min.js"></script> -->
     <!-- script modul table -->
@@ -752,6 +753,7 @@
     <script src="{{url('/')}}/vendor/khancode/js/codeEditorCustom.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/ace-generator.js"></script>    
     <script src="https://unpkg.com/ace-diff@^2.0.0"></script>
+    <script src="{{url('/')}}/vendor/khancode/js/URI.js"></script>
     
     <script>
       function arrayUnique(array) {
@@ -803,19 +805,28 @@
     </script>
 
     <script>
-      function IsJsonString(str) {
-          try {
-              jsonObj = JSON.parse(str);
-          } catch (e) {
-              return false;
-          }
-          return jsonObj;
-      }
-      
-      function replaceString(data,replace_with,subject) {
-        regex = new RegExp(data, "igm");
-        return subject.replace(regex, replace_with);
-      }      
+        function isJson(text) {
+            if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
+                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+                return true;
+            }
+            return false;
+        }
+        
+        function IsJsonString(str) {
+            try {
+                jsonObj = JSON.parse(str);
+            } catch (e) {
+                return false;
+            }
+            return jsonObj;
+        }
+        
+        function replaceString(data,replace_with,subject) {
+            regex = new RegExp(data, "igm");
+            return subject.replace(regex, replace_with);
+        }      
     </script>
 
     <script>

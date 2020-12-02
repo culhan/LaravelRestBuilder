@@ -57,6 +57,11 @@ class ServiceBuilder
                 //     }                    
                 // }                
                 
+                $base_check_single_data = '$single_data = $this->getSingleData($id);';
+                if( !empty($value['custom_check_single_data'])) {
+                    $base_check_single_data = $value['custom_check_single_data'];
+                }
+
                 if(!empty($value['traits']))
                 {                    
                     foreach ($value['traits'] as $key_traits => $value_traits) {                        
@@ -323,6 +328,7 @@ class ServiceBuilder
                 $code_function = str_replace('{{name}}',$value['name'],$code_function);
                 $code_function = str_replace('{{Name}}',UCWORDS($value['name']),$code_function);                
                 $code_function = str_replace('{{Modul_name}}',UCWORDS($name),$code_function);                
+                $code_function = str_replace('{{check_single_data}}',$base_check_single_data,$code_function);
 
                 if(!empty($value['custom_function']))
                 {

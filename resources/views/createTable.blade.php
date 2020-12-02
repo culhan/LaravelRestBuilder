@@ -937,13 +937,32 @@
             $.each(column, function( index, value ) {
                 html += '<div class="form-group">'
                     html += '<label>'+value.name+'</label>'
-                    html += '<input type="" class="form-control" value="">'
+                    html += '<input type="" class="form-control" value="" onkeyup="addToData(this)" data_name="'+value.name+'">'
                 html += '</div>'
                 
             })
 
             $('#modalData .modal-body').html(html)
+            $('#modalData .btn-primary').attr('onclick','add_data()')
             $('#modalData').modal('toggle');
+        }
+
+        function add_data() {
+            addDataTable({
+                "data"  : storage_parameter.get('data_to_add'),
+                "table" : $( '[name*="table"]' ).val()
+            })
+        }
+
+        function addToData(ele) {
+            if( typeof storage_parameter.get('data_to_add.'+$(ele).attr('data_name')) != 'undefined' ){
+                storage_parameter.remove('data_to_add.'+$(ele).attr('data_name'))
+            }
+
+            if( $(ele).val() ) {
+                storage_parameter.add('data_to_add.'+$(ele).attr('data_name'))
+                storage_parameter.update('data_to_add.'+$(ele).attr('data_name'),$(ele).val())
+            }
         }
 
         function buildListData(cols) {
@@ -984,6 +1003,7 @@
             })
 
             list_data = $( "#list-data" ).DataTable({
+                // "sDom": "Rlfrtip",
                 "scrollX": true,
                 "autoWidth": true,
                 "pageLength": 10,
