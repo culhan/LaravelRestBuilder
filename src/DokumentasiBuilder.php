@@ -254,16 +254,28 @@ class DokumentasiBuilder
         }
         
         $client = new \GuzzleHttp\Client();
-        try {            
-            $res = $client->request(Request::get('method'), Request::get('url'), [
-                    'headers' => $header_data,
-                    'query' => $param_data,
-                    'multipart'   => $postData,                    
-                    'http_errors'   => false,
-                    'request.options'   => [
-                        'exceptions'    => false,
-                    ]
-                ]+(  !empty($raw_data)?['body'  => $raw_data]:[]  ));
+        try {      
+            if( empty(Request::get('bodies_raw')) ){      
+                    $res = $client->request(Request::get('method'), Request::get('url'), [
+                        'headers' => $header_data,
+                        'query' => $param_data,
+                        'multipart'   => $postData,                    
+                        'http_errors'   => false,
+                        'request.options'   => [
+                            'exceptions'    => false,
+                        ]
+                    ]+(  !empty($raw_data)?['body'  => $raw_data]:[]  ));
+            }else if( !empty(Request::get('bodies_raw')) ){      
+                    $res = $client->request(Request::get('method'), Request::get('url'), [
+                        'headers' => $header_data,
+                        'query' => $param_data,
+                        'json'  => json_decode(Request::get('bodies_raw'),true),
+                        'http_errors'   => false,
+                        'request.options'   => [
+                            'exceptions'    => false,
+                        ]
+                    ]);
+            }
             
             if(Request::has('bodies')) {
                 foreach (Request::get('bodies') as $key => $value) {
@@ -302,7 +314,11 @@ class DokumentasiBuilder
      */
     public function getEnv()
     {
-        return Cache::get('laravelrestbuilder');
+        $key = 'laravelrestbuilder.'.config('laravelrestbuilder.project_id');
+        if( Cache::has($key) ){
+            return Cache::get($key);
+        }
+        return response()->json();
     }
 
     /**
@@ -313,7 +329,37 @@ class DokumentasiBuilder
      */
     public function saveEnv()
     {
-        Cache::put('laravelrestbuilder',request('env_params'));
+        Cache::put('laravelrestbuilder.'.config('laravelrestbuilder.project_id'),request('env_params'));
+
+        return $this->getEnv();
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param Type $var
+     * @return void
+     */
+    public function addEnv()
+    {
+        $currentEnv = $this->getEnv();
+
+        $filled = 0;
+        foreach ($currentEnv as $key => $value) {
+            if($value['key'] == request('key')){
+                $currentEnv[$key]['value'] = request('value');
+                $filled = 1;
+            }
+        }
+
+        if( empty($filled) ){
+            $currentEnv[] = [
+                'key'   => request('key'),
+                'value' => request('value')
+            ];
+        }
+
+        Cache::put('laravelrestbuilder.'.config('laravelrestbuilder.project_id'), $currentEnv);
 
         return $this->getEnv();
     }
@@ -447,5 +493,15 @@ class DokumentasiBuilder
             ]);
 
         }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function getJumlahEndpoint()
+    {
+        return Endpoint::getAll()->where('type','!=','folder')->count();
     }
 }

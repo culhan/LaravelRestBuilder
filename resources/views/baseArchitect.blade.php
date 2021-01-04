@@ -218,7 +218,31 @@
             word-wrap: break-word;
         }
     </style>
-    <link href="{{url('/')}}/vendor/khancode/css/main-architect.css" rel="stylesheet"></head>    
+    <link href="{{url('/')}}/vendor/khancode/css/main-architect.css" rel="stylesheet"></head>
+    <script>
+        function isJson(text) {
+            if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
+                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+                return true;
+            }
+            return false;
+        }
+        
+        function IsJsonString(str) {
+            try {
+                jsonObj = JSON.parse(str);
+            } catch (e) {
+                return false;
+            }
+            return jsonObj;
+        }
+        
+        function replaceString(data,replace_with,subject) {
+            regex = new RegExp(data, "igm");
+            return subject.replace(regex, replace_with);
+        }      
+    </script>
 <body>
     <div class="app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header">
         <div class="app-header header-shadow">
@@ -805,31 +829,6 @@
     </script>
 
     <script>
-        function isJson(text) {
-            if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
-                replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-                replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-                return true;
-            }
-            return false;
-        }
-        
-        function IsJsonString(str) {
-            try {
-                jsonObj = JSON.parse(str);
-            } catch (e) {
-                return false;
-            }
-            return jsonObj;
-        }
-        
-        function replaceString(data,replace_with,subject) {
-            regex = new RegExp(data, "igm");
-            return subject.replace(regex, replace_with);
-        }      
-    </script>
-
-    <script>
       $( '[name="select_project"]' ).on('change', function() {
           window.location.replace('{{url('/')}}/setProject/'+this.value+'?previous={{Request::url()}}');          
       });
@@ -1199,6 +1198,23 @@
                 if (match.charAt(0) === '_') return match.charAt(1).toUpperCase();
                 return match.toUpperCase();
             });
+        }
+
+        function escapeHtml(text) {
+            if( typeof text != 'string' ) {
+                return text;
+            }
+
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            
+            text = text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/(.{7})..+/, "$1…");
         }
     </script>    
 

@@ -60,7 +60,7 @@ if( config('laravelrestbuilder.build_active') )
         Route::get('systemTable', 'KhanCode\LaravelRestBuilder\TableBuilder@systemTable');
         Route::post('build', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@build');
         Route::get('middleware', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@middleware');        
-        Route::get('callApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@callApi');
+        Route::post('callApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@callApi');
         Route::post('saveApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@saveEndpoint');
         Route::post('updatePositionApi', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@updatePositionApi');
         Route::get('listEndpoint', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@listEndpoint');
@@ -91,5 +91,8 @@ if( config('laravelrestbuilder.build_active') )
         Route::post('deleteData', 'KhanCode\LaravelRestBuilder\TableBuilder@deleteData');
         Route::post('addData', 'KhanCode\LaravelRestBuilder\TableBuilder@addData');
         Route::post('importPostman', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@importPostman');
+        Route::post('addEnv', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@addEnv');
+        Route::get('getJumlahEndpoint', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@getJumlahEndpoint');
+        
     });
 }

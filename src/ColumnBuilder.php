@@ -14,6 +14,7 @@ class ColumnBuilder
      */
     static function build( $data, $key_arr )
     {
+        return $data;
         // remove kolom yg berada di forbidden
         $has_company_stamp = 0;
         

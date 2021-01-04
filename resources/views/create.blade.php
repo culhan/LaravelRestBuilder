@@ -182,6 +182,30 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <div class="with_timestamp_detail">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".with_timestamp_details" aria-expanded="true" aria-controls="with_timestamp_details"><b>Details</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-11 container with_timestamp_details collapse">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_timestamp_details['create']">
+                                    <label class="form-check-label" for="with_timestamp_details['create']">create column</label>
+                                    <input type="text" class="form-control" name="with_timestamp_details['create_column']" placeholder="default: created_time">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_timestamp_details['update']">
+                                    <label class="form-check-label" for="with_timestamp_details['update']">update column</label>
+                                    <input type="text" class="form-control" name="with_timestamp_details['update_column']" placeholder="default: updated_time">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_timestamp_details['delete']">
+                                    <label class="form-check-label" for="with_timestamp_details['delete']">delete column</label>
+                                    <input type="text" class="form-control" name="with_timestamp_details['delete_column']" placeholder="default: deleted_time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-group">
                             <label for="exampleFormControlSelect1">Auth Stamp</label>
                             <select class="form-control" id="with_authstamp" name="with_authstamp">
                                 <option value=0>no</option>                
@@ -189,11 +213,59 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <div class="with_authstamp_detail">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".with_authstamp_details" aria-expanded="true" aria-controls="with_authstamp_details"><b>Details</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-11 container with_authstamp_details collapse">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_authstamp_details[create]">
+                                    <label class="form-check-label" for="with_authstamp_details[create]">create column</label>
+                                    <input type="text" class="form-control" name="with_authstamp_details[create_column]" placeholder="default: created_by">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_authstamp_details[update]">
+                                    <label class="form-check-label" for="with_authstamp_details[update]">update column</label>
+                                    <input type="text" class="form-control" name="with_authstamp_details[update_column]" placeholder="default: updated_by">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_authstamp_details[delete]">
+                                    <label class="form-check-label" for="with_authstamp_details[delete]">delete column</label>
+                                    <input type="text" class="form-control" name="with_authstamp_details[delete_column]" placeholder="default: deleted_by">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="exampleFormControlSelect1">IP stamp</label>
                             <select class="form-control" id="with_ipstamp" name="with_ipstamp">
                                 <option value=0>no</option>                
                                 <option value=1>yes</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="with_ipstamp_detail">
+                                <div class="col-sm" style="padding-top:5px;">
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".with_ipstamp_details" aria-expanded="true" aria-controls="with_ipstamp_details"><b>Details</b></label>
+                                </div>
+                            </div>
+                            <div class="col-sm-11 container with_ipstamp_details collapse">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_ipstamp_details[create]">
+                                    <label class="form-check-label" for="with_ipstamp_details[create]">create column</label>
+                                    <input type="text" class="form-control" name="with_ipstamp_details[create_column]" placeholder="default: created_from">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_ipstamp_details[update]">
+                                    <label class="form-check-label" for="with_ipstamp_details[update]">update column</label>
+                                    <input type="text" class="form-control" name="with_ipstamp_details[update_column]" placeholder="default: updated_from">
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="with_ipstamp_details[delete]">
+                                    <label class="form-check-label" for="with_ipstamp_details[delete]">delete column</label>
+                                    <input type="text" class="form-control" name="with_ipstamp_details[delete_column]" placeholder="default: deleted_from">
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Company stamp</label>
@@ -1951,6 +2023,8 @@
 
             $( ".tanpa_route" ).switcher();
             
+            $( ".set_switcher" ).switcher();
+            
             // $( "#add_relasi" ).click(function( event ) {
             //     tambah_relasi(jumlah_relasi)
             //     window.objModul = $('#modul').serializeJSON()
@@ -2384,7 +2458,7 @@
                     },
                     error: function(e) {
                         alert('data modul tidak ada')
-                        window.history.back()
+                        window.location = "/list"
                         objModul = []
                         build_semua_kolom([],'')
                     }
@@ -2449,7 +2523,7 @@
             $( '[name="with_ipstamp"]' ).val(0).change();
             $( '[name="with_companystamp"]' ).val(0)            
             $( '[name="with_company_restriction"]' ).prop('checked',false).change();
-            $( '[name="with_delete_restriction"]' ).prop('checked',true).change();
+            $( '[name="with_delete_restriction"]' ).prop('checked',false).change();
             $( '[name="with_authenticable"]' ).prop('checked',false).change();
             $( '[name="custom_filter"]' ).val('');
             eval("code_editor_custom_filter.setValue('')")
@@ -2472,7 +2546,7 @@
             if(data.with_company_restriction == 1) $( '[name="with_company_restriction"]' ).prop('checked',true).change();
 
             if(!data.with_delete_restriction) data.with_delete_restriction = 1;
-            if(data.with_delete_restriction == 1) $( '[name="with_delete_restriction"]' ).prop('checked',true).change();
+            if(data.with_delete_restriction == 0) $( '[name="with_delete_restriction"]' ).prop('checked',true).change();
 
             if(!data.with_authenticable) data.with_authenticable = 0;
             if(data.with_authenticable == 1) $( '[name="with_authenticable"]' ).prop('checked',true).change();
@@ -2499,7 +2573,26 @@
                 $( '[name="get_company_code"]' ).val(data.get_company_code);
                 eval("code_editor_get_company_code.setValue($( '[name=\"get_company_code\"]' ).val())")
                 eval("code_editor_get_company_code.clearSelection()")
-            }            
+            }
+
+            if(data.get_custom_creating) {
+                $( '[name="get_custom_creating"]' ).val(data.get_custom_creating);
+                eval("code_editor_get_custom_creating.setValue($( '[name=\"get_custom_creating\"]' ).val())")
+                eval("code_editor_get_custom_creating.clearSelection()")
+            }
+
+            if(data.get_custom_updating) {
+                $( '[name="get_custom_updating"]' ).val(data.get_custom_updating);
+                eval("code_editor_get_custom_updating.setValue($( '[name=\"get_custom_updating\"]' ).val())")
+                eval("code_editor_get_custom_updating.clearSelection()")
+            }
+
+            if(data.get_custom_deleting) {
+                $( '[name="get_custom_deleting"]' ).val(data.get_custom_deleting);
+                eval("code_editor_get_custom_deleting.setValue($( '[name=\"get_custom_deleting\"]' ).val())")
+                eval("code_editor_get_custom_deleting.clearSelection()")
+            }
+                        
         }
 
         function build_kolom_tabel_modul(data) {

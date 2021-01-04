@@ -14,15 +14,15 @@ class LaravelRestBuilder
 {
     static $forbidden_column_name = [
         // "com_id"    => 'com_id',
-        "created_time"  => 'created_time',
-        "modified_time" => 'modified_time',
-        "deleted_time"  => 'deleted_time',
-        "created_by"    => 'created_by',
-        "modified_by"   => 'modified_by',
-        "deleted_by"    => 'deleted_by',
-        "created_from"  => 'created_from',
-        "modified_from" => 'modified_from',
-        "deleted_from"  => 'deleted_from',
+        // "created_time"  => 'created_time',
+        // "modified_time" => 'modified_time',
+        // "deleted_time"  => 'deleted_time',
+        // "created_by"    => 'created_by',
+        // "modified_by"   => 'modified_by',
+        // "deleted_by"    => 'deleted_by',
+        // "created_from"  => 'created_from',
+        // "modified_from" => 'modified_from',
+        // "deleted_from"  => 'deleted_from',
     ];
     
     static $forbidden_column_name_for_service = [
@@ -231,6 +231,10 @@ class LaravelRestBuilder
         $data = \KhanCode\LaravelRestBuilder\Models\Moduls::getAll()
             ->where('id',$id)
             ->first();
+
+        // if(empty($data)){
+        //     return [];
+        // }
 
         $detail = json_decode($data->detail);    
         

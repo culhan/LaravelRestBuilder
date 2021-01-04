@@ -43,7 +43,7 @@ class ModelBuilder
         if( $mysql_version > 5.6 ){
             $mysql_version = '';
         }else {
-            $mysql_version .= '_';
+            $mysql_version = '_'.$mysql_version;
         }
         
         $model_file_name = UCWORDS($name_model);

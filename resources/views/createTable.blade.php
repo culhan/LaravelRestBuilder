@@ -982,7 +982,7 @@
                             arr_list.push({ 
                                 data:value['name'],
                                 render: function (data, type, row, meta) {
-                                    return '<span class="datatable-data">'+data+'</span><input value="'+data+'" class="datatable-editor" style="width: 100%;" data_index="'+row.nomor_baris+'" data_column="'+value.name+'">'
+                                    return '<span class="datatable-data">'+escapeHtml(data)+'</span><input value="'+escapeHtml(data)+'" class="datatable-editor" style="width: 100%;" data_index="'+row.nomor_baris+'" data_column="'+value.name+'">'
                                 }    
                             })
                         })
@@ -1006,7 +1006,7 @@
                 // "sDom": "Rlfrtip",
                 "scrollX": true,
                 "autoWidth": true,
-                "pageLength": 10,
+                "pageLength": 5,
                 "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
                 "processing": false,
                 "serverSide": true,

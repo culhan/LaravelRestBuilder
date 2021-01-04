@@ -387,6 +387,16 @@ table .fa-close {
                 addLinkRight()
             }).bind("refresh.jstree",function(e,data){
                 addLinkRight()
+                $.ajax({
+                    url: baseUrl + '/getJumlahEndpoint',
+                    type: 'GET',
+                    crossDomain: true,
+                    processData: false,
+                    contentType: false,
+                    complete: function (data) {
+                        $("#jumlah_endpoint").html(data.responseText+' endpoint')
+                    }
+                });
             }).bind("hover_node.jstree",function(e,data) {                
                 $("#jstree").find('[aria-labelledby="'+data.node.id+'_anchor"]').find('[class="fa fa-ellipsis-h"]:first').show()
             }).bind("dehover_node.jstree",function(e,data) {
@@ -581,19 +591,31 @@ table .fa-close {
             chromeTabs.removeTab( $( "[idTab='"+tab+"']" ).get(0), true )
         }
 
-        function addListQueryParams(e,idFTab) {            
-            if( $(e).parent().parent().next().length == 0) {  
-                idFTab++
-                htmlTr = ''
-                htmlTr +=   "<tr>"
-                    htmlTr +=   "<th scope='row'></th>"
-                    htmlTr +=   '<td><input type="text" name="query_params['+idFTab+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idFTab+')"></td>'
-                    htmlTr +=   '<td><input type="text" name="query_params['+idFTab+'][value]" placeholder="value" class="input form-control"</td>'
-                    htmlTr +=   '<td><input type="text" name="query_params['+idFTab+'][desc]" placeholder="description" class="input form-control"></td>'
-                htmlTr +=   "</tr>"
+        function addListQueryParams(e, idFTab, data) { 
 
-                $(e).parent().parent().find('th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')
-                $(e).parent().parent().parent().append( htmlTr )
+            if(typeof data == 'undefined') data = {};
+
+            if(!data['key']) data['key'] = ''
+            if(!data['value']) data['value'] = ''
+            if(!data['desc']) data['desc'] = ''
+            
+            idFTab++
+            htmlTr = ''
+            htmlTr +=   "<tr>"
+                htmlTr +=   "<th scope='row'></th>"
+                htmlTr +=   '<td><input type="text" name="query_params['+idFTab+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idFTab+');changeQueryParams(this);" value="'+data['key']+'"></td>'
+                htmlTr +=   '<td><input type="text" name="query_params['+idFTab+'][value]" placeholder="value" class="input form-control" value="'+data['value']+'" onkeyup="changeQueryParams(this);"></td>'
+                htmlTr +=   '<td><input type="text" name="query_params['+idFTab+'][desc]" placeholder="description" class="input form-control" value="'+data['desc']+'" onkeyup="changeQueryParams(this);"></td>'
+            htmlTr +=   "</tr>"
+
+            if( typeof e == 'object' ){           
+                if( $(e).parent().parent().next().length == 0) {  
+                    $(e).parent().parent().find('th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')
+                    $(e).parent().parent().parent().append( htmlTr )
+                }
+            }else {
+                $("#query_params_"+e).find('tbody th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')
+                $("#query_params_"+e).find('tbody').append( htmlTr )
             }
         }
 
@@ -652,20 +674,50 @@ table .fa-close {
             $(e).parent().parent().remove()
         }
 
-        function addListEnvParams(e,idFTab) {            
-            if( $(e).parent().parent().next().length == 0) {  
-                idFTab++
-                htmlTr = ''
-                htmlTr += '<tr>'
-                    htmlTr += '<th scope="row"></th>'
-                    htmlTr += '<td><input type="text" name="env_params['+idFTab+'][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,'+idFTab+');"></td>'
-                    htmlTr += '<td><textarea type="text" name="env_params['+idFTab+'][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>'
-                    htmlTr += '<td><input type="text" name="env_params['+idFTab+'][desc]" placeholder="description" class="input form-control"></td>'
-                htmlTr += '</tr>'
+        function addListEnvParams(e, idFTab, data) {
 
-                $(e).parent().parent().find('th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')                
-                $(e).parent().parent().parent().append( htmlTr )
+            if(typeof data == 'undefined') data = {};
+
+            if(!data['key']) data['key'] = ''
+            if(!data['value']) data['value'] = ''
+            if(!data['desc']) data['desc'] = ''
+
+            idFTab++
+            htmlTr = ''
+            htmlTr += '<tr>'
+                htmlTr += '<th scope="row"></th>'
+                htmlTr += '<td><input type="text" name="env_params['+idFTab+'][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,'+idFTab+');" value="'+data['key']+'"></td>'
+                htmlTr += '<td><textarea type="text" name="env_params['+idFTab+'][value]" placeholder="value" class="input form-control" rows="1">'+data['value']+'</textarea></td>'
+                htmlTr += '<td><input type="text" name="env_params['+idFTab+'][desc]" placeholder="description" class="input form-control" value="'+data['desc']+'"></td>'
+            htmlTr += '</tr>'
+
+            if( typeof e == 'object' ){           
+                if( $(e).parent().parent().next().length == 0) {  
+                    $(e).parent().parent().find('th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')                
+                    $(e).parent().parent().parent().append( htmlTr )
+                }
+            }else {
+                $("#form-env").find('tbody th').html('<i class="fa fa-close" onclick="closeCols(this)"></i>')
+                $("#form-env").find('tbody').append( htmlTr )
             }
+            
+        }
+
+        function resetListEnvParams(data) {
+            $("#form-env").find('tbody').html("")
+            $.each(data, function (i,k) {
+                addListEnvParams(i, i-1, {
+                    "key":k.key,
+                    "value":k.value,
+                    "desc":k.desc
+                })
+            })
+
+            addListEnvParams(i, i-1, {
+                "key":'',
+                "value":'',
+                "desc":''
+            })
         }
 
         function addTabChrome({ 
@@ -772,9 +824,9 @@ table .fa-close {
                                                 if(!k.desc) k.desc = ''
                                                 htmlTabContent += '<tr>'
                                                     htmlTabContent += '<th scope="row"></th>'
-                                                    htmlTabContent += '<td><input type="text" value="'+k.key+'" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
-                                                    htmlTabContent += '<td><input type="text" value="'+k.value+'" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control"></td>'
-                                                    htmlTabContent += '<td><input type="text" value="'+k.desc+'" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.key+'" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+');changeQueryParams(this);"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.value+'" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control" onkeyup="changeQueryParams(this);"></td>'
+                                                    htmlTabContent += '<td><input type="text" value="'+k.desc+'" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control" onkeyup="changeQueryParams(this);"></td>'
                                                 htmlTabContent += '</tr>'
                                                 iqp++
                                             }
@@ -782,9 +834,9 @@ table .fa-close {
 
                                         htmlTabContent += '<tr>'
                                             htmlTabContent += '<th scope="row"></th>'
-                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+')"></td>'
-                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control"></td>'
-                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control"></td>'
+                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][key]" placeholder="key" class="input form-control" onkeyup="addListQueryParams(this,'+idTab+');changeQueryParams(this);"></td>'
+                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][value]" placeholder="value" class="input form-control" onkeyup="changeQueryParams(this);"></td>'
+                                            htmlTabContent += '<td><input type="text" name="query_params['+iqp+'][desc]" placeholder="description" class="input form-control" onkeyup="changeQueryParams(this);"></td>'
                                         htmlTabContent += '</tr>'
 
                                         htmlTabContent += '</tbody>'
@@ -824,9 +876,9 @@ table .fa-close {
 
                                         htmlTabContent += '<tr>'
                                             htmlTabContent += '<th scope="row"></th>'
-                                            htmlTabContent += '<td><input type="text" name="headers[0][key]" placeholder="key" class="input form-control" onkeyup="addListHeader(this,'+idTab+');"></td>'
-                                            htmlTabContent += '<td><input type="text" name="headers[0][value]" placeholder="value" class="input form-control"></td>'
-                                            htmlTabContent += '<td><input type="text" name="headers[0][desc]" placeholder="description" class="input form-control"></td>'
+                                            htmlTabContent += '<td><input type="text" name="headers['+ih+'][key]" placeholder="key" class="input form-control" onkeyup="addListHeader(this,'+idTab+');"></td>'
+                                            htmlTabContent += '<td><input type="text" name="headers['+ih+'][value]" placeholder="value" class="input form-control"></td>'
+                                            htmlTabContent += '<td><input type="text" name="headers['+ih+'][desc]" placeholder="description" class="input form-control"></td>'
                                         htmlTabContent += '</tr>'
                                         
                                         htmlTabContent += '</tbody>'
@@ -836,7 +888,7 @@ table .fa-close {
                             htmlTabContent += '<div class="tab-pane fade" id="body_'+tab+'" role="tabpanel" aria-labelledby="body_'+tab+'-tab">'
                                 htmlTabContent += '<div class="col-md">'
                                     htmlTabContent += '<h6>'
-                                    htmlTabContent += '<select class="form-control" name="body-mode" id="body-mode" onchange="bodyModeChanged()">'
+                                    htmlTabContent += '<select class="form-control" name="body-mode" id="body-mode" onchange="bodyModeChanged(this)">'
                                         htmlTabContent += '<option value="form-data">Form Data</option>'
                                         htmlTabContent += '<option value="raw">raw</option>'
                                     htmlTabContent += '</select>'
@@ -845,8 +897,8 @@ table .fa-close {
                                 htmlTabContent += '<div class="col-md">'
                                     
                                     htmlTabContent += '<div class="form-group bodies_raw">'
-                                        htmlTabContent += '<textarea name="bodies_raw" class="d-none"></textarea>'
-                                        htmlTabContent += '<textarea id="tab_bodies_raw"></textarea>'
+                                        htmlTabContent += '<textarea name="bodies_raw_'+tab+'" class="d-none"></textarea>'
+                                        htmlTabContent += '<textarea id="tab_bodies_raw_'+tab+'"></textarea>'
                                     htmlTabContent += '</div>'
 
                                     htmlTabContent += '<table class="table bodies">'
@@ -884,15 +936,15 @@ table .fa-close {
 
                                         htmlTabContent += '<tr>'
                                             htmlTabContent += '<th scope="row"></th>'
-                                            htmlTabContent += '<td><input type="text" name="bodies[0][key]" placeholder="key" class="input form-control" onkeyup="addListBody(this,'+idTab+');"></td>'
+                                            htmlTabContent += '<td><input type="text" name="bodies['+ib+'][key]" placeholder="key" class="input form-control" onkeyup="addListBody(this,'+idTab+');"></td>'
                                             htmlTabContent += '<td>'
-                                                htmlTabContent += '<select class="form-control" name="bodies[0][type]" onchange="selectTypeBody(this,'+idTab+');">'
+                                                htmlTabContent += '<select class="form-control" name="bodies['+ib+'][type]" onchange="selectTypeBody(this,'+idTab+');">'
                                                     htmlTabContent += '<option value="text" selected="">Text</option>'
                                                     htmlTabContent += '<option value="file">File</option>'
                                                 htmlTabContent += '</select>'
                                             htmlTabContent += '</td>'
-                                            htmlTabContent += '<td><input type="text" name="bodies[0][value]" placeholder="value" class="input form-control"></td>'                                                
-                                            htmlTabContent += '<td><input type="text" name="bodies[0][desc]" placeholder="description" class="input form-control"></td>'
+                                            htmlTabContent += '<td><input type="text" name="bodies['+ib+'][value]" placeholder="value" class="input form-control"></td>'                                                
+                                            htmlTabContent += '<td><input type="text" name="bodies['+ib+'][desc]" placeholder="description" class="input form-control"></td>'
                                         htmlTabContent += '</tr>'
 
                                         htmlTabContent += '</tbody>'
@@ -937,11 +989,11 @@ table .fa-close {
             });
 
             if( !jQuery.isEmptyObject(bodies_raw) ){
-                aceGenerate({ name_cols : 'bodies_raw', mode : 'json', default_code : bodies_raw, maxLines : 5});
-                $('#body-mode').val('raw').change()
+                aceGenerate({ name_cols : 'bodies_raw_'+tab, mode : 'json', default_code : bodies_raw, maxLines : 5, beautify: true});
+                $( '#form-'+id ).find('#body-mode').val('raw').change()
             }else {
-                aceGenerate({ name_cols : 'bodies_raw', mode : 'json', default_code : '', maxLines : 5});
-                $('#body-mode').val('form-data').change()
+                aceGenerate({ name_cols : 'bodies_raw_'+tab, mode : 'json', default_code : '', maxLines : 5, beautify: true});
+                $( '#form-'+id ).find('#body-mode').val('form-data').change()
             }
 
             // update method            
@@ -950,19 +1002,55 @@ table .fa-close {
         }
 
         function changeUrl(e) {
-            idTabFormChanged = $(e).closest('form').parent().data('tab')
+            idTabFormChanged = $(e).closest('form').parent().data('tab');
+            listDesc = {}
+            $("#query_params_"+idTabFormChanged+" tbody").find("[name^='query_params[']").each(function(i,k){
+                if($(k).attr('placeholder') == 'key'){
+                    listDesc[$(k).val()] = $("#query_params_"+idTabFormChanged+" tbody").find("[name='"+($(k).attr('name')).replace("key","desc")+"']").val()
+                }
+            })
+            
             $("#query_params_"+idTabFormChanged+" tbody").html("")
-            // console.log(  )
+            
+            ik = 0
+            $.each( getParamsFromUrl(URI($(e).val())), function(i,k){
+                addListQueryParams(idTabFormChanged,ik-1,{
+                    "key":k.key,
+                    "value":k.value,
+                    "desc":listDesc[k.key]
+                })
+                ik++
+            })
+
+            addListQueryParams(idTabFormChanged,ik-1,{
+                "key":"",
+                "value":"",
+                "desc":""
+            })
         }
 
-        function bodyModeChanged() {
-            $('.bodies').hide()
-            $('.bodies_raw').hide()
-            if($('#body-mode').val() == 'form-data'){
-                $('.bodies').show()
+        function changeQueryParams(e) {
+            idTabFormChanged = $(e).closest('form').parent().data('tab');
+            urlFullPath = URI(getUrlPathFromUrl( $(e).closest('form').find('[name="url"]').val() ))
+            $("#query_params_"+idTabFormChanged+" tbody").find("[name^='query_params[']").each(function(i,k){
+                if($(k).attr('placeholder') == 'key'){
+                    if( $(k).val() ){
+                        urlFullPath.addSearch( $(k).val(), $("#query_params_"+idTabFormChanged+" tbody").find("[name='"+($(k).attr('name')).replace("key","value")+"']").val() )
+                    }
+                }
+            })
+            $(e).closest('form').find('[name="url"]').val(urlFullPath.readable())
+        }
+
+        function bodyModeChanged(e) {
+            e_parent = $(e).parent().parent().parent()
+            $(e_parent).find('.bodies').hide()
+            $(e_parent).find('.bodies_raw').hide()
+            if($(e_parent).find('#body-mode').val() == 'form-data'){
+                $(e_parent).find('.bodies').show()
             }
-            if($('#body-mode').val() == 'raw'){
-                $('.bodies_raw').show()
+            if($(e_parent).find('#body-mode').val() == 'raw'){
+                $(e_parent).find('.bodies_raw').show()
             }
         }
 
