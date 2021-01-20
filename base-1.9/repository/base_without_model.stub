@@ -1,0 +1,39 @@
+<?php
+// File ini ini di  buat dengan Laravel Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
+namespace App\Http\Repositories;
+
+use Request;
+use App\Exceptions\DataEmptyException;
+use KhanCode\LaravelBaseRest\BaseRepository;
+
+/**
+ * code for system logic
+ */
+class {{Name}}Repository extends BaseRepository
+{
+    /**
+     * [$module description]
+     * @var string
+     */
+    public $module = '{{title_case_name}}';
+
+    /**
+     * [setModulName description]
+     *
+     * @param   [type] $name           [$name description]
+     *
+     * @return  [type]               [return description]
+     */
+    public function setModulName( $name ) {
+        $this->module = $name;
+        return $this;
+    }
+
+    // start function
+    // end function
+
+    // start custom code    
+    // end custom code
+}

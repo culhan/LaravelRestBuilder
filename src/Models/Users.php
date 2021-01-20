@@ -47,7 +47,16 @@ class Users extends Authenticatable
     public function scopeGetAll($query)
     {
         return $query->select([
-                    "users.*",					
+                    "users.*",
+                    \DB::raw("(
+                            select concat('[',IFNULL(group_concat(distinct concat(
+                                    project_id
+                                ) -- order by name asc 
+                            ),''), ']')
+                            from users_projects
+                            where users_projects.user_id = users.id
+                        )
+                    as 'projects' "),					
                 ])
                 // start list query option
                 ->whereNull("users.deleted_at")
@@ -55,6 +64,17 @@ class Users extends Authenticatable
                 ;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param [type] $value
+     * @return void
+     */
+    public function getProjectsAttribute($value)
+    {
+        return json_decode($value);
+    }
+    
     // start list relation function
     
     // end list relation function

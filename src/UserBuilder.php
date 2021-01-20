@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use KhanCode\LaravelRestBuilder\Models\ManageUsers;
 use KhanCode\LaravelRestBuilder\Models\Projects;
+use KhanCode\LaravelRestBuilder\Models\Roles;
 use KhanCode\LaravelBaseRest\Helpers;
 use KhanCode\LaravelBaseRest\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class UserBuilder
 {    
@@ -54,8 +56,9 @@ class UserBuilder
         return view('khancode::createUser', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
             'projects'   =>  Projects::userData()->get(),
+            'roles'   =>  Roles::getAll()->get(),
             'data'=>[
-                'simpan_api'    =>  1
+                'simpan_user'    =>  1
             ],
         ]);
     }
@@ -72,8 +75,9 @@ class UserBuilder
         return view('khancode::createUser', [
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user(),
             'projects'   =>  Projects::userData()->get(),
+            'roles'   =>  Roles::getAll()->get(),
             'data'=>[
-                'simpan_api'    =>  1,                
+                'simpan_user'    =>  1,                
             ]+$data,
         ]);
     }
@@ -85,42 +89,89 @@ class UserBuilder
      */
     public function create() 
     {
+        \DB::beginTransaction();
+
         $data = Request::all();
-        
+
         if( !empty($data['id']) ) {
-            Projects::validate($data,[
+            ManageUsers::validate($data,[
                 'name' => [
                         'required', 
-                        \Illuminate\Validation\Rule::unique('projects','name')->ignore($data['id'])
+                        \Illuminate\Validation\Rule::unique('users','name')->ignore($data['id'])
                     ],
-                'folder' => [
-                        'required', 
-                        \Illuminate\Validation\Rule::unique('projects','folder')->ignore($data['id'])
+                'email' => [
+                        'required',
+                        'email', 
+                        \Illuminate\Validation\Rule::unique('users','email')->ignore($data['id'])
                     ],
+                'password' => [
+                    'nullable',
+                    'min:6',
+                    'max:32',
+                ],
+                'role_id' => [
+                ]
             ]);
 
-            Projects::find($data['id'])->update($data);
+            if( Helpers::is_error() ) throw new ValidationException( Helpers::get_error() );
 
-            return Projects::find($data['id']);
+            if( empty($data['password']) ){
+                unset($data['password']);
+            }else {
+                $data['password'] = Hash::make($data['password']);
+            }
+
+            $user = ManageUsers::find($data['id']);
+            
+            $user->update($data);
+
+            $user->projects()->detach();
+            if( !empty($data['projects']) ){
+                $user->projects()->attach($data['projects']);
+            }
+            
+            $return = ManageUsers::find($data['id']);
 
         }else {
-            Projects::validate($data,[
+            ManageUsers::validate($data,[
                 'name' => [
                         'required', 
-                        \Illuminate\Validation\Rule::unique('projects','name')
+                        \Illuminate\Validation\Rule::unique('users','name')
                     ],
-                'folder' => [
-                        'required', 
-                        \Illuminate\Validation\Rule::unique('projects','folder')
+                'email' => [
+                        'required',
+                        'email',
+                        \Illuminate\Validation\Rule::unique('users','email')
                     ],
+                'password' => [
+                    'required',
+                    'min:6',
+                    'max:32',
+                ],
+                'role_id' => [
+                ]
             ]);
 
-            $data = Projects::create($data);
+            if( Helpers::is_error() ) throw new ValidationException( Helpers::get_error() );
 
-            session(['project' => $data->toArray()]);
+            if( empty($data['password']) ){
+                unset($data['password']);
+            }else {
+                $data['password'] = Hash::make($data['password']);
+            }
 
-            return $data;
-        }        
+            $user = ManageUsers::create($data);
+            
+            if( !empty($data['projects']) ){
+                $user->projects()->attach($data['projects']);
+            }
+
+            $return = $user;
+        }
+
+        \DB::commit();
+
+        return $return;
     }
 
     /**

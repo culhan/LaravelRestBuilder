@@ -57,7 +57,8 @@ class Auth
      */
     public function setAuth()
     {        
-        $user = Users::where(function ($query) {
+        $user = Users::getAll()
+                ->where(function ($query) {
                     $query->orWhere('name', '=', Request::get('username'))
                         ->orWhere('email', '=', Request::get('username'));
                 })->first();
@@ -72,7 +73,11 @@ class Auth
             return $this->login();
         }
         
-        $first_project = Projects::first();
+        if( empty($user->projects[0]) ) {
+            return redirect('/createProject');
+        }
+
+        $first_project = Projects::where('id', $user->projects[0])->first();
 
         auth()->guard('laravelrestbuilder_auth')->login($user);
         

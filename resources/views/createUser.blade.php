@@ -23,12 +23,30 @@
             </div>
 
             <div class="form-group">                
+                <label>Password</label>
+                <input type="password" class="form-control" name='password'>
+            </div>
+
+            <div class="form-group">                
+                <label>Role</label>
+                <select class="form-control" data-live-search="true" name='role_id'>
+                    @foreach($roles as $role)
+                        @if( $role->id == Arr::get($data, 'role_id', NULL) )
+                        <option value={{$role->id}} selected>{{$role->name}}</option>
+                        @else
+                        <option value={{$role->id}}>{{$role->name}}</option>
+                        @endif
+                    @endforeach
+                </select> 
+            </div>
+
+            <div class="form-group">                
                 <label>Projects</label>
-                <select class="form-control" multiple data-live-search="true">
+                <select class="form-control" multiple data-live-search="true" name='projects[]'>
                     <?php
                         $arr_project = [];
                         if( !empty($data['projects']) ) {
-                            $arr_project    = array_flip( json_decode($data['projects'],true) );
+                            $arr_project    = array_flip( $data['projects'] );
                         }
                     ?>
                     @foreach($projects as $project)
@@ -43,7 +61,9 @@
             
         </form>
     </div>    
+@endsection
 
+@section('modal')
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#modal_1" id="launch_modal_1">
         Launch demo modal
@@ -74,26 +94,37 @@
 
 @section('script_add_on')
     <script>
-        function simpanKeApi() {
+        function simpanKeApiUser() {
             
             objModul = $('#modul').serializeJSON()
 
             $.ajax({
-                url: '{{url('/')}}/User',
+                url: '{{url('/')}}/createUser',
                 type: "POST",
                 data: JSON.stringify(Object.assign({}, objModul )),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
-                    window.location.href = '{{url('/')}}/User'
+                    window.location.href = '{{url('/')}}/user'
                 },
-                error:function (data) {                    
-                    if( data.responseJSON ) {
-                        $( "#modal_1 .modal-body" ).html(data.responseJSON.message)
-                    }else {
-                        $( "#modal_1 .modal-body" ).html('Tidak ada perubahan')
-                    }
-                    $( "#launch_modal_1" ).click()
+                error: function(data) {
+                    if (data.responseJSON) {
+                        if (jsonObj = IsJsonString(data.responseJSON.message)){
+                            setErrorColumn(jsonObj)
+                        }
+                        if (jsonObj = data.responseJSON.error.error){
+                            setErrorColumn(jsonObj)
+                        }
+                        // else {
+                        //     str_error = data.responseJSON.message;
+                        //     str_error = str_error.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                        //     $("#modal_1 .modal-body").html(str_error);
+                        //     $("#launch_modal_1").click();
+                        // }                
+                    } else {
+                        $("#modal_1 .modal-body").html("Tidak ada perubahan");
+                        $("#launch_modal_1").click();
+                    }            
                 }
             });
         }
@@ -103,4 +134,6 @@
             $(".loading").hide();
         });
     </script>
+
+    <script src="<?php echo URL::to('/vendor/khancode/js/submit.js');?>"></script>
 @endsection

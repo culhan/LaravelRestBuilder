@@ -1,1 +1,1 @@
-Helpers::json_decode_recursive({{json}})
+Helpers::json_decode_recursive({{json}}??NULL)

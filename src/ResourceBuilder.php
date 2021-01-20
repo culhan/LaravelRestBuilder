@@ -24,7 +24,7 @@ class ResourceBuilder
         $base_column = file_get_contents(__DIR__.'/../base'.$base.'/resource/column.stub', FILE_USE_INCLUDE_PATH);
         // $base_column_with_json = file_get_contents(__DIR__.'/../base'.$base.'/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
 
-        $base_resource = str_replace('{{Name}}',$name,$base_resource);
+        $base_resource = str_replace('{{Name}}',ucwords($name),$base_resource);
 
         $code_column = '';
         $hidden = array_flip($hidden);

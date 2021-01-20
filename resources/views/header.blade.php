@@ -16,6 +16,8 @@
         @endif
     @elseif( isset($data['simpan_event']) )
         <button type="button" class="btn btn-success float-right col-sm-1 btn-sm" onclick="simpanKeApi()"><i class="fas fa-save fa-sm text-white-50"></i> Simpan</button>
+    @elseif( isset($data['simpan_user']) )
+        <button type="button" class="btn btn-success float-right col-sm-1 btn-sm" onclick="simpanKeApiUser()"><i class="fas fa-save fa-sm text-white-50"></i> Simpan</button>
     @elseif( isset($data['tambah_modul']) )
         <a href="{{url('/')}}/create" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> tambah modul</a>
     @elseif( isset($data['tambah_tabel']) )

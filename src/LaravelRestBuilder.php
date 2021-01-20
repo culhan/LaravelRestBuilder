@@ -329,7 +329,7 @@ class LaravelRestBuilder
             ]);
         }                
 
-        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );        
+        if( Helpers::is_error() ) throw new ValidationException( Helpers::get_error() );        
 
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['name']);
@@ -398,7 +398,7 @@ class LaravelRestBuilder
         if( !empty($data['route']) ) {
             ControllerBuilder::build(
                 $data['name'],
-                $data['column'],
+                $data['column']??[],
                 $data['column_function'],
                 $data['route'],
                 $data['relation'],
@@ -410,7 +410,7 @@ class LaravelRestBuilder
             ServiceBuilder::build(
                 $data['name'],
                 $data['table'],
-                $data['column'],
+                $data['column']??[],
                 $data['key'],
                 $data['route'],
                 $data['relation']
@@ -444,15 +444,15 @@ class LaravelRestBuilder
                 $data['get_custom_deleting'],
                 $data['hidden_relation']
             );    
+        }
 
-            RepositoryBuilder::build(
-                $data['name'],
-                $data['table'],
-                $data['repositories']
-            );
-        }            
+        RepositoryBuilder::build(
+            $data['name'],
+            $data['table']??NULL,
+            $data['repositories']
+        );
 
-        if( !empty($data['route']) ) {
+        if( !empty($data['table']) && !empty($data['route']) ) {
             ResourceBuilder::build(
                 $data['name'],
                 $data['column'],
@@ -461,7 +461,10 @@ class LaravelRestBuilder
                 $data['hidden'],
                 $data['hidden_relation']
             );
-            
+
+        }
+        
+        if( !empty($data['route']) ) {
             RouteBuilder::build(
                 $data['name'],
                 $data['route'],

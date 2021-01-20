@@ -36,7 +36,10 @@ class ManageUsers extends BaseModel
     const DELETED_AT = 'deleted_at';
     
     public $fillable = [
-		
+        'name',
+        'email',
+        'password',
+        'role_id',
     ];
 
     /**
@@ -47,12 +50,15 @@ class ManageUsers extends BaseModel
     public function scopeGetAll($query)
     {
         return $query->select([
-                    "*",
+                    "id",
+                    "name",
+                    "email",
+                    "role_id",
                     \DB::raw("(
                             select concat('[',IFNULL(group_concat(distinct concat(
                                     project_id
                                 ) -- order by name asc 
-                            ),'{}'), ']')
+                            ),''), ']')
                             from users_projects
                             where users_projects.user_id = users.id
                         )
@@ -62,6 +68,25 @@ class ManageUsers extends BaseModel
                 ->whereNull("deleted_at")
                 // end list query option
                 ;
+    }
+
+    /**
+     * [Redeemable_location description]
+     * @return [type] [description]
+     */
+    public function Projects(){
+        return $this->belongsToMany('\KhanCode\LaravelRestBuilder\Models\Projects','users_projects','user_id','project_id');
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $value
+     * @return void
+     */
+    public function getProjectsAttribute($value)
+    {
+        return json_decode($value);
     }
 
     /**

@@ -48,7 +48,7 @@ class TableBuilder
         
         $data['id'] = $data_system_table->id;
         
-        $return = MigrationBuilder::build( $data['name'], $data['table'], $data['column'], $data['list_index'], $rename );
+        $return = MigrationBuilder::build( $data['name'], $data['table'], $data['column'], $data['list_index']??[], $rename );
         
         // hanya akan migrate 1
         if( !empty($return) ) {

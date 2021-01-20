@@ -1,2 +1,1 @@
 $this->model = new App\Http\Models\{{Name}};
-        $this->repository = new App\Http\Repositories\{{Name}}Repository;

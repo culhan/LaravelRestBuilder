@@ -21,6 +21,7 @@ class {{Name}}Service extends BaseService
     public function __construct()
     {
         {{initialization}}
+        $this->repository = new App\Http\Repositories\{{Name}}Repository;
     }
 
     // start list function
