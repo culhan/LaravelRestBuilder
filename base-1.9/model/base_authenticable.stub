@@ -122,12 +122,8 @@ class {{Name}} extends Authenticatable
      */
     public function scopeGetSelect($query, $data = [])
     {
-        return $query->select([
-                    {{column}}
-                ])
-                ->addBinding([
-                    {{binding_columns}}
-                ],'select');
+        {{column}}
+        return $query;
     }
 
     /**

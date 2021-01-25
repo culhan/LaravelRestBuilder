@@ -72,10 +72,19 @@ class LaravelRestBuilder
         
         \Request::merge([
                 'search' => \Request::get('search')['value'],
-                'sort_column'   =>  'nomor_baris',
+                'sort_column'   =>  \Request::get('order')[0]['column'],
                 'sort_type'   =>  \Request::get('order')[0]['dir'],
             ]);
-                    
+        
+        $column_mapping = [
+            'id',
+            'name',
+        ];
+
+        if( isset($column_mapping[\Request::get('sort_column')]) ){
+            \Request::merge(['sort_column'  => $column_mapping[\Request::get('sort_column')]]);
+        }
+            
         $model = new \KhanCode\LaravelRestBuilder\Models\Moduls;
         
         \DB::connection( $model->connection )->statement(\DB::raw('set @nomorbaris = 0;'));
@@ -84,6 +93,7 @@ class LaravelRestBuilder
             ->getAll()
             ->addSelect([
                 \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
+                // \DB::raw('ROW_NUMBER() OVER (order BY '.\Request::get('sort_column').' '.\Request::get('sort_type').') as nomor_baris')
             ])
             ->setSortableAndSearchableColumn([
                 'id'    =>  'id',
@@ -431,6 +441,7 @@ class LaravelRestBuilder
                 $data['with_companystamp'],
                 $data['custom_filter'],
                 $data['custom_union'],
+                $data['custom_union_model']??NULL,
                 $data['custom_join'],
                 $data['relation'],
                 $data['hidden'],

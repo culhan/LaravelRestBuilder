@@ -35,7 +35,7 @@ class ModelBuilder
      * @param [type] $hidden_relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation )
     {
         $base = config('laravelRestBuilder.base');
         $mysql_version = config('laravelRestBuilder.mysql_version');
@@ -211,7 +211,7 @@ class ModelBuilder
                 //     $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']';
                 // }
 
-                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']';
+                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']??NULL';
                 $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
 
                 $value_column_function['response_code'] = !empty($value_column_function['json']) ? $json_converter : $value_column_function['response_code']; 
@@ -230,7 +230,7 @@ class ModelBuilder
                         '{{value}}'
                     ],[
                         ucwords(camel_case($value_column_function['name'])),
-                        $value_column_function['response_code']
+                        str_replace("\n","\n\t\t",$value_column_function['response_code'])
                     ],$current_function_accessor);
                 
                 $base_model = str_replace('// end list accessor function',$current_function_accessor,$base_model);
@@ -261,7 +261,7 @@ class ModelBuilder
                     $json_converter = str_replace([
                         "{{json}}"
                     ],[
-                        '$this->attributes[\''.$value_relation['name'].'\']'
+                        '$this->attributes[\''.$value_relation['name'].'\']??NULL'
                     ],$option_isJson);
                     
                     // check response code
@@ -607,22 +607,39 @@ class ModelBuilder
         $base_model = str_replace('{{binding_columns}}',$base_set_bindings,$base_model);
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
 
-        if( !empty($custom_union) ) {
-            $union_file = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
-            $arr_union = explode('union',$custom_union);
+        if( !empty($custom_union_model) ) {
+            $union_file = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_model.stub', FILE_USE_INCLUDE_PATH);
 
-            foreach ($arr_union as $arr_union_key => $arr_union_value) {
-                if( !empty($arr_union_value) ){
-                    $union = str_replace([
-                        '{{union}}',
-                    ],[
-                        str_replace("\n","\n\t\t\t\t\t",$arr_union_value)
-                    ],$union_file);
+            foreach ($custom_union_model as $arr_union_key => $arr_union_value) {
+                $union = str_replace([
+                    '{{union}}',
+                ],[
+                    $arr_union_value
+                ],$union_file);
 
-                    $base_model = str_replace('// end list query union',$union."\r\n\t\t\t\t".'// end list query union',$base_model);
+                $base_model = str_replace('// end list query union',$union."\r\n\t\t\t\t".'// end list query union',$base_model);
+            }
+        }else {
+
+            if( !empty($custom_union) ) {
+                $union_file = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_table.stub', FILE_USE_INCLUDE_PATH);
+                $arr_union = explode('union',$custom_union);
+
+                foreach ($arr_union as $arr_union_key => $arr_union_value) {
+                    if( !empty($arr_union_value) ){
+                        $union = str_replace([
+                            '{{union}}',
+                        ],[
+                            str_replace("\n","\n\t\t\t\t\t",$arr_union_value)
+                        ],$union_file);
+
+                        $base_model = str_replace('// end list query union',$union."\r\n\t\t\t\t".'// end list query union',$base_model);
+                    }
                 }
             }
+
         }
+
         $base_model = str_replace('{{table}}',$table,$base_model);
         
         if(empty($get_company_code)){

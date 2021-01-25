@@ -304,8 +304,17 @@
                             <label for="exampleFormControlSelect1">Custom Union</label>
                             <textarea name="custom_union" class="d-none"></textarea>
                             <textarea id="tab_custom_union"></textarea>
-                            <pre>*input ".code." akan di baca kode php</pre>
+                            <pre>*input ".code." akan di baca kode php ( tidak di sarankan, karena tidak bisa melakukan pencarian )</pre>
                         </div>
+
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1">Custom Union Model</label>
+                            <div class="">
+                                <select class="multi-select2 col-sm-12" name="custom_union_model[]" multiple="">
+                                </select>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Custom Join</label>
                             <textarea name="custom_join" class="d-none"></textarea>
@@ -907,6 +916,7 @@
         \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Resources/');
         
         $models = array();
+        $select2_data = array();
         
         $files = scandir($dir.'Http/Controllers/');
         $namespace = '\App\Http\Controllers\\';
@@ -922,6 +932,11 @@
             //skip current and parent folder entries and non-php files
             if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
                 $models[] = $namespace . preg_replace('/.php$/', '', $file);
+                
+                $select2_data[] = [
+                    'id'    => preg_replace('/.php$/', '', $file),
+                    'text'  => preg_replace('/.php$/', '', $file)
+                ];
         }
 
         $files = scandir($dir.'Http/Services/');
@@ -967,6 +982,7 @@
     ?>
     <script>   
         var dataModels = <?php echo json_encode($models)?>;
+        var select2_data = <?=json_encode($select2_data)?>;
         
         var langTools = ace.require("ace/ext/language_tools");
         var staticWordCompleter = {
@@ -2563,6 +2579,10 @@
                 eval("code_editor_custom_union.clearSelection()")
             }
 
+            if(data.custom_union_model) {
+                $('[name="custom_union_model[]"]').val(data.custom_union_model).change();
+            }
+
             if(data.custom_join) {
                 $( '[name="custom_join"]' ).val(data.custom_join);
                 eval("code_editor_custom_join.setValue($( '[name=\"custom_join\"]' ).val())")
@@ -2793,6 +2813,15 @@
                 }
             }
         }
+    </script>
+
+    <script>
+        $('.multi-select2').select2({
+            placeholder: 'Models',
+            allowClear: true,
+            width: '100%',
+            data:select2_data,
+        });
     </script>
 
     <script src="<?php echo URL::to('/vendor/khancode/js/storage.js');?>"></script>

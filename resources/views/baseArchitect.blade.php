@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://unpkg.com/ace-diff@^2.0.0/dist/ace-diff.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <link href="{{url('/')}}/vendor/khancode/css/loading.css" rel="stylesheet">
     <link href="{{url('/')}}/vendor/khancode/css/switcher.css" rel="stylesheet">
@@ -778,6 +779,7 @@
     <script src="{{url('/')}}/vendor/khancode/js/ace-generator.js"></script>    
     <script src="https://unpkg.com/ace-diff@^2.0.0"></script>
     <script src="{{url('/')}}/vendor/khancode/js/URI.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
       function arrayUnique(array) {
