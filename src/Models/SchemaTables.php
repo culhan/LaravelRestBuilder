@@ -25,8 +25,8 @@ class SchemaTables extends BaseModel
     {
         return $query->where('TABLE_SCHEMA',config('database.connections.mysql.database'))
                 ->select([
-                    \DB::raw('TABLE_NAME AS id'),
-                    \DB::raw('TABLE_NAME AS name'),
+                    \DB::raw('TABLE_NAME as id'),
+                    \DB::raw('TABLE_NAME as name'),
                 ])
                 ;
     }
