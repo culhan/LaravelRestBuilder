@@ -4,9 +4,7 @@
 // atau hubungi A'mal Sholihan
 namespace App\Http\Models;
 
-use KhanCode\LaravelBaseRest\BaseModel;
-
-class {{Name}} extends BaseModel
+class {{Name}} extends BaseModelV2
 {
     public $table = "{{table}}";
 

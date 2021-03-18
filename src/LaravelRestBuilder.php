@@ -466,7 +466,7 @@ class LaravelRestBuilder
         if( !empty($data['table']) && !empty($data['route']) ) {
             ResourceBuilder::build(
                 $data['name'],
-                $data['column'],
+                $data['column']??[],
                 $data['column_function'],
                 $data['relation'],
                 $data['hidden'],
