@@ -1,1 +1,2 @@
-$table->text('{{name}}');
+$table->text('{{name}}')
+                ->charset('utf8mb4');

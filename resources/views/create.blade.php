@@ -914,6 +914,7 @@
         \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Services/');
         \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Repositories/');
         \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Resources/');
+        \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Exceptions/');
         
         $models = array();
         $select2_data = array();

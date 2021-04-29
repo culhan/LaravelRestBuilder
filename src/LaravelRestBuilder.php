@@ -86,8 +86,14 @@ class LaravelRestBuilder
         }
             
         $model = new \KhanCode\LaravelRestBuilder\Models\Moduls;
+
+        $model->validate(request()->all(),[
+                'start' => [
+                        'numeric',
+                    ],
+            ]);
         
-        \DB::connection( $model->connection )->statement(\DB::raw('set @nomorbaris = 0;'));
+        \DB::connection( $model->connection )->statement(\DB::raw('set @nomorbaris = '.request('start').';'));
         
         $data['data'] = $model
             ->getAll()
