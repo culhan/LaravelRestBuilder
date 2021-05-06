@@ -672,7 +672,7 @@
                             
                             <div class="row mb-3 route_fungsi_relasi">
                                 <div class="col-sm" style="padding-top:5px;">
-                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_relasi" aria-expanded="true" aria-controls="route_relasi"><b>Fungsi Simpan Data Relasi</b></label>
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".route_relasi" aria-expanded="true" aria-controls="route_relasi"><b>Fungsi Create Simpan Data Relasi</b></label>
                                 </div>
                             </div>
                             <div class="col-sm route_relasi collapse">
