@@ -156,6 +156,7 @@ class ModelBuilder
 
         $cols_table_model = "";        
         $fillable_table_model = "";
+        $appends_table_model = "";
         $hidden = array_flip($hidden);
         $base_column_function_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_function.stub', FILE_USE_INCLUDE_PATH);
         $base_column_function_query = str_replace('\t',"\t",$base_column_function_query);
@@ -235,12 +236,17 @@ class ModelBuilder
                 
                 $base_model = str_replace('// end list accessor function',$current_function_accessor,$base_model);
             }
+
+            if( !empty($appends_table_model) ){
+                $appends_table_model .= "\r\n";
+            }
+            $appends_table_model .= "\t\t\"".$value_column_function['name']."\",";
         }
         
         // fillable
-        $option_fillable = file_get_contents(__DIR__.'/../base'.$base.'/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);        
+        $option_fillable = file_get_contents(__DIR__.'/../base'.$base.'/model/option_fillable.stub', FILE_USE_INCLUDE_PATH);
         $option_fillable = str_replace('{{column_fillable}}',$fillable_table_model,$option_fillable);
-        $base_model = str_replace('// end list option',$option_fillable,$base_model);        
+        $base_model = str_replace('// end list option',$option_fillable,$base_model);
         
         if( !empty($relation) )
         {
@@ -281,6 +287,11 @@ class ModelBuilder
                         ],$current_function_accessor);
                     
                     $base_model = str_replace('// end list accessor function',$current_function_accessor,$base_model);                
+
+                    if( !empty($appends_table_model) ){
+                        $appends_table_model .= "\r\n";
+                    }
+                    $appends_table_model .= "\t\t\"".$value_relation['name']."\",";
                 }
 
                 // belongs to query
@@ -601,6 +612,10 @@ class ModelBuilder
                 }
             }                        
         }
+
+        $option_appends = file_get_contents(__DIR__.'/../base'.$base.'/model/option_appends.stub', FILE_USE_INCLUDE_PATH);
+        $option_appends = str_replace('{{column_appends}}',$appends_table_model,$option_appends);
+        $base_model = str_replace('// end list option',$option_appends,$base_model);
         
         $base_set_bindings = str_replace("{{column}}",substr($column_set_bindings,0,-7),$base_set_bindings);
                 
