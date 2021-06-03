@@ -1,0 +1,72 @@
+// File ini ini di  buat dengan Go Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
+package models
+
+import (
+	"reflect"
+    "gorm.io/gorm"
+)
+
+type {{Name}}Model struct {
+    {{column}}
+}
+
+func (s {{Name}}Model) GetSelect(request interface{}) reflect.Value {
+    
+    data := request.(map[string]interface{})
+    _ = data
+
+	selectColumn := struct {
+		{{select_column}}
+	}{
+		{{select_column_attribute}}
+	}
+
+	return reflect.ValueOf(&selectColumn)
+}
+
+func (s {{Name}}Model) TableName() string {
+	return "{{table}}"
+}
+
+func (s {{Name}}Model) ModulName() string {
+	return "{{name}}"
+}
+
+func (s {{Name}}Model) ModelOptions(db *gorm.DB, request interface{}) *gorm.DB {
+    
+    data := request.(map[string]interface{})
+    _ = data
+	
+    // start list query option
+    // end list query option
+}
+
+func (s *{{Name}}Model) BeforeCreate(tx *gorm.DB) (err error) {
+    // start list creating option
+
+    // end list creating option
+  	return
+}
+
+func (s *{{Name}}Model) BeforeUpdate(tx *gorm.DB) (err error) {
+    // start list updating option
+
+    // end list updating option
+  	return
+}
+
+func (s *{{Name}}Model) BeforeDelete(tx *gorm.DB) (err error) {
+    // start list deleting option
+
+    // end list deleting option
+  	return
+}
+
+func (s {{Name}}Model) Validate() interface{} {
+    return nil
+}
+
+// start custom code    
+// end custom code

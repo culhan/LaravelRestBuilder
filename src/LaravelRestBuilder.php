@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Hash;
 use KhanCode\LaravelRestBuilder\Models\Users;
 use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelBaseRest\Helpers;
+use KhanCode\LaravelRestBuilder\Gobuilder\ModelBuilder as GoModelBuilder;
+use KhanCode\LaravelRestBuilder\Gobuilder\RepositoryBuilder as GoRepositoryBuilder;
+use KhanCode\LaravelRestBuilder\Gobuilder\ResourceBuilder as GoResourceBuilder;
+use KhanCode\LaravelRestBuilder\Gobuilder\ControllerBuilder as GoControllerBuilder;
 use KhanCode\LaravelBaseRest\ValidationException;
 
 class LaravelRestBuilder
@@ -293,11 +297,26 @@ class LaravelRestBuilder
      */
     public function middleware()
     {
-        $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/Http/Kernel.php');
-        $list = $this->get_string_between($file,'$routeMiddleware = [','];');
-        eval('$routeMiddleware = ['.$list.'];');        
-        
-        return array_values( array_flip($routeMiddleware) );
+        if( session('project')['lang'] == 'php'){
+            $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/Http/Kernel.php');
+            $list = $this->get_string_between($file,'$routeMiddleware = [','];');
+            eval('$routeMiddleware = ['.$list.'];');        
+            
+            return array_values( array_flip($routeMiddleware) );
+        }elseif( session('project')['lang'] == 'go'){
+            $arr_middleware = [];
+            $dataFile = scandir(base_path().config('laravelrestbuilder.copy_to').'/app/middleware');
+            foreach ($dataFile as $key => $value) {
+                if( $value == '.' || $value == '..' || !preg_match('/.go/', $value) ) continue;
+                $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/middleware/'.$value);
+                $middleware = $this->get_string_between($file, 'func ', '()');
+                if( preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $middleware) ){
+                    $arr_middleware[] = $middleware;
+                }
+            }
+
+            return $arr_middleware;
+        }
     }
 
     /**
@@ -407,117 +426,183 @@ class LaravelRestBuilder
 
         config(['laravelrestbuilder.modul'   =>  $data]);
 
-        if( !empty($data['table']) && !empty($data['column']) ) {
-            TableBuilder::buildMigration();
-        }
-        
-        if( !empty($data['route']) ) {
-            ControllerBuilder::build(
-                $data['name'],
-                $data['column']??[],
-                $data['column_function'],
-                $data['route'],
-                $data['relation'],
-                $data['hidden']
-            );
-        }
-        
-        if( !empty($data['route']) ) {
-            ServiceBuilder::build(
-                $data['name'],
-                $data['table'],
-                $data['column']??[],
-                $data['key'],
-                $data['route'],
-                $data['relation']
-            );
-        }
-        
-        if( !empty($data['table']) && !empty($data['column']) ) {
-            ModelBuilder::build(
-                $data['name'],
-                $data['table'],
-                $data['key'],
-                $data['increment_key'],
-                $data['column'],
-                $data['column_function'],
-                $data['with_timestamp'],
-                $data['with_authstamp'],
-                $data['with_ipstamp'],
-                $data['with_companystamp'],
-                $data['custom_filter'],
-                $data['custom_union'],
-                $data['custom_union_model']??NULL,
-                $data['custom_join'],
-                $data['relation'],
-                $data['hidden'],
-                $data['with_company_restriction'],
-                $data['with_delete_restriction'],
-                $data['casts'],
-                $data['with_authenticable'],
-                $data['get_company_code'],
-                $data['get_custom_creating'],
-                $data['get_custom_updating'],
-                $data['get_custom_deleting'],
-                $data['hidden_relation']
-            );    
-        }
+        if( session('project')['lang'] == 'php'){
+            if( !empty($data['table']) && !empty($data['column']) ) {
+                TableBuilder::buildMigration();
+            }
+            
+            if( !empty($data['route']) ) {
+                ControllerBuilder::build(
+                    $data['name'],
+                    $data['column']??[],
+                    $data['column_function'],
+                    $data['route'],
+                    $data['relation'],
+                    $data['hidden']
+                );
+            }
+            
+            if( !empty($data['route']) ) {
+                ServiceBuilder::build(
+                    $data['name'],
+                    $data['table'],
+                    $data['column']??[],
+                    $data['key'],
+                    $data['route'],
+                    $data['relation']
+                );
+            }
+            
+            if( !empty($data['table']) && !empty($data['column']) ) {
+                ModelBuilder::build(
+                    $data['name'],
+                    $data['table'],
+                    $data['key'],
+                    $data['increment_key'],
+                    $data['column'],
+                    $data['column_function'],
+                    $data['with_timestamp'],
+                    $data['with_authstamp'],
+                    $data['with_ipstamp'],
+                    $data['with_companystamp'],
+                    $data['custom_filter'],
+                    $data['custom_union'],
+                    $data['custom_union_model']??NULL,
+                    $data['custom_join'],
+                    $data['relation'],
+                    $data['hidden'],
+                    $data['with_company_restriction'],
+                    $data['with_delete_restriction'],
+                    $data['casts'],
+                    $data['with_authenticable'],
+                    $data['get_company_code'],
+                    $data['get_custom_creating'],
+                    $data['get_custom_updating'],
+                    $data['get_custom_deleting'],
+                    $data['hidden_relation']
+                );    
+            }
 
-        RepositoryBuilder::build(
-            $data['name'],
-            $data['table']??NULL,
-            $data['repositories']
-        );
-
-        if( !empty($data['table']) && !empty($data['route']) ) {
-            ResourceBuilder::build(
+            RepositoryBuilder::build(
                 $data['name'],
-                $data['column']??[],
-                $data['column_function'],
-                $data['relation'],
-                $data['hidden'],
-                $data['hidden_relation']
+                $data['table']??NULL,
+                $data['repositories']??[],
             );
 
-        }
-        
-        if( !empty($data['route']) ) {
-            RouteBuilder::build(
-                $data['name'],
-                $data['route'],
-                $old_name
-            );
-        }
-        
-        // $file_modul = self::getArrayFile('modul', 'storage');
-        // $file_table = self::getArrayFile('table', 'storage');        
+            if( !empty($data['table']) && !empty($data['route']) ) {
+                ResourceBuilder::build(
+                    $data['name'],
+                    $data['column']??[],
+                    $data['column_function'],
+                    $data['relation'],
+                    $data['hidden'],
+                    $data['hidden_relation']
+                );
 
-        // create list modul file
-        // FileCreator::create( 'modul', 'storage', '<?php return ' . var_export([$data['name'] => array_except($data,['column'])]+$file_modul, true) . ';' );
-        
-        // create list table
-        // FileCreator::create( 'table', 'storage', '<?php return ' . var_export([$data['table'] => $data['column']]+$file_table, true) . ';' );
-        
-        // save new file to files table
-        // if( !empty(config('laravelrestbuilder.file.created')) ) {
-        //     foreach (config('laravelrestbuilder.file.created') as $key => $value) {
-        //         \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
-        //             'name'  =>  $value,
-        //             'modul_id'    =>  $data['id'],
-        //         ]);             
-        //     }
-        // }
-        
-        return [
-            'data'  => \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']),
-            'files' => \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
-                        ->select([
-                            'id',
-                            'name'
-                        ])            
-                        ->where('modul_id',$data['id'])
-                        ->get()
-        ]+config('laravelrestbuilder.file');
+            }
+            
+            if( !empty($data['route']) ) {
+                RouteBuilder::build(
+                    $data['name'],
+                    $data['route'],
+                    $old_name
+                );
+            }
+            
+            // $file_modul = self::getArrayFile('modul', 'storage');
+            // $file_table = self::getArrayFile('table', 'storage');        
+
+            // create list modul file
+            // FileCreator::create( 'modul', 'storage', '<?php return ' . var_export([$data['name'] => array_except($data,['column'])]+$file_modul, true) . ';' );
+            
+            // create list table
+            // FileCreator::create( 'table', 'storage', '<?php return ' . var_export([$data['table'] => $data['column']]+$file_table, true) . ';' );
+            
+            // save new file to files table
+            // if( !empty(config('laravelrestbuilder.file.created')) ) {
+            //     foreach (config('laravelrestbuilder.file.created') as $key => $value) {
+            //         \KhanCode\LaravelRestBuilder\Models\ModulFiles::create([
+            //             'name'  =>  $value,
+            //             'modul_id'    =>  $data['id'],
+            //         ]);             
+            //     }
+            // }
+            
+            return [
+                'data'  => \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']),
+                'files' => \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
+                            ->select([
+                                'id',
+                                'name'
+                            ])            
+                            ->where('modul_id',$data['id'])
+                            ->get()
+            ]+config('laravelrestbuilder.file');
+        }
+        elseif( session('project')['lang'] == 'go'){
+
+            if( !empty($data['table']) && !empty($data['column']) ) {
+                GoModelBuilder::build(
+                    $data['name'],
+                    $data['table'],
+                    $data['key'],
+                    $data['increment_key'],
+                    $data['column'],
+                    $data['column_function'],
+                    $data['with_timestamp'],
+                    $data['with_authstamp'],
+                    $data['with_ipstamp'],
+                    $data['with_companystamp'],
+                    $data['custom_filter'],
+                    $data['custom_union'],
+                    $data['custom_union_model']??NULL,
+                    $data['custom_join'],
+                    $data['relation'],
+                    $data['hidden'],
+                    $data['with_company_restriction'],
+                    $data['with_delete_restriction'],
+                    $data['casts'],
+                    $data['with_authenticable'],
+                    $data['get_company_code'],
+                    $data['get_custom_creating'],
+                    $data['get_custom_updating'],
+                    $data['get_custom_deleting'],
+                    $data['hidden_relation']
+                );    
+            }
+
+            if( !empty($data['table']) && !empty($data['column']) ) {
+                GoRepositoryBuilder::build(
+                        $data['name'],
+                        $data['table']??NULL,
+                        $data['repositories']??[],
+                    );
+            }
+
+            if( !empty($data['table']) ) {
+                GoResourceBuilder::build(
+                    $data['name'],
+                    $data['column']??[],
+                    $data['column_function'],
+                    $data['relation'],
+                    $data['hidden'],
+                    $data['hidden_relation']
+                );
+            }
+
+            if( !empty($data['route']) ) {
+                GoControllerBuilder::build(
+                    $data['name'],
+                    $data['column']??[],
+                    $data['column_function'],
+                    $data['route'],
+                    $data['relation'],
+                    $data['hidden']
+                );
+            }
+
+        }
+
     }
 
     /**

@@ -52,6 +52,12 @@ class Projects extends BaseModel
                 // start list query option
                 ->whereNull("projects.deleted_at")
                 ->where('project_id',config('laravelrestbuilder.project_id'))
+                ->whereRaw('(
+                    select user_id from users_projects 
+                    where user_id = '.user()->id.'
+                    and project_id = projects.id
+                    limit 1
+                ) is not null')
                 // end list query option
                 ;
     }

@@ -1,0 +1,75 @@
+package resources
+
+import (
+	"olsera.com/kikota/app/models"
+)
+
+func {{Name}}Resource(data interface{}) interface{} {
+
+	switch data.(type) { 
+    default:
+        panic("Param {{Name}}Resource undefined")
+    case models.ReturnData:
+        data_result := data.(models.ReturnData)
+		data_result_processed := Multi{{Name}}Resource(data_result.Data)
+		
+		response := struct {
+			Data	interface{} `json:"data"`
+			Meta	interface{} `json:"meta"`
+			Status	int `json:"status"`
+			Error	int `json:"error"`
+		}{
+			Data:   data_result_processed,
+			Meta:   data_result.Metadata,
+			Status: 200,
+			Error:  0,
+		}
+		
+		return response
+    case map[string]interface{}:
+		data_result := data.(map[string]interface{})
+		data_result_processed := Single{{Name}}Resource(data_result)
+
+        response := struct {
+			Data	interface{} `json:"data"`
+			Status	int `json:"status"`
+			Error	int `json:"error"`
+		}{
+			Data:   data_result_processed,
+			Status: 200,
+			Error:  0,
+		}
+		
+		return response
+    }
+
+	
+}
+
+func Multi{{Name}}Resource(data interface{}) interface{} {
+
+	data_result := data.([]map[string]interface{})
+
+	arr_data := make([]interface{}, 0)
+
+	for _, value := range data_result {
+
+		// update return data
+		arr_data = append(arr_data, Single{{Name}}Resource(value))
+	}
+
+	return arr_data
+}
+
+func Single{{Name}}Resource(data interface{}) interface{} {
+
+	data_result := data.(map[string]interface{})
+
+	singleData := struct{
+		{{text_column}}
+	}{
+		{{text_column_attribute}}
+	}
+	
+	return singleData
+}

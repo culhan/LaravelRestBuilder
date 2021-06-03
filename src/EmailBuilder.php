@@ -274,7 +274,7 @@ class EmailBuilder
     {
         $data    = Emails::getAll()->where('id',$id)->first();
 
-        \URL::forceRootUrl('https://zenwelecommerce.builder.my.id/');   
+        \URL::forceRootUrl('https://zenwelapi.builder.my.id/');   
 
         if( empty($data) ) {
             $data = [

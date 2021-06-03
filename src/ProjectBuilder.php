@@ -168,7 +168,7 @@ class ProjectBuilder
         \DB::connection( $model->connection )->statement(\DB::raw('set @nomorbaris = 0;'));
         
         $data['data'] = $model
-            ->select('*')
+            ->userData()
             ->addSelect([
                 \DB::raw('@nomorbaris := @nomorbaris+1 as nomor_baris'),
             ])
@@ -185,9 +185,10 @@ class ProjectBuilder
             ->get();
         
         $data['draw'] = request('draw');
-        $data['recordsTotal'] = $model->count();
+        $data['recordsTotal'] = $model->userData()->count();
         $data['recordsFiltered'] = $model
             ->setSortableAndSearchableColumn(['name'=>'name'])
+            ->userData()
             ->search()            
             ->count();
 

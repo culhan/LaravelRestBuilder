@@ -1,0 +1,12 @@
+package controllers
+
+import (
+	"github.com/gin-gonic/gin"
+	"olsera.com/kikota/app/services"
+)
+
+// start list function
+// end list function
+
+// start custom code    
+// end custom code

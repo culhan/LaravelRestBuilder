@@ -1,0 +1,49 @@
+// File ini ini di  buat dengan Go Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
+package repositories
+
+import (
+    "olsera.com/kikota/helpers"
+	"olsera.com/kikota/app/models"
+    "olsera.com/kikota/exceptions"
+)
+
+func GetIndexData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) (models.ReturnData, interface{}) {
+
+	data_result, err := models.GetSearch({{name}}Model, data)
+	if err != nil {
+		return models.ReturnData{}, err
+	}
+
+	return data_result, nil
+}
+
+func GetSingleWhereData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
+
+	data_result := models.GetSingleWhereData(data, {{name}}Model)
+
+    if 0 == len(data_result) {
+		exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
+
+        return models.{{Name}}Model{}, exceptions.ErrorState
+	}
+
+	return data_result, nil
+}
+
+func GetMultiWhereData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
+
+	data_result := models.GetMultiWhereData(data, {{name}}Model)
+
+    if 0 == len(data_result) {
+		exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
+
+        return []models.{{Name}}Model{}, exceptions.ErrorState
+	}
+
+	return data_result, nil
+}
+
+// start custom code    
+// end custom code
