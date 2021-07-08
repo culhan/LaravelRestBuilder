@@ -1,15 +1,16 @@
 // File ini ini di  buat dengan Go Rest Builder,
 // Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
 // atau hubungi A'mal Sholihan
-package controllers
+package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"olsera.com/kikota/app/services"
+	"olsera.com/kikota/app/controllers"
 )
 
-// start list function
-// end list function
+func {{ModulName}}(r *gin.Engine) {
 
-// start custom code    
-// end custom code
+    // start list function
+    // end list function
+
+}

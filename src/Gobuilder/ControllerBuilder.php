@@ -53,6 +53,9 @@ class ControllerBuilder
                 $base_controller = str_replace('// end list function',$code_function,$base_controller);
             }            
         }
+
+        FileCreator::create( $controller_file_name, 'app/controllers', $base_controller );
+        return;
         dd($base_controller);
         $cols = '';
         $hidden = array_flip($hidden);        

@@ -110,12 +110,6 @@ class {{Name}} extends BaseModelV2
 	 */
 	public function scopeEncapsulatedQuery($query, $alias = 'myTable')
 	{
-		$queryOld = $this->getSql($query);
-		$thisClass = get_class($this);
-		$model = new $thisClass;
-		$model->setSortableAndSearchableColumn( $this->sortableAndSearchableColumn );
-		$model->setRelationColumn( $this->relationColumn );
-		$query = $model->setTable(\DB::raw('('.$queryOld.') as '.$alias))->whereRaw("1=1");
 		return $query;
 	}
 

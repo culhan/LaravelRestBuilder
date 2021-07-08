@@ -12,11 +12,16 @@ type {{Name}}Model struct {
     {{column}}
 }
 
-func (s {{Name}}Model) GetSelect(request interface{}) reflect.Value {
-    
-    data := request.(map[string]interface{})
-    _ = data
+func (s {{Name}}Model) TableName() string {
+	return "{{table}}"
+}
 
+func (s {{Name}}Model) ModulName() string {
+	return "{{name}}"
+}
+
+func (s {{Name}}Model) getReflectSelect(data interface{}) reflect.Value {
+    data = data.(map[string]interface{})
 	selectColumn := struct {
 		{{select_column}}
 	}{
@@ -26,21 +31,39 @@ func (s {{Name}}Model) GetSelect(request interface{}) reflect.Value {
 	return reflect.ValueOf(&selectColumn)
 }
 
-func (s {{Name}}Model) TableName() string {
-	return "{{table}}"
+func (s {{Name}}Model) getSelect(data interface{}) func (db *gorm.DB) *gorm.DB {
+  return func (db *gorm.DB) *gorm.DB {
+	db = db.Select(BuildSelect(s.getReflectSelect(data)))
+    return db
+  }
 }
 
-func (s {{Name}}Model) ModulName() string {
-	return "{{name}}"
+func (s {{Name}}Model) getAll(data interface{}) func (db *gorm.DB) *gorm.DB {
+  return func (db *gorm.DB) *gorm.DB {
+    data = data.(map[string]interface{})
+    return db.Scopes( s.getSelect(data), s.getJoin(data), s.getUnion(data), s.getOptions(data) )
+  }
 }
 
-func (s {{Name}}Model) ModelOptions(db *gorm.DB, request interface{}) *gorm.DB {
-    
-    data := request.(map[string]interface{})
-    _ = data
-	
-    // start list query option
-    // end list query option
+func (s {{Name}}Model) getJoin(data interface{}) func (db *gorm.DB) *gorm.DB {
+  return func (db *gorm.DB) *gorm.DB {
+    data = data.(map[string]interface{})
+    return db
+  }
+}
+
+func (s {{Name}}Model) getUnion(data interface{}) func (db *gorm.DB) *gorm.DB {
+  return func (db *gorm.DB) *gorm.DB {
+    data = data.(map[string]interface{})
+    return db
+  }
+}
+
+func (s {{Name}}Model) getOptions(data interface{}) func (db *gorm.DB) *gorm.DB {
+  return func (db *gorm.DB) *gorm.DB {
+    data = data.(map[string]interface{})
+    return db
+  }
 }
 
 func (s *{{Name}}Model) BeforeCreate(tx *gorm.DB) (err error) {

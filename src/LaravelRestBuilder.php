@@ -12,6 +12,8 @@ use KhanCode\LaravelRestBuilder\Gobuilder\ModelBuilder as GoModelBuilder;
 use KhanCode\LaravelRestBuilder\Gobuilder\RepositoryBuilder as GoRepositoryBuilder;
 use KhanCode\LaravelRestBuilder\Gobuilder\ResourceBuilder as GoResourceBuilder;
 use KhanCode\LaravelRestBuilder\Gobuilder\ControllerBuilder as GoControllerBuilder;
+use KhanCode\LaravelRestBuilder\Gobuilder\ServiceBuilder as GoServiceBuilder;
+use KhanCode\LaravelRestBuilder\Gobuilder\RouteBuilder as GoRouteBuilder;
 use KhanCode\LaravelBaseRest\ValidationException;
 
 class LaravelRestBuilder
@@ -538,8 +540,7 @@ class LaravelRestBuilder
                             ->where('modul_id',$data['id'])
                             ->get()
             ]+config('laravelrestbuilder.file');
-        }
-        elseif( session('project')['lang'] == 'go'){
+        }elseif( session('project')['lang'] == 'go'){
 
             if( !empty($data['table']) && !empty($data['column']) ) {
                 GoModelBuilder::build(
@@ -599,8 +600,33 @@ class LaravelRestBuilder
                     $data['relation'],
                     $data['hidden']
                 );
+
+                GoServiceBuilder::build(
+                    $data['name'],
+                    $data['column']??[],
+                    $data['column_function'],
+                    $data['route'],
+                    $data['relation'],
+                    $data['hidden']
+                );
+
+                GoRouteBuilder::build(
+                    $data['name'],
+                    $data['route'],
+                    $old_name
+                );
             }
 
+            return [
+                'data'  => \KhanCode\LaravelRestBuilder\Models\Moduls::find($data['id']),
+                'files' => \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
+                            ->select([
+                                'id',
+                                'name'
+                            ])            
+                            ->where('modul_id',$data['id'])
+                            ->get()
+            ]+config('laravelrestbuilder.file');
         }
 
     }

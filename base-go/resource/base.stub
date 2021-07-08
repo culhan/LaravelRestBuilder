@@ -1,3 +1,6 @@
+// File ini ini di  buat dengan Go Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
 package resources
 
 import (

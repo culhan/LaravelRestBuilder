@@ -1,0 +1,10 @@
+func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
+	this_model := models.{{ModulName}}Model{}
+	returnData, err := repositories.GetIndexData{{ModulName}}(data, this_model) 
+	if err != nil {
+		return nil, err
+	}
+	
+	return resources.{{ModulName}}Resource(returnData), nil
+}
+// end list function

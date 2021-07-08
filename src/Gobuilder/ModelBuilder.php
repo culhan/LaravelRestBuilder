@@ -38,6 +38,7 @@ class ModelBuilder
     static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation )
     {
         $name = $model_file_name = UCWORDS($name_model);
+        $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
         $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH);
 
         $list_type_var = [
@@ -83,7 +84,7 @@ class ModelBuilder
             '{{select_column_attribute}}',
         ],[
             $name,
-            $name_model,
+            $name_spaces,
             $text_column,
             $table,
             $text_select_column,
