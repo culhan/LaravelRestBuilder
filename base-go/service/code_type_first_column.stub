@@ -1,0 +1,7 @@
+idt, err_int := strconv.Atoi(id)
+	if( err_int != nil ){
+		exceptions.ValidateException(7, `url param id must be a number`)
+		return nil, err_int
+	}
+
+    this_model.Id = idt

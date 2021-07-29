@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class ServiceBuilder
 {
-
     /**
      * service builder function
      *
@@ -18,6 +17,7 @@ class ServiceBuilder
      */
     static function build( $name, $column, $column_function, $route, $relation, $hidden )
     {
+        $class = [];
         $Name = UCWORDS($name);
         $service_file_name = 'S_'.$Name;
         $base_service = file_get_contents(__DIR__.'/../../base-go/service/base.stub', FILE_USE_INCLUDE_PATH);
@@ -49,10 +49,25 @@ class ServiceBuilder
                     $Name,
                     ucwords($value['name']),
                 ],$code_function);
+
+                if( $key != count($route)-1 ){
+                    $code_function = str_replace('// end list function',"\n" . '// end list function',$code_function);
+                }
                 
                 $base_service = str_replace('// end list function',$code_function,$base_service);
             }            
         }
+
+        if( array_get($column, "0.type", "integer") == "integer" ){
+            $class["strconv"] = "strconv";
+            $class["olsera.com/kikota/exceptions"] = "olsera.com/kikota/exceptions";
+            $code_type_first_column = file_get_contents(__DIR__.'/../../base-go/service/code_type_first_column.stub', FILE_USE_INCLUDE_PATH);
+            $base_service = str_replace('{{code_type_first_column}}', $code_type_first_column,$base_service);
+        }else{
+            $base_service = str_replace('{{code_type_first_column}}',"this_model.Id = id",$base_service);
+        }
+
+        $base_service = self::generateClass($base_service, $class);
         
         FileCreator::create( $service_file_name, 'app/services', $base_service );
         return;
@@ -89,6 +104,24 @@ class ServiceBuilder
         }
         
         FileCreator::create( $service_file_name, 'app/Http/services/Api', $base_service );
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $base
+     * @param [type] $class
+     * @return void
+     */
+    public static function generateClass($base, $class)
+    {
+        foreach ($class as $key => $value) {
+            $base = str_replace('{{class}}','"' . $value . '"' . "\n" . "{{class}}",$base);
+        }
+
+        $base = str_replace('{{class}}', "",$base);
+
+        return $base;
     }
 
 }

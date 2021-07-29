@@ -4,10 +4,10 @@
 package services
 
 import (
-	// "olsera.com/kikota/exceptions"
 	"olsera.com/kikota/app/models"
 	"olsera.com/kikota/app/repositories"
 	"olsera.com/kikota/app/resources"
+    {{class}}
 )
 
 // start list function

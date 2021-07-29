@@ -49,6 +49,10 @@ class ControllerBuilder
                     $Name,
                     ucwords($value['name']),
                 ],$code_function);
+
+                if( $key != count($route)-1 ){
+                    $code_function = str_replace('// end list function',"\n" . '// end list function',$code_function);
+                }
                 
                 $base_controller = str_replace('// end list function',$code_function,$base_controller);
             }            

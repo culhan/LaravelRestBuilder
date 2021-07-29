@@ -287,6 +287,6 @@ class EmailBuilder
         $finder = new \Illuminate\View\FileViewFinder(app()['files'], array(base_path()."/".$folder."/"));
         view()->setFinder($finder);
         
-        return view('emails.'.$data->name);
+        return view('emails.'.lcfirst($data->name));
     }
 }
