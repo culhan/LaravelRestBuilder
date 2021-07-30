@@ -48,13 +48,13 @@
 
             function deleteModal(ele){
                 $( "#deleteModal" ).modal('show')
-                $( "#confirm_delete" ).attr('href',$(ele).attr('href'))
+                $( "#confirm_delete" ).attr('attr-href',$(ele).attr('href'))
             }
 
             function confirm_delete(ele) {
                 $.ajax({
                     type: 'DELETE',
-                    url: $(ele).attr('href'),
+                    url: $(ele).attr('attr-href'),
                     dataType: 'json',
                     success: function(json) {                        
                         list_table.ajax.reload( null, false )
