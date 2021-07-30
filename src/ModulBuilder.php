@@ -36,8 +36,8 @@ class ModulBuilder
         $route_file = $dataModul->name;
         
         $system_route = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/routes/api.php', FILE_USE_INCLUDE_PATH);
-        $system_route = str_replace("\r\n\r\n"."include '".$route_file.".stub';",'',$system_route);        
-        $system_route = str_replace("\n\n"."include '".$route_file.".stub';",'',$system_route);                                
+        $system_route = str_replace("\r\n\r\n"."include '".$route_file.".php';",'',$system_route);        
+        $system_route = str_replace("\n\n"."include '".$route_file.".php';",'',$system_route);                                
         FileCreator::create( 'api', config('laravelrestbuilder.copy_to').'/routes', $system_route, 'route', false );
 
         // delete modul
