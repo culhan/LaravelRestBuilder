@@ -235,7 +235,7 @@
         aceGenerate({ name_cols : 'variable_sementara[code]', mode : 'php_inline'});
         
         // untuk data view
-        aceGenerate({ name_cols : 'view', maxLines : '100', minLines : '30', default_code : {!! json_encode(Arr::get($data, 'view', '// blade code')) !!}, mode : 'php_laravel_blade'});
+        aceGenerate({ name_cols : 'view', maxLines : '30', minLines : '30', default_code : {!! json_encode(Arr::get($data, 'view', '// blade code')) !!}, mode : 'php_laravel_blade'});
         
         // untuk data code
         <?php 

@@ -20,7 +20,7 @@ class CreateEmailsTable extends Migration {
 			$table->text('parameter');
 			$table->text('variable');
 			$table->text('code');
-			$table->text('view');
+			$table->longText('view');
 			$table->softDeletes();
 			$table->string('created_by')
 				->nullable(false);
