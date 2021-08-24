@@ -1037,7 +1037,6 @@
     <script>   
         var dataModels = <?php echo json_encode($models)?>;
         var select2_data = <?=json_encode($select2_data)?>;
-        var project_lang = '<?=(session('project')['lang']=='go'?'golang':'php')?>';
         
         var langTools = ace.require("ace/ext/language_tools");
         var staticWordCompleter = {
@@ -1315,14 +1314,14 @@
                     aceGenerate({ name_cols : name_route + "[custom_code_before]" });
                     aceGenerate({ name_cols : name_route + "[custom_code_after]" });
                     
-                    // eval("code_editor_custom_code_before_" + i + "= ace.edit('route_custom_code_before_'+i)")
-                    // eval("code_editor_custom_code_before_" + i + ".setOptions({mode: \"ace/mode/phpinline\", maxLines: 30, minLines: 5, wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
-                    // eval("code_editor_custom_code_before_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
-                    // eval("code_editor_custom_code_before_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_before_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_before]\"]' ).val(val_code);})")
+                    // eval("code_editor_custom_code_before_= ace.edit('tab_' + name_route + '[custom_code_before]')")
+                    // eval("code_editor_custom_code_before_.setOptions({mode: \"ace/mode/phpinline\", maxLines: 30, minLines: 5, wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+                    // eval("code_editor_custom_code_before_.getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+                    // eval("code_editor_custom_code_before_.getSession().on('change', function(e) {val_code = code_editor_custom_code_before_.getSession().getValue();$( '[name=\""+name_route+"[custom_code_before]\"]' ).val(val_code);})")
                                         
-                    // eval("code_editor_custom_code_after_" + i + "= ace.edit('route_custom_code_after_'+i, {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
-                    // eval("code_editor_custom_code_after_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
-                    // eval("code_editor_custom_code_after_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_after_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_after]\"]' ).val(val_code);})")
+                    // eval("code_editor_custom_code_after_= ace.edit('tab_' + name_route + '[custom_code_after]', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+                    // eval("code_editor_custom_code_after_.getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+                    // eval("code_editor_custom_code_after_.getSession().on('change', function(e) {val_code = code_editor_custom_code_after_.getSession().getValue();$( '[name=\""+name_route+"[custom_code_after]\"]' ).val(val_code);})")
                 }                
             }
 

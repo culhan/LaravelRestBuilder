@@ -429,11 +429,13 @@ class LaravelRestBuilder
         config(['laravelrestbuilder.modul'   =>  $data]);
 
         $class = [];
-        foreach ($data['classtab'] as $key_class => $value_class) {
-            if( empty($class[$value_class['modul']]) ) {
-                $class[$value_class['modul']] = [];
+        if( !empty($data['classtab']) ){
+            foreach ($data['classtab'] as $key_class => $value_class) {
+                if( empty($class[$value_class['modul']]) ) {
+                    $class[$value_class['modul']] = [];
+                }
+                $class[$value_class['modul']][] = $value_class['class_path'];
             }
-            $class[$value_class['modul']][] = $value_class['class_path'];
         }
 
         if( session('project')['lang'] == 'php'){
