@@ -34,14 +34,17 @@
                 <li class="nav-item">
                     <a class="nav-link" id="relasi-tab" data-toggle="tab" href="#relasi" role="tab" aria-controls="relasi" aria-selected="false">Relasi Tabel</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="system-class" data-toggle="tab" href="#systemclass" role="tab" aria-controls="repositoryclass" aria-selected="false">Class System</a>
+                <li class="nav-item d-none">
+                    <a class="nav-link" id="system-class" data-toggle="tab" href="#systemclass" role="tab" aria-controls="systemclass" aria-selected="false">Class System</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="route-tab" data-toggle="tab" href="#route" role="tab" aria-controls="route" aria-selected="false">System Modul</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item d-none">
                     <a class="nav-link" id="repository-class" data-toggle="tab" href="#repositoryclass" role="tab" aria-controls="repositoryclass" aria-selected="false">Class Repository</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="classtab-nav" data-toggle="tab" href="#classtab" role="tab" aria-controls="classtab" aria-selected="false">Class</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="repository-tab" data-toggle="tab" href="#repository" role="tab" aria-controls="repository" aria-selected="false">Repository</a>
@@ -814,6 +817,52 @@
 
                     </figure>
                 </div>
+                <div class="tab-pane fade" id="classtab" role="tabpanel" aria-labelledby="classtab-tab">
+                    <!-- route -->
+                    <figure class="highlight">                        
+
+                        <div class="row ">
+                            <label for="column1" class="col-sm-12">
+                                <b>Class</b>                                
+                            </label>
+                        </div>
+                        <div class="container ">
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Modul </label>
+                                </div>
+                                <div class="col-sm">
+                                    <select class="form-control" onchange="ubah_type_kolom_modul_table(this)" name="classtab_sementara[modul]">
+                                        <option value="controller">Controller</option>
+                                        <option value="model">Model</option>
+                                        <option value="service" selected="selected">Service</option>
+                                        <option value="repository">Repository</option>
+                                    </select>
+                                </div>
+                            </div>                            
+                            <div class="row mb-3">
+                                <div class="col-sm-2" style="padding-top:5px;">
+                                    <label>Path Class</label>
+                                </div>
+                                <div class="col-sm">
+                                    <textarea name="classtab_sementara[class_path]" class="d-none"></textarea>
+                                    <textarea id="tab_classtab_sementara[class_path]"></textarea>
+                                    <pre>php code untuk class</pre>
+                                </div>
+                            </div>                                         
+                        </div>
+                        <div class="row container mb-4">
+                            <input class="btn btn-primary" id="tambah_classtab" type="button" value="Tambah column function" height="10px" onclick="tambah_list_classtab_table()">
+                            <input class="btn btn-primary d-none" id="edit_classtab" type="button" value="Edit column function" height="10px" onclick="edit_list_classtab_table()">
+                            <input class="ml-1 btn btn-primary d-none" id="edit_simpan_classtab" type="button" value="Ubah Kolom Fungsi & Simpan" height="10px" onclick="edit_simpan_classtab_table()">
+                            <input class="ml-1 btn btn-danger" type="button" value="reset" height="10px" onclick="reset_classtab_sementara()">
+                        </div>
+
+                        <listclasstab_table>
+                        </listclasstab_table>
+
+                    </figure>
+                </div>
                 <div class="tab-pane fade" id="repository" role="tabpanel" aria-labelledby="repository-tab">
                     <!-- repository -->
                     <figure class="highlight">
@@ -980,6 +1029,9 @@
                 if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
                     $models[] = $namespace . preg_replace('/.php$/', '', $file);
             }
+        }else if( session('project')['lang'] == 'go' ) {
+            $models[] = "strconv";
+            $models[] = "olsera.com/kikota/exceptions";
         }
     ?>
     <script>   
@@ -1053,6 +1105,8 @@
         dataOld = {}
 
         function change_route_process(ele,i) {
+
+            $("#modul_name").val()
             
             $( '.custom_data_'+i ).find('textarea').each(function(e,k){
                 if(typeof( $(k).attr('name') ) != 'undefined' && $(k).val() != ""){
@@ -1093,7 +1147,7 @@
                 $( ".route_fungsi_relasi + div" ).addClass('d-none')
             }
 
-            if( ele.value == 'update_data' || ele.value == 'delete_data' ) {
+            if( ele.value == 'update_data' || ele.value == 'delete_data' || ele.value == 'single_data' ) {
                 $('.route_custom_check_single_data').removeClass('d-none')
                 $('.route_parameter_custom_check_single_data').removeClass('d-none')
             }else{
@@ -1101,18 +1155,48 @@
                 $('.route_parameter_custom_check_single_data').addClass('d-none')
             }
 
+            single_data_code = ''
+            if( project_lang == 'php' ){
+                if( ele.value == 'single_data' ){
+                    single_data_code = '$single_data = $this->getSingleData(1);\n' 
+                }
+            }else if ( project_lang == 'golang' ){
+                if( ele.value == 'single_data' ){
+                    single_data_code = ''
+                    single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
+                    single_data_code += 'if( err_int != nil ){\n'
+                        single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                        single_data_code += '\treturn nil, err_int\n'
+                    single_data_code += '}\n'
+                    single_data_code += 'this_model.Id = idt\n\n'
+                    single_data_code += 'singleData, err := repositories.GetSingleWhereData'+camelize( $("#modul_name").val() )+'(data, this_model)'
+
+                    fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                }else if( ele.value == 'update_data' ){
+                    single_data_code = ''
+                    single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
+                    single_data_code += 'if( err_int != nil ){\n'
+                        single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                        single_data_code += '\treturn nil, err_int\n'
+                    single_data_code += '}\n'
+                    single_data_code += 'singleData:= models.DB.Model(&this_model).Where("id = ?", idt)'
+
+                    fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                }
+            }
+
             if(ele.value == 'custom_data') {
                 html_code_php = 
                     '<div class="mt-3 custom_data_'+i+' ">'+
                         '<textarea name="'+name_route+'[custom_function]" class="d-none">'+
                             '\\DB::beginTransaction();'+"\n"+
-                            '$single_data = $this->getSingleData(1);'+"\n"+
+                            single_data_code+
                             '\\DB::commit();'+"\n"+
                             'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+
                         '</textarea>'+
                         '<textarea id="route_text_'+i+'">'+
                             '\\DB::beginTransaction();'+"\n"+
-                            '$single_data = $this->getSingleData(1);'+"\n"+
+                            single_data_code+
                             '\\DB::commit();'+"\n"+
                             'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+                            
                         '</textarea>'+
@@ -1133,7 +1217,7 @@
                         '<textarea name="'+name_route+'[system_function]" class="d-none">'+
                             '// locking function'+"\n"+
                             '\\DB::beginTransaction();'+"\n"+
-                            '$single_data = $this->getSingleData(1);'+"\n"+
+                            single_data_code+
                             '\\DB::commit();'+"\n"+
                             '// unlocking function'+"\n"+
                             'return true;'+"\n"+
@@ -1141,7 +1225,7 @@
                         '<textarea id="route_text_'+i+'">'+
                             '// locking function'+"\n"+
                             '\\DB::beginTransaction();'+"\n"+
-                            '$single_data = $this->getSingleData(1);'+"\n"+
+                            single_data_code+
                             '\\DB::commit();'+"\n"+
                             '// unlocking function'+"\n"+
                             'return true;'+"\n"+                            
@@ -1198,7 +1282,6 @@
                     isi_before = '$keyFirstOrCreate = [\'key\' => \'value\'];'+"\n"+isi_before                    
                 }  
 
-
                 html_code_php = 
                     '<div class="row mb-3 custom_data_'+i+'">'+
                         '<div class="col-sm-3" style="padding-top:5px;">'+
@@ -1206,9 +1289,9 @@
                         '</div>'+
                     '</div>'+
                     '<div class="mt-3 custom_data_'+i+' custom_code_before_'+i+' ">'+                        
-                        '<textarea name="'+name_route+'[custom_code_before]" class="d-none" data-editor="php" rows="10">'+isi_before+
+                        '<textarea name="'+name_route+'[custom_code_before]" class="d-none" rows="10">'+isi_before+
                         '</textarea>'+
-                        '<textarea id="route_custom_code_before_'+i+'">'+isi_before+
+                        '<textarea id="tab_'+name_route+'[custom_code_before]">'+isi_before+
                         '</textarea>'+
                     '</div>';
 
@@ -1219,24 +1302,27 @@
                         '</div>'+
                     '</div>'+
                     '<div class="mt-3 custom_data_'+i+' custom_code_after_'+i+' ">'+                        
-                        '<textarea name="'+name_route+'[custom_code_after]" class="d-none" data-editor="php" rows="10">'+isi_after+
+                        '<textarea name="'+name_route+'[custom_code_after]" class="d-none" rows="10">'+isi_after+
                         '</textarea>'+
-                        '<textarea id="route_custom_code_after_'+i+'">'+isi_after+
+                        '<textarea id="tab_'+name_route+'[custom_code_after]">'+isi_after+
                         '</textarea>'+
                     '</div>';
                 
                 $( '.custom_data_'+i ).remove()
                 toAppend.append(html_code_php)
                                 
-                if(i == 'route_sementara') {                    
-                    eval("code_editor_custom_code_before_" + i + "= ace.edit('route_custom_code_before_'+i)")
-                    eval("code_editor_custom_code_before_" + i + ".setOptions({mode: \"ace/mode/phpinline\", maxLines: 30, minLines: 5, wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
-                    eval("code_editor_custom_code_before_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
-                    eval("code_editor_custom_code_before_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_before_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_before]\"]' ).val(val_code);})")
+                if(i == 'route_sementara') {
+                    aceGenerate({ name_cols : name_route + "[custom_code_before]" });
+                    aceGenerate({ name_cols : name_route + "[custom_code_after]" });
+                    
+                    // eval("code_editor_custom_code_before_" + i + "= ace.edit('route_custom_code_before_'+i)")
+                    // eval("code_editor_custom_code_before_" + i + ".setOptions({mode: \"ace/mode/phpinline\", maxLines: 30, minLines: 5, wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+                    // eval("code_editor_custom_code_before_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+                    // eval("code_editor_custom_code_before_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_before_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_before]\"]' ).val(val_code);})")
                                         
-                    eval("code_editor_custom_code_after_" + i + "= ace.edit('route_custom_code_after_'+i, {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
-                    eval("code_editor_custom_code_after_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
-                    eval("code_editor_custom_code_after_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_after_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_after]\"]' ).val(val_code);})")
+                    // eval("code_editor_custom_code_after_" + i + "= ace.edit('route_custom_code_after_'+i, {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+                    // eval("code_editor_custom_code_after_" + i + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+                    // eval("code_editor_custom_code_after_" + i + ".getSession().on('change', function(e) {val_code = code_editor_custom_code_after_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_code_after]\"]' ).val(val_code);})")
                 }                
             }
 
@@ -2096,7 +2182,7 @@
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"route_sementara[advanced_validation_code]\"]' ).val(val_code);})")
             
-            aceGenerate({ name_cols : 'route_sementara[custom_check_single_data]', mode : 'php_inline', default_code : '$single_data = $this->getSingleData($id);'});
+            aceGenerate({ name_cols : 'route_sementara[custom_check_single_data]', default_code : single_data_code});
 
             @if (!empty($data['id']) )
                 ambil_data_modul({{$data['id']}})
@@ -2505,6 +2591,7 @@
             storage_parameter.update('casts',objModul['casts'])
             storage_parameter.update('repositories',objModul['repositories'])
             storage_parameter.update('files',data['files'])
+            storage_parameter.update('classtab',objModul['classtab'])
 
             build_route_tabel(dataDetail['route'])
             build_relation_tabel(dataDetail['relation'])
@@ -2516,6 +2603,7 @@
             build_list_cast_tabel(objModul['casts'])
             build_list_repository_tabel(objModul['repositories'])            
             build_list_files_tabel(data['files'])
+            build_list_classtab_tabel(objModul['classtab'])
         }
         
         function build_tabel_option_by_column(data) {
@@ -2840,4 +2928,5 @@
     <script src="<?php echo URL::to('/vendor/khancode/js/list-repository-class.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-repositories.js');?>"></script>
     <script src="<?php echo URL::to('/vendor/khancode/js/list-files.js');?>"></script>
+    <script src="<?php echo URL::to('/vendor/khancode/js/list-classtab.js');?>"></script>
 @endsection

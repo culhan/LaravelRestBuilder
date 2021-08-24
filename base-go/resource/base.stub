@@ -5,6 +5,7 @@ package resources
 
 import (
 	"olsera.com/kikota/app/models"
+    {{class}}
 )
 
 func {{Name}}Resource(data interface{}) interface{} {
@@ -67,6 +68,8 @@ func Multi{{Name}}Resource(data interface{}) interface{} {
 func Single{{Name}}Resource(data interface{}) interface{} {
 
 	data_result := data.(map[string]interface{})
+
+    {{mutation_data}}
 
 	singleData := struct{
 		{{text_column}}

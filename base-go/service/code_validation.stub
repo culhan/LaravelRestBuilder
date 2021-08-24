@@ -1,0 +1,13 @@
+// start validation 
+data_json, _ := json.Marshal(data)
+data_byte := []byte(string(data_json))
+
+type {{ModulName}}{{Name}}Validation struct {
+    {{param_validate}}
+}
+errorState := models.IsValid(data_byte, new({{ModulName}}{{Name}}Validation))
+
+if( errorState != nil ){
+    return nil, errorState
+}
+// finish validation 

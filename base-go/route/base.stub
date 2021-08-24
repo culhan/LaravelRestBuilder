@@ -5,7 +5,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"olsera.com/kikota/app/controllers"
+    {{class}}
 )
 
 func {{ModulName}}(r *gin.Engine) {

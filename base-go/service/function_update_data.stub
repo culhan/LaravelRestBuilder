@@ -1,0 +1,25 @@
+func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
+    {{code_validation}}
+    
+    this_model := models.{{ModulName}}Model{}    
+	{{code_sanitation}}
+    {{custom_check_single_data}}
+
+    _, err := repositories.GetSingleWhereData{{ModulName}}( map[string]interface{}{}, models.{{ModulName}}Model{Id:idt}) 
+	if err != nil {
+		return nil, err
+	}
+
+	resultUpdate := singleData.Updates(&this_model)
+
+    if( resultUpdate.Error != nil ){
+		return nil, resultUpdate.Error
+    }
+	
+	singleData.Find(&this_model)
+
+	returnData, _ := repositories.GetSingleWhereData{{ModulName}}( map[string]interface{}{}, this_model) 
+	    
+	return resources.{{ModulName}}Resource(returnData), nil
+}
+// end list function

@@ -1,0 +1,5 @@
+if _, ok := data["{{parameter_name}}"]; ok {
+    toRelation := data["{{parameter_name}}"].(map[string]interface {})
+    toRelation["{{column_foreign_key}}"] = this_model.Id
+    Service{{function_name}}(toRelation)
+}

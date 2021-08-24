@@ -428,6 +428,14 @@ class LaravelRestBuilder
 
         config(['laravelrestbuilder.modul'   =>  $data]);
 
+        $class = [];
+        foreach ($data['classtab'] as $key_class => $value_class) {
+            if( empty($class[$value_class['modul']]) ) {
+                $class[$value_class['modul']] = [];
+            }
+            $class[$value_class['modul']][] = $value_class['class_path'];
+        }
+
         if( session('project')['lang'] == 'php'){
             if( !empty($data['table']) && !empty($data['column']) ) {
                 TableBuilder::buildMigration();
@@ -587,7 +595,8 @@ class LaravelRestBuilder
                     $data['column_function'],
                     $data['relation'],
                     $data['hidden'],
-                    $data['hidden_relation']
+                    $data['hidden_relation'],
+                    $class['resource']??[],
                 );
             }
 
@@ -607,13 +616,15 @@ class LaravelRestBuilder
                     $data['column_function'],
                     $data['route'],
                     $data['relation'],
-                    $data['hidden']
+                    $data['hidden'],
+                    $class['service']??[],
                 );
 
                 GoRouteBuilder::build(
                     $data['name'],
                     $data['route'],
-                    $old_name
+                    $old_name,
+                    $class['controller']??[],
                 );
             }
 

@@ -1,0 +1,17 @@
+func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
+    {{code_validation}}
+    
+    this_model := models.{{ModulName}}Model{}    
+	{{code_sanitation}}
+	models.DB.Create(&this_model)
+    
+    {{relation_function}}
+
+	returnData, err := repositories.GetSingleWhereData{{ModulName}}( map[string]interface{}{}, models.{{ModulName}}Model{Id:this_model.Id}) 
+	if err != nil {
+		return nil, err
+	}
+	    
+	return resources.{{ModulName}}Resource(returnData), nil
+}
+// end list function

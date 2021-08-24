@@ -186,7 +186,7 @@
 
         build_tabel(data_index, storage_parameter.get(data_index));
 
-        aceGenerate({ name_cols : 'parameter_sementara[code]', mode : 'php_inline'});
+        aceGenerate({ name_cols : 'parameter_sementara[code]'});
 
         function after_build_table_parameter(data){
             if( typeof camelize === 'function') $('[name="name"]').keyup()
@@ -214,7 +214,7 @@
 
         build_tabel(data_index, storage_parameter.get(data_index));
 
-        aceGenerate({ name_cols : 'variable_sementara[code]', mode : 'php_inline'});
+        aceGenerate({ name_cols : 'variable_sementara[code]'});
 
         // untuk data code
         <?php 
@@ -230,8 +230,8 @@
                 $after_code = $code->after_code;
             }
         ?>
-        aceGenerate({ name_cols : 'before_code', maxLines : '100', minLines : '20', default_code : {!! json_encode($before_code) !!}, mode : 'php_inline'});
-        aceGenerate({ name_cols : 'after_code', maxLines : '100', minLines : '20', default_code : {!! json_encode($after_code) !!}, mode : 'php_inline'});
+        aceGenerate({ name_cols : 'before_code', maxLines : '100', minLines : '20', default_code : {!! json_encode($before_code) !!} });
+        aceGenerate({ name_cols : 'after_code', maxLines : '100', minLines : '20', default_code : {!! json_encode($after_code) !!} });
 
     </script>
 

@@ -1,0 +1,13 @@
+(
+    select IFNULL(group_concat(distinct
+    JSON_OBJECT(
+{{rel_column}}
+        ) {{custom_order}} 
+    ),'{}') 
+    from {{table}}
+    -- start list has one join option
+    -- end list has one join option
+    where {{column_foreign_key}} = {{column_relation_key}}
+    -- start list has one query option
+    -- end list has one query option
+)

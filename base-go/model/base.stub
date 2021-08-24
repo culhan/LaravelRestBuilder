@@ -87,9 +87,5 @@ func (s *{{Name}}Model) BeforeDelete(tx *gorm.DB) (err error) {
   	return
 }
 
-func (s {{Name}}Model) Validate() interface{} {
-    return nil
-}
-
 // start custom code    
 // end custom code

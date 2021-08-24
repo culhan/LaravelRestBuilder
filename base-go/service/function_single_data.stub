@@ -1,8 +1,8 @@
 func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
+    {{code_validation}}
+    
     this_model := models.{{ModulName}}Model{}
-    {{code_type_first_column}}
-
-	returnData, err := repositories.GetSingleWhereDataBusinessType(data, this_model) 
+    {{custom_check_single_data}}
 	if err != nil {
 		return nil, err
 	}

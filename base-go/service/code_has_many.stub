@@ -1,0 +1,7 @@
+if _, ok := data["{{parameter_name}}"]; ok {
+    for _, value := range data["{{parameter_name}}"].([]interface{}) {
+        toRelation := value.(map[string]interface {})
+        toRelation["{{column_foreign_key}}"] = this_model.Id
+        Service{{function_name}}(toRelation)
+    }
+}

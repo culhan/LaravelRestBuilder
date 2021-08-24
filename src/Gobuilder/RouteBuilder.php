@@ -15,7 +15,7 @@ class RouteBuilder
      * @param [type] $old_name
      * @return void
      */
-    static function build( $name, $route, $old_name )
+    static function build( $name, $route, $old_name, $class )
     {
         $Name = UCWORDS($name);
         $route_file = $name;        
@@ -27,6 +27,7 @@ class RouteBuilder
         foreach ($route as $key => $value) {
             if( empty($value['tanpa_route']) ) {
                 $value['tanpa_route'] = '0';
+                $class["olsera.com/kikota/app/controllers"] = "olsera.com/kikota/app/controllers";
             }
             if($value['process'] == 'system_data' || $value['tanpa_route'] == '1') {
                 continue;
@@ -83,6 +84,8 @@ class RouteBuilder
         }
 
         $base_route = str_replace("{{ModulName}}", $Name, $base_route);
+
+        $base_route = ServiceBuilder::generateClass($base_route, $class);
 
         FileCreator::create( $Name, 'routes', $base_route, 'route', false );
 

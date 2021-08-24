@@ -16,7 +16,7 @@ class ResourceBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name, $column, $column_function, $relation, $hidden, $hidden_relation )
+    static function build( $name, $column, $column_function, $relation, $hidden, $hidden_relation, $class )
     {
         $Name = ucwords($name);
         $resource_file = $Name.'Resource';
@@ -48,24 +48,48 @@ class ResourceBuilder
                 $text_column .= "\n\t\t";
                 $text_column_attribute .= "\n\t\t";
             }
-            $text_column .= ucfirst($value['name'])."\t".$list_type_var[$value['type']]."\t".'`json:"'.$value['name'].'"`';
-            
-            if( $list_type_var[$value['type']] == 'int' ){
-                $text_column_attribute .= ucfirst($value['name']).":\tint(data_result[\"".$value['name']."\"].(int32)),";
-            }else if ( $list_type_var[$value['type']] == 'string' ){
-                $text_column_attribute .= ucfirst($value['name']).":\tdata_result[\"".$value['name']."\"].(string),";
+            $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
+            $text_column_attribute .= ucfirst($value['name']).":\tdata_result[\"".$value['name']."\"].(interface{}),";
+        }
+
+        $mutation_data_code = '';
+        foreach ($relation as $key => $value) {
+
+            $class["encoding/json"] = "encoding/json";
+            if( $mutation_data_code != '' ){
+                $mutation_data_code .= "\t";
             }
+            
+            $mutation_data_code .= file_get_contents(__DIR__.'/../../base-go/resource/mutation_code_'.$value["type"].'.stub', FILE_USE_INCLUDE_PATH);
+            $mutation_data_code = str_replace([
+                "{{var_name}}",
+                "{{relation_name}}",
+            ],[
+                $name.$value["name"],
+                $value["name"],
+            ],$mutation_data_code);
+
+            if( !empty($text_column) ){
+                $text_column .= "\n\t\t";
+                $text_column_attribute .= "\n\t\t";
+            }
+            $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
+            $text_column_attribute .= ucfirst($value['name']).":\t".$name.$value["name"].",";
         }
         
         $base_resource = str_replace([
             '{{Name}}',
             '{{text_column}}',
             '{{text_column_attribute}}',
+            '{{mutation_data}}',
         ],[
             $Name,
             $text_column,
             $text_column_attribute,
+            $mutation_data_code,
         ],$base_resource);
+
+        $base_resource = ServiceBuilder::generateClass($base_resource, $class);
 
         FileCreator::create( $resource_file, 'app/resources', $base_resource );
         return;

@@ -73,7 +73,52 @@ class ModelBuilder
             $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['name']."`,";
         }
 
+        foreach ($relation as $relation_key => $relation_value) {
+            $query_code = file_get_contents(__DIR__.'/../../base-go/model/query_'.$relation_value['type'].'.stub', FILE_USE_INCLUDE_PATH);
 
+            $rel_column = '';
+            $counted_relation = count($relation_value['select_column']);
+            foreach ($relation_value['select_column'] as $relation_key_select_column => $relation_value_select_column) {
+                $rel_column .= "\t\t\t'".$relation_value_select_column['name']."', ".$relation_value_select_column["column"];
+                if( $relation_key_select_column != ($counted_relation-1) ){
+                    $rel_column .= ",\n";
+                }
+            }
+            
+            if ( !(strpos($relation_value["foreign_key"], '.') !== false) ) {
+                $relation_value["foreign_key"] = $relation_value["table"].".".$relation_value["foreign_key"];
+            }
+
+            if ( !(strpos($relation_value["relation_key"], '.') !== false) ) {
+                $relation_value["relation_key"] = $table.".".($relation_value["relation_key"]??"id");
+            }
+
+            $relation_value["custom_join"] = str_replace("\n", "\n\t\t", $relation_value["custom_join"]);
+            $relation_value["custom_option"] = str_replace("\n", "\n\t\t", $relation_value["custom_option"]);
+
+            $query_code = str_replace([
+                "{{rel_column}}",
+                "{{custom_order}}",
+                "{{table}}",
+                "{{column_foreign_key}}",
+                "{{column_relation_key}}",
+                "-- start list has many join option\n",
+                "-- start list has many query option\n",
+                "\n",
+            ], [
+                $rel_column,
+                $relation_value["custom_order"],
+                $relation_value["table"],
+                $relation_value["foreign_key"],
+                $relation_value["relation_key"],
+                "-- start list has many join option\n\t".$relation_value["custom_join"]."\n",
+                "-- start list has many query option\n\t".$relation_value["custom_option"]."\n",
+                "\n\t\t",
+            ], $query_code);
+            
+            $text_select_column .= "\n\t\t".ucfirst($relation_value['name'])."\tstring";
+            $text_select_column_attribute .= "\n\t\t".ucfirst($relation_value['name']).":\t`".$query_code."`,";
+        }
 
         $base_model = str_replace([
             '{{Name}}',
