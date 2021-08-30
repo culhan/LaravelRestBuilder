@@ -62,6 +62,9 @@ func (s {{Name}}Model) getUnion(data interface{}) func (db *gorm.DB) *gorm.DB {
 func (s {{Name}}Model) getOptions(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
     data = data.(map[string]interface{})
+    // start list query option
+
+    // end list query option
     return db
   }
 }

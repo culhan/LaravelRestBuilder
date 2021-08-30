@@ -5,22 +5,27 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
     {{code_validation}}
     
     raw_column := []string{}
-    this_model := models.{{ModulName}}Model{}    
+    this_model := models.{{ModulName}}Model{}
+    keyFirstOrCreate := models.{{ModulName}}Model{}
+    
 	{{code_sanitation}}
-    {{custom_check_single_data}}
-
-    _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, models.{{ModulName}}Model{Id:idt}) 
-	if err != nil {
+    keyFirstOrCreate.Id = 1
+    _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, keyFirstOrCreate) 
+    if err != nil {
 		return nil, err
 	}
 
+    singleData := tx.Model(&this_model).Where(keyFirstOrCreate)
+
+	singleData.FirstOrCreate(&keyFirstOrCreate)
+	
 	resultUpdate := singleData.Select(raw_column).Updates(&this_model)
 
     if( resultUpdate.Error != nil ){
 		return nil, resultUpdate.Error
     }
 	
-	singleData.Select(`*`).Find(&this_model)
+	singleData.Select("*").Find(&this_model)
 
     var result map[string]interface{}
     inrec, _ := json.Marshal(this_model)
@@ -28,14 +33,14 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
 
     {{relation_function}}
 
-    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model) 
-	if err != nil {
+	resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model) 
+    if err != nil {
 		return nil, err
 	}
-	    
+
     // end transaction
     tx.Commit()
-
+	    
 	return resultData, nil
 }
 // end list function

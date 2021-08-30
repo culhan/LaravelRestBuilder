@@ -1,9 +1,16 @@
 // create data {{name_has_one}}
         if(!empty($data['{{name_has_one}}']))
         {
+            if( isset($data['header_object']) ){
+                $data['header_object']['{{name_has_many}}] = $result;
+                $to_header_object = $data['header_object'];
+            }else{
+                $to_header_object = $result;
+            }
+
             $this->{{service_name}}Service = New {{service_name}}Service;
             $this->{{service_name}}Service->{{function}}($data['{{name_has_one}}']+[
                 "{{foregin_key}}"   =>  $result->{{relation_key}},
-                "header_object" => $result,
+                "header_object" => $to_header_object,
             ]);
         }

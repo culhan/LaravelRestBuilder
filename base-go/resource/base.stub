@@ -71,6 +71,8 @@ func Single{{Name}}Resource(data interface{}) interface{} {
 
     {{mutation_data}}
 
+    {{addr_text_column}}
+
 	singleData := struct{
 		{{text_column}}
 	}{

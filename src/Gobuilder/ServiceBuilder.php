@@ -66,8 +66,18 @@ class ServiceBuilder
 
                     $code_function = str_replace('{{code_validation}}',$code_validation,$code_function);
                     
+                    $type_column_assertion = 'string';
                     foreach ($value['validation'] as $validation_key => $validation_value) {
-                        $param_validation .= ucfirst($validation_value['name']) . ' ' . ($column[$validation_value['name']]??'string') . ' `json:"'.lcfirst($validation_value['name']).'" validate:"' . $validation_value['statement'] . '"`';
+                        foreach ($column as $c_key => $c_value) {
+                            if( $c_value["name"] == $validation_value["name"] ){
+                                $type_column_assertion = $list_type_var[$c_value["type"]]??"string";
+                            }
+                        }
+
+                        $param_validation .= ucfirst($validation_value['name']) . ' ' . $type_column_assertion . ' `json:"'.lcfirst($validation_value['name']).'" validate:"' . $validation_value['statement'] . '"`';
+                        if( $validation_key != count($value['validation'])-1 ){
+                            $param_validation .= "\n\t\t";
+                        }
                     }
                 }else{
                     $code_function = str_replace('{{code_validation}}', '',$code_function);
@@ -85,20 +95,38 @@ class ServiceBuilder
 
                 // make data sanitation
                 $code_filter = '';
+                $column_sanitated = '';
                 if( !empty($value['dataFilter']) ){
                     foreach ($value['dataFilter'] as $key_filter => $value_filter) {
+                        $column_sanitated .= "`".$value_filter["name"]."`";
+                        if( $key_filter != count($value['dataFilter'])-1 ){
+                            $column_sanitated .= ', ';
+                        }
+
                         $type_column_assertion = 'string';
                         foreach ($column as $c_key => $c_value) {
                             if( $c_value["name"] == $value_filter["name"] ){
                                 $type_column_assertion = $list_type_var[$c_value["type"]]??"string";
                             }
                         }
+
                         $code_filter .= "if _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
-                        $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = data["'.$value_filter['name'].'"].('. $type_column_assertion .')' . "\n";
+                        if( $type_column_assertion == 'int' ){
+                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = convertToInt(data["'.$value_filter['name'].'"])' . "\n";
+                        }else {
+                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = data["'.$value_filter['name'].'"].('. $type_column_assertion .')' . "\n";
+                        }
+                        $code_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")";
                         $code_filter .= "\t}\n\t";
                     }
                 }
-                $code_function = str_replace('{{code_sanitation}}',$code_filter,$code_function);
+                $code_function = str_replace([
+                    '{{code_sanitation}}',
+                    '{{column_sanitated}}'
+                ],[
+                    $code_filter,
+                    $column_sanitated
+                ],$code_function);
 
                 // make relation code
                 $code_relation = '';

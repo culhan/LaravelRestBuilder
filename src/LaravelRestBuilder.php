@@ -491,7 +491,10 @@ class LaravelRestBuilder
                     $data['get_custom_creating'],
                     $data['get_custom_updating'],
                     $data['get_custom_deleting'],
-                    $data['hidden_relation']
+                    $data['hidden_relation'],
+                    $data['with_timestamp_details'],
+                    $data['with_authstamp_details'],
+                    $data['with_ipstamp_details'],
                 );    
             }
 
@@ -578,7 +581,10 @@ class LaravelRestBuilder
                     $data['get_custom_creating'],
                     $data['get_custom_updating'],
                     $data['get_custom_deleting'],
-                    $data['hidden_relation']
+                    $data['hidden_relation'],
+                    $data['with_timestamp_details'],
+                    $data['with_authstamp_details'],
+                    $data['with_ipstamp_details'],
                 );    
             }
 

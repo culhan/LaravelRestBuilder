@@ -7,9 +7,10 @@ import (
     "olsera.com/kikota/helpers"
 	"olsera.com/kikota/app/models"
     "olsera.com/kikota/exceptions"
+    "gorm.io/gorm"
 )
 
-func GetIndexData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) (models.ReturnData, interface{}) {
+func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model) (models.ReturnData, interface{}) {
 
 	data_result, err := models.GetSearch({{name}}Model, data)
 	if err != nil {
@@ -19,9 +20,9 @@ func GetIndexData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) 
 	return data_result, nil
 }
 
-func GetSingleWhereData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
+func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
 
-	data_result := models.GetSingleWhereData(data, {{name}}Model)
+	data_result := models.GetSingleWhereData(tx, data, {{name}}Model)
 
     if 0 == len(data_result) {
 		exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
@@ -32,9 +33,9 @@ func GetSingleWhereData{{Name}}(data interface{}, {{name}}Model models.{{Name}}M
 	return data_result, nil
 }
 
-func GetMultiWhereData{{Name}}(data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
+func GetMultiWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
 
-	data_result := models.GetMultiWhereData(data, {{name}}Model)
+	data_result := models.GetMultiWhereData(tx, data, {{name}}Model)
 
     if 0 == len(data_result) {
 		exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))

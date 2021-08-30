@@ -35,7 +35,7 @@ class ModelBuilder
      * @param [type] $hidden_relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details )
     {
         $name = $model_file_name = UCWORDS($name_model);
         $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
@@ -68,7 +68,15 @@ class ModelBuilder
                 $text_select_column .= "\n\t\t";
                 $text_select_column_attribute .= "\n\t\t";
             }
-            $text_column .= ucfirst($value['name'])."\t".$list_type_var[$value['type']]."\t"."`json:\"".$value['name']."\"`";
+
+            $column_type = $list_type_var[$value['type']];
+            
+            if( !empty($with_timestamp_details['delete']) && !empty($with_timestamp_details['delete_column']) ){
+                if( $value['name'] == $with_timestamp_details['delete_column']){
+                    $column_type = "gorm.DeletedAt";
+                }
+            }
+            $text_column .= ucfirst($value['name'])."\t".$column_type."\t"."`json:\"".$value['name']."\"`";
             $text_select_column .= ucfirst($value['name'])."\tstring";
             $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['name']."`,";
         }

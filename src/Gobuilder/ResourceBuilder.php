@@ -41,20 +41,28 @@ class ResourceBuilder
             'time'  => 'string'
         ];
 
+        $addr_text_column = '';
         $text_column = '';
         $text_column_attribute = '';
+        $hidden = array_flip($hidden);
         foreach ($column as $key => $value) {
+            if(isset($hidden[$value['name']])) continue;
+
             if( !empty($text_column) ){
+                $addr_text_column .= "\n\t";
                 $text_column .= "\n\t\t";
                 $text_column_attribute .= "\n\t\t";
             }
             $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
-            $text_column_attribute .= ucfirst($value['name']).":\tdata_result[\"".$value['name']."\"].(interface{}),";
+            $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
+            $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
         }
 
         $mutation_data_code = '';
+        $hidden_relation = array_flip($hidden_relation);
         foreach ($relation as $key => $value) {
-
+            if(isset($hidden_relation[$value['name']])) continue;
+            
             $class["encoding/json"] = "encoding/json";
             if( $mutation_data_code != '' ){
                 $mutation_data_code .= "\t";
@@ -74,16 +82,18 @@ class ResourceBuilder
                 $text_column_attribute .= "\n\t\t";
             }
             $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
-            $text_column_attribute .= ucfirst($value['name']).":\t".$name.$value["name"].",";
+            $text_column_attribute .= ucfirst($value['name']).":\t&".$name.$value["name"].",";
         }
         
         $base_resource = str_replace([
             '{{Name}}',
+            '{{addr_text_column}}',
             '{{text_column}}',
             '{{text_column_attribute}}',
             '{{mutation_data}}',
         ],[
             $Name,
+            $addr_text_column,
             $text_column,
             $text_column_attribute,
             $mutation_data_code,

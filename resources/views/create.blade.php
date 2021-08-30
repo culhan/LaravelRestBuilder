@@ -192,19 +192,19 @@
                             </div>
                             <div class="col-sm-11 container with_timestamp_details collapse">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_timestamp_details['create']">
-                                    <label class="form-check-label" for="with_timestamp_details['create']">create column</label>
-                                    <input type="text" class="form-control" name="with_timestamp_details['create_column']" placeholder="default: created_time">
+                                    <input type="checkbox" class="form-check-input" name="with_timestamp_details[create]">
+                                    <label class="form-check-label" for="with_timestamp_details[create]">create column</label>
+                                    <input type="text" class="form-control" name="with_timestamp_details[create_column]" placeholder="default: created_time">
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_timestamp_details['update']">
-                                    <label class="form-check-label" for="with_timestamp_details['update']">update column</label>
-                                    <input type="text" class="form-control" name="with_timestamp_details['update_column']" placeholder="default: updated_time">
+                                    <input type="checkbox" class="form-check-input" name="with_timestamp_details[update]">
+                                    <label class="form-check-label" for="with_timestamp_details[update]">update column</label>
+                                    <input type="text" class="form-control" name="with_timestamp_details[update_column]" placeholder="default: updated_time">
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_timestamp_details['delete']">
-                                    <label class="form-check-label" for="with_timestamp_details['delete']">delete column</label>
-                                    <input type="text" class="form-control" name="with_timestamp_details['delete_column']" placeholder="default: deleted_time">
+                                    <input type="checkbox" class="form-check-input" name="with_timestamp_details[delete]">
+                                    <label class="form-check-label" for="with_timestamp_details[delete]">delete column</label>
+                                    <input type="text" class="form-control" name="with_timestamp_details[delete_column]" placeholder="default: deleted_time">
                                 </div>
                             </div>
                         </div>
@@ -223,17 +223,17 @@
                             </div>
                             <div class="col-sm-11 container with_authstamp_details collapse">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_authstamp_details[create]">
+                                    <input type="checkbox" class="form-check-input" name="with_authstamp_details[create]">
                                     <label class="form-check-label" for="with_authstamp_details[create]">create column</label>
                                     <input type="text" class="form-control" name="with_authstamp_details[create_column]" placeholder="default: created_by">
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_authstamp_details[update]">
+                                    <input type="checkbox" class="form-check-input" name="with_authstamp_details[update]">
                                     <label class="form-check-label" for="with_authstamp_details[update]">update column</label>
                                     <input type="text" class="form-control" name="with_authstamp_details[update_column]" placeholder="default: updated_by">
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_authstamp_details[delete]">
+                                    <input type="checkbox" class="form-check-input" name="with_authstamp_details[delete]">
                                     <label class="form-check-label" for="with_authstamp_details[delete]">delete column</label>
                                     <input type="text" class="form-control" name="with_authstamp_details[delete_column]" placeholder="default: deleted_by">
                                 </div>
@@ -254,17 +254,17 @@
                             </div>
                             <div class="col-sm-11 container with_ipstamp_details collapse">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_ipstamp_details[create]">
+                                    <input type="checkbox" class="form-check-input" name="with_ipstamp_details[create]">
                                     <label class="form-check-label" for="with_ipstamp_details[create]">create column</label>
                                     <input type="text" class="form-control" name="with_ipstamp_details[create_column]" placeholder="default: created_from">
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_ipstamp_details[update]">
+                                    <input type="checkbox" class="form-check-input" name="with_ipstamp_details[update]">
                                     <label class="form-check-label" for="with_ipstamp_details[update]">update column</label>
                                     <input type="text" class="form-control" name="with_ipstamp_details[update_column]" placeholder="default: updated_from">
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="with_ipstamp_details[delete]">
+                                    <input type="checkbox" class="form-check-input" name="with_ipstamp_details[delete]">
                                     <label class="form-check-label" for="with_ipstamp_details[delete]">delete column</label>
                                     <input type="text" class="form-control" name="with_ipstamp_details[delete_column]" placeholder="default: deleted_from">
                                 </div>
@@ -1146,7 +1146,7 @@
                 $( ".route_fungsi_relasi + div" ).addClass('d-none')
             }
 
-            if( ele.value == 'update_data' || ele.value == 'delete_data' || ele.value == 'single_data' ) {
+            if( ele.value == 'update_data' || ele.value == 'delete_data' || ele.value == 'single_data' || ele.value == 'delete_data' ) {
                 $('.route_custom_check_single_data').removeClass('d-none')
                 $('.route_parameter_custom_check_single_data').removeClass('d-none')
             }else{
@@ -1168,7 +1168,20 @@
                         single_data_code += '\treturn nil, err_int\n'
                     single_data_code += '}\n'
                     single_data_code += 'this_model.Id = idt\n\n'
-                    single_data_code += 'singleData, err := repositories.GetSingleWhereData'+camelize( $("#modul_name").val() )+'(data, this_model)'
+                    single_data_code += 'singleData, err := repositories.GetSingleWhereData'+camelize( $("#modul_name").val() )+'(data, this_model)\n'
+                    single_data_code += 'if err != nil {\n'
+                        single_data_code += '\treturn nil, err\n'
+                    single_data_code += '}\n'
+
+                    fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                }else if( ele.value == 'delete_data' ){
+                    single_data_code = ''
+                    single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
+                    single_data_code += 'if( err_int != nil ){\n'
+                        single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                        single_data_code += '\treturn nil, err_int\n'
+                    single_data_code += '}\n'
+                    single_data_code += 'this_model.Id = idt\n'
 
                     fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
                 }else if( ele.value == 'update_data' ){
@@ -2596,6 +2609,7 @@
             build_relation_tabel(dataDetail['relation'])
             build_kolom_tabel(objModul['column'],objForbiddenCOlumn)
             build_tabel_option_by_column(objModul['column'])
+            build_tabel_option_details(objModul)
             build_modul_tabel(objModul['column'],objForbiddenCOlumn)
             build_list_index_tabel(data['table']['list_index'])
             build_list_column_function_tabel(objModul['column_function'])
@@ -2605,6 +2619,36 @@
             build_list_classtab_tabel(objModul['classtab'])
         }
         
+        function build_tabel_option_details(data) {
+            if( data.with_timestamp_details.create ){
+                $( '[name="with_timestamp_details[create]"]' ).prop('checked', true)
+            }else {
+                $( '[name="with_timestamp_details[create]"]' ).prop('checked', false)
+            }
+
+            if( data.with_timestamp_details.update ){
+                $( '[name="with_timestamp_details[update]"]' ).prop('checked', true)
+            }else {
+                $( '[name="with_timestamp_details[update]"]' ).prop('checked', false)
+            }
+
+            if( data.with_timestamp_details.delete ){
+                $( '[name="with_timestamp_details[delete]"]' ).prop('checked', true)
+            }else {
+                $( '[name="with_timestamp_details[delete]"]' ).prop('checked', false)
+            }
+
+            if( data.with_timestamp_details.create_column ){
+                $( '[name="with_timestamp_details[create_column]"]' ).val(data.with_timestamp_details.create_column)
+            }
+            if( data.with_timestamp_details.update_column ){
+                $( '[name="with_timestamp_details[update_column]"]' ).val(data.with_timestamp_details.update_column)
+            }
+            if( data.with_timestamp_details.delete_column ){
+                $( '[name="with_timestamp_details[delete_column]"]' ).val(data.with_timestamp_details.delete_column)
+            }
+        }
+
         function build_tabel_option_by_column(data) {
             $( '[name="with_timestamp"]' ).val(0)
             $( '[name="with_authstamp"]' ).val(0)

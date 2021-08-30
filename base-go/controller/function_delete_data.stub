@@ -1,7 +1,7 @@
 func {{ModulName}}{{Name}}(c *gin.Context) {
 	dt, err := services.Service{{ModulName}}{{Name}}( Request{{UrlParam}} )
 	if err == nil {
-		c.SecureJSON(200, resources.{{ModulName}}Resource(dt))
+		c.SecureJSON(200, resources.DeletedResource(dt))
 	}
 }
 // end list function
