@@ -35,7 +35,7 @@ class ModelBuilder
      * @param [type] $hidden_relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details, $class )
     {
         $name = $model_file_name = UCWORDS($name_model);
         $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
@@ -50,9 +50,9 @@ class ModelBuilder
             'tinyInteger'   => 'int',
             'boolean'   => 'int',
             'decimal'   => 'decimal.Decimal',
-            'datetime'  => 'time.Time',
+            'datetime'  => 'string',
             'date'  => 'string',
-            'timestamp' => 'time.Time',
+            'timestamp' => 'string',
             'string'    => 'string',
             'char'  => 'string',
             'text'  => 'string',
@@ -76,9 +76,21 @@ class ModelBuilder
                     $column_type = "gorm.DeletedAt";
                 }
             }
-            $text_column .= ucfirst($value['name'])."\t".$column_type."\t"."`json:\"".$value['name']."\"`";
+            
+            $text_column .= ucfirst($value['name'])."\t".$column_type."\t"."`json:\"".$value['name']."\" ";
+            if( $column_type == 'int' ) {
+                $text_column .= "gorm:\"default:0\"`";
+            }else {
+                $text_column .= "gorm:\"default:NULL\"`";
+            }
+
             $text_select_column .= ucfirst($value['name'])."\tstring";
-            $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['name']."`,";
+
+            if( $column_type == 'datetime' ){
+                $text_select_column_attribute .= ucfirst($value['name']).":\t`DATE_FORMAT(".$value['name'].", \"%Y-%m-%d %H:%i:%s\")`,";
+            }else {
+                $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['name']."`,";
+            }
         }
 
         foreach ($relation as $relation_key => $relation_value) {
@@ -166,6 +178,8 @@ class ModelBuilder
         }else {
             $base_model = str_replace('// end list query option', 'return db'."\n\t".'// end list query option',$base_model);
         }
+
+        $base_model = ServiceBuilder::generateClass($base_model, $class);
 
         FileCreator::create( $model_file_name, 'app/models', $base_model );
         return;

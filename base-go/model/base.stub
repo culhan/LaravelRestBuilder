@@ -6,6 +6,7 @@ package models
 import (
 	"reflect"
     "gorm.io/gorm"
+    {{class}}
 )
 
 type {{Name}}Model struct {
@@ -20,7 +21,7 @@ func (s {{Name}}Model) ModulName() string {
 	return "{{name}}"
 }
 
-func (s {{Name}}Model) getReflectSelect(data interface{}) reflect.Value {
+func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
     data = data.(map[string]interface{})
 	selectColumn := struct {
 		{{select_column}}
@@ -31,35 +32,42 @@ func (s {{Name}}Model) getReflectSelect(data interface{}) reflect.Value {
 	return reflect.ValueOf(&selectColumn)
 }
 
-func (s {{Name}}Model) getSelect(data interface{}) func (db *gorm.DB) *gorm.DB {
+func (s {{Name}}Model) ScopesGetSelect(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-	db = db.Select(BuildSelect(s.getReflectSelect(data)))
+	db = db.Select(BuildSelect(s.ScopesGetReflectSelect(data)))
     return db
+  }
+}
+
+func (s {{Name}}Model) ScopesGetAll(data interface{}) func (db *gorm.DB) *gorm.DB {
+  return func (db *gorm.DB) *gorm.DB {
+    data = data.(map[string]interface{})
+    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetUnion(data), s.ScopesGetOptions(data) )
   }
 }
 
 func (s {{Name}}Model) getAll(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
     data = data.(map[string]interface{})
-    return db.Scopes( s.getSelect(data), s.getJoin(data), s.getUnion(data), s.getOptions(data) )
+    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetUnion(data), s.ScopesGetOptions(data) )
   }
 }
 
-func (s {{Name}}Model) getJoin(data interface{}) func (db *gorm.DB) *gorm.DB {
+func (s {{Name}}Model) ScopesGetJoin(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
     data = data.(map[string]interface{})
     return db
   }
 }
 
-func (s {{Name}}Model) getUnion(data interface{}) func (db *gorm.DB) *gorm.DB {
+func (s {{Name}}Model) ScopesGetUnion(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
     data = data.(map[string]interface{})
     return db
   }
 }
 
-func (s {{Name}}Model) getOptions(data interface{}) func (db *gorm.DB) *gorm.DB {
+func (s {{Name}}Model) ScopesGetOptions(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
     data = data.(map[string]interface{})
     // start list query option

@@ -5,11 +5,11 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
     {{code_validation}}
     
     raw_column := []string{}
-    this_model := models.{{ModulName}}Model{}    
+    this_model := models.{{ModulName}}Model{}  
 	{{code_sanitation}}
     {{custom_check_single_data}}
 
-    _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, models.{{ModulName}}Model{Id:idt}) 
+    _, err := repositories.GetSingleGormData{{ModulName}}(tx, map[string]interface{}{}, singleData) 
 	if err != nil {
 		return nil, err
 	}

@@ -25,9 +25,23 @@ func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model mod
 	data_result := models.GetSingleWhereData(tx, data, {{name}}Model)
 
     if 0 == len(data_result) {
-		exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
+		error_return := exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
 
-        return models.{{Name}}Model{}, exceptions.ErrorState
+        return nil, error_return
+	}
+
+	return data_result, nil
+}
+
+func GetSingleGormData{{Name}}(tx *gorm.DB, data interface{}, query *gorm.DB) (interface{}, interface{}) {
+
+    data_result := map[string]interface{}{}
+	models.GetGormWhereData(tx, models.{{Name}}Model{}, data, query).Take(&data_result)
+
+    if 0 == len(data_result) {
+		error_return := exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": models.{{Name}}Model{}.ModulName()}))
+
+        return nil, error_return
 	}
 
 	return data_result, nil
@@ -38,9 +52,9 @@ func GetMultiWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model mode
 	data_result := models.GetMultiWhereData(tx, data, {{name}}Model)
 
     if 0 == len(data_result) {
-		exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
+		error_return := exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
 
-        return []models.{{Name}}Model{}, exceptions.ErrorState
+        return nil, error_return
 	}
 
 	return data_result, nil

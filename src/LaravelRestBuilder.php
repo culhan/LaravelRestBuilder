@@ -585,6 +585,7 @@ class LaravelRestBuilder
                     $data['with_timestamp_details'],
                     $data['with_authstamp_details'],
                     $data['with_ipstamp_details'],
+                    $class['model']??[],
                 );    
             }
 

@@ -163,13 +163,15 @@ class ServiceBuilder
                                 '{{relation_key}}',
                                 '{{foregin_key}}',
                                 '{{service_name}}',
-                                '{{function}}'
+                                '{{function}}',
+                                '{{model_name}}',
                             ],[
                                 $value_relation['name'],
                                 (empty($value_relation['relation_key'])) ? 'id':$value_relation['relation_key'],
                                 $value_relation['foreign_key'],
                                 ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
-                                (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
+                                (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'),
+                                $name,
                             ],
                             $base_create_code
                         );
@@ -190,13 +192,15 @@ class ServiceBuilder
                                 '{{relation_key}}',
                                 '{{foregin_key}}',
                                 '{{service_name}}',
-                                '{{function}}',                                
+                                '{{function}}',
+                                '{{model_name}}',
                             ],[
                                 $value_relation['name'],                            
                                 (empty($value_relation['relation_key'])) ? 'id':$value_relation['relation_key'],
                                 $value_relation['foreign_key'],
                                 ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),
-                                (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create')
+                                (empty(array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'))) ? 'create' : array_get($value,'fungsi_relasi.'.$value_relation['name'],'create'),
+                                $name
                             ],
                             $base_create_code
                         );

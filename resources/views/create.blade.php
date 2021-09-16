@@ -657,7 +657,7 @@
                                 <input class="btn btn-secondary mb-3 normal_validation" type="button" value="Tambah Validasi" height="10px" onclick="tambah_validasi('route_sementara',0)">
                                 <div class="container advanced_validation" style="display:none">
                                     <textarea name="route_sementara[advanced_validation_code]" class="d-none" data-editor="php" rows="10"></textarea>
-                                    <textarea id="route_sementara_advanced_validation_code"></textarea>
+                                    <textarea id="tab_route_sementara[advanced_validation_code]"></textarea>
                                 </div>
                             </div>
 
@@ -1167,11 +1167,7 @@
                         single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
                         single_data_code += '\treturn nil, err_int\n'
                     single_data_code += '}\n'
-                    single_data_code += 'this_model.Id = idt\n\n'
-                    single_data_code += 'singleData, err := repositories.GetSingleWhereData'+camelize( $("#modul_name").val() )+'(data, this_model)\n'
-                    single_data_code += 'if err != nil {\n'
-                        single_data_code += '\treturn nil, err\n'
-                    single_data_code += '}\n'
+                    single_data_code += 'singleData := tx.Where("id = ?", idt)\n'
 
                     fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
                 }else if( ele.value == 'delete_data' ){
@@ -1191,7 +1187,7 @@
                         single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
                         single_data_code += '\treturn nil, err_int\n'
                     single_data_code += '}\n'
-                    single_data_code += 'singleData:= models.DB.Model(&this_model).Where("id = ?", idt)'
+                    single_data_code += 'singleData:= tx.Model(&this_model).Where("id = ?", idt)'
 
                     fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
                 }
@@ -2189,11 +2185,12 @@
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_join', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")            
             
-            nama_kolom_fungsi = 'route_sementara_advanced_validation_code'
-            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('route_sementara_advanced_validation_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
-            eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
-            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"route_sementara[advanced_validation_code]\"]' ).val(val_code);})")
+            // nama_kolom_fungsi = 'route_sementara_advanced_validation_code'
+            // eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('route_sementara_advanced_validation_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
+            // eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
+            // eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\"route_sementara[advanced_validation_code]\"]' ).val(val_code);})")
             
+            aceGenerate({ name_cols : 'route_sementara[advanced_validation_code]'});
             aceGenerate({ name_cols : 'route_sementara[custom_check_single_data]', default_code : single_data_code});
 
             @if (!empty($data['id']) )

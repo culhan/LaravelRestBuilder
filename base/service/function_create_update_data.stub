@@ -24,7 +24,7 @@
         // custom code before
         {{custom_code_before}}
         
-        // create
+        // update or create
         $result = $this->model->updateOrCreate($keyFirstOrCreate,$dataRecord);
         
         // start list has many create
