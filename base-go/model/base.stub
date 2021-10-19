@@ -77,21 +77,21 @@ func (s {{Name}}Model) ScopesGetOptions(data interface{}) func (db *gorm.DB) *go
   }
 }
 
-func (s *{{Name}}Model) BeforeCreate(tx *gorm.DB) (err error) {
+func (s *{{Name}}Model) BeforeCreate(db *gorm.DB) (err error) {
     // start list creating option
 
     // end list creating option
   	return
 }
 
-func (s *{{Name}}Model) BeforeUpdate(tx *gorm.DB) (err error) {
+func (s *{{Name}}Model) BeforeUpdate(db *gorm.DB) (err error) {
     // start list updating option
 
     // end list updating option
   	return
 }
 
-func (s *{{Name}}Model) BeforeDelete(tx *gorm.DB) (err error) {
+func (s *{{Name}}Model) BeforeDelete(db *gorm.DB) (err error) {
     // start list deleting option
 
     // end list deleting option

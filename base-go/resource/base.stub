@@ -4,7 +4,6 @@
 package resources
 
 import (
-	"olsera.com/kikota/app/models"
     {{class}}
 )
 

@@ -1,0 +1,7 @@
+func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
+
+    {{code_validation}}
+    
+    {{custom_function}}
+}
+// end list function

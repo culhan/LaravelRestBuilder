@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 class ControllerBuilder
 {
+    /**
+     * static default class
+     */
+    static $default_class = [
+        "olsera.com/kikota/app/resources"
+    ];
 
     /**
      * controller builder function
@@ -34,7 +40,7 @@ class ControllerBuilder
                 if(!empty($value['param']))
                 {
                     foreach ($value['param'] as $key_param => $value_param) {
-                        $param_function .= ', GinContex.Param(`'.((!empty($value_param['name'])) ? $value_param['name']:$value_param).'`)';
+                        $param_function .= ', c.Param(`'.((!empty($value_param['name'])) ? $value_param['name']:$value_param).'`)';
                     }
                 }
                 
@@ -58,39 +64,66 @@ class ControllerBuilder
             }            
         }
 
+        $base_controller = self::generateClass($base_controller, []);
+        
         FileCreator::create( $controller_file_name, 'app/controllers', $base_controller );
         return;
-        dd($base_controller);
-        $cols = '';
-        $hidden = array_flip($hidden);        
-        foreach ($column as $key => $value) {
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[ $value['name'] ]) )
-            {
-                $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
-                $base_controller = str_replace('// end list column',$cols,$base_controller);
-            }
-        }
+        // dd($base_controller);
+        // $cols = '';
+        // $hidden = array_flip($hidden);        
+        // foreach ($column as $key => $value) {
+        //     if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[ $value['name'] ]) )
+        //     {
+        //         $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
+        //         $base_controller = str_replace('// end list column',$cols,$base_controller);
+        //     }
+        // }
         
-        foreach ($column_function as $key => $value) {
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
-            {
-                $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
-                $base_controller = str_replace('// end list column',$cols,$base_controller);
+        // foreach ($column_function as $key => $value) {
+        //     if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+        //     {
+        //         $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
+        //         $base_controller = str_replace('// end list column',$cols,$base_controller);
+        //     }
+        // }
+
+        // foreach ($relation as $key => $value) {
+        //     $value['name'] = empty($value['name_param']) ? $value['name'] : $value['name_param'];
+        //     $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list relation column";
+        //     $base_controller = str_replace('// end list relation column',$cols,$base_controller);
+        //     if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
+        //     {
+        //         $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
+        //         $base_controller = str_replace('// end list column',$cols,$base_controller);
+        //     }
+        // }
+        
+        // FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api', $base_controller );
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $base
+     * @param [type] $class
+     * @return void
+     */
+    public static function generateClass($base, $class)
+    {
+        foreach (self::$default_class as $key => $value) {
+            $last_string = explode("/",$value);
+            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
+                $class[] = $value;
             }
         }
 
-        foreach ($relation as $key => $value) {
-            $value['name'] = empty($value['name_param']) ? $value['name'] : $value['name_param'];
-            $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list relation column";
-            $base_controller = str_replace('// end list relation column',$cols,$base_controller);
-            if( empty(LaravelRestBuilder::$forbidden_column_name[$value['name']]) )
-            {
-                $cols = '"'.$value['name'].'" => "'.$value['name'].'",'."\r\n\t\t\t\t// end list column";
-                $base_controller = str_replace('// end list column',$cols,$base_controller);
-            }
+        foreach ($class as $key => $value) {
+            $base = str_replace('{{class}}','"' . $value . '"' . "\n\t" . "{{class}}",$base);
         }
-        
-        FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api', $base_controller );
+
+        $base = str_replace('{{class}}', "",$base);
+
+        return $base;
     }
 
 }

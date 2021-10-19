@@ -33,7 +33,7 @@ class RouteBuilder
             $route_code = str_replace('{{Name}}',ucwords($name),$route_code);
             $route_code = str_replace('{{name_route}}',$value['prefix'].$name.'/'.$value['name'],$route_code);
             $route_code = str_replace('{{name}}',$name.'/'.$value['name'],$route_code);
-            $route_code = str_replace('{{name_function}}',$value['name'],$route_code);
+            $route_code = str_replace('{{name_function}}', str_replace('/','',$value['name']) ,$route_code);
             $route_code = str_replace('{{method}}',$value['method'],$route_code);
             
             if( !empty($value['param']) )

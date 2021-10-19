@@ -1,0 +1,6 @@
+[
+    {
+        "foreach":"foreach ( $arr as $key => $value) { \n}",
+        "for":"for ($i = 0; $i < ${1:count}; $i++}) {\n\// code...\n}"
+    }
+]

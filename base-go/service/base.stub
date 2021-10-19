@@ -4,8 +4,8 @@
 package services
 
 import (
-	"olsera.com/kikota/app/models"
-	"olsera.com/kikota/app/repositories"
+    "gorm.io/gorm"
+    "github.com/gin-gonic/gin"
     {{class}}
 )
 

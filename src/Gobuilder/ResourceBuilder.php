@@ -6,6 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 class ResourceBuilder
 {
+    /**
+     * default class
+     */
+    static $default_class = [
+        "olsera.com/kikota/app/models",
+        "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/exceptions",
+        "olsera.com/kikota/helpers",
+        "encoding/json",
+        "net/http",
+	    "strings",
+        "io/ioutil",
+        "time",
+    ];
 
     /**
      * resource builder function
@@ -58,6 +72,17 @@ class ResourceBuilder
             $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
         }
 
+        foreach ($column_function as $key => $value) {
+            if( !empty($text_column) ){
+                $addr_text_column .= "\n\t";
+                $text_column .= "\n\t\t";
+                $text_column_attribute .= "\n\t\t";
+            }
+            $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
+            $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
+            $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
+        }
+
         $mutation_data_code = '';
         $hidden_relation = array_flip($hidden_relation);
         foreach ($relation as $key => $value) {
@@ -99,7 +124,7 @@ class ResourceBuilder
             $mutation_data_code,
         ],$base_resource);
 
-        $base_resource = ServiceBuilder::generateClass($base_resource, $class);
+        $base_resource = self::generateClass($base_resource, $class);
 
         FileCreator::create( $resource_file, 'app/resources', $base_resource );
         return;
@@ -155,6 +180,31 @@ class ResourceBuilder
         $base_resource = str_replace('// end list relation',$code_relation."\t\t\t"."// end list relation",$base_resource);
 
         FileCreator::create( $resource_file, 'app/Http/Resources', $base_resource );
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $base
+     * @param [type] $class
+     * @return void
+     */
+    public static function generateClass($base, $class)
+    {
+        foreach (self::$default_class as $key => $value) {
+            $last_string = explode("/",$value);
+            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
+                $class[] = $value;
+            }
+        }
+
+        foreach ($class as $key => $value) {
+            $base = str_replace('{{class}}','"' . $value . '"' . "\n\t" . "{{class}}",$base);
+        }
+
+        $base = str_replace('{{class}}', "",$base);
+
+        return $base;
     }
 
 }

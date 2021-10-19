@@ -28,6 +28,9 @@ class ControllerBuilder
             if($value['name'] == 'system_data') {
                 continue;
             }
+
+            $value['name'] = str_replace('/','',$value['name']);
+
             $function_name = 'function_'.$value['process'].'.stub';
             if(in_array($function_name,$list_file))
             {

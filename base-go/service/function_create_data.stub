@@ -1,13 +1,17 @@
-func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
-    // begin a transaction
-    tx := models.DB.Begin()
-    
+func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
+
     {{code_validation}}
     
     raw_column := []string{}
     this_model := models.{{ModulName}}Model{}    
 	{{code_sanitation}}
-	tx.Create(&this_model)
+	resultCreate := tx.Session(&gorm.Session{}).Create(&this_model)
+
+    if resultCreate.RowsAffected == 0 {
+        errorState := exceptions.ErrorException(500, "store "+this_model.ModulName()+" failed")
+
+		return nil, errorState
+    }
 
 	var result map[string]interface{}
     inrec, _ := json.Marshal(this_model)
@@ -15,13 +19,10 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
 
     {{relation_function}}
 
-    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model) 
+    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
 	if err != nil {
 		return nil, err
 	}
-	    
-    // end transaction
-    tx.Commit()
 
 	return resultData, nil
 }

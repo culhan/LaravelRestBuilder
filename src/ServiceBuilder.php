@@ -38,6 +38,7 @@ class ServiceBuilder
         $list_file = scandir(__DIR__.'/../base'.$base.'/service', SCANDIR_SORT_DESCENDING);
         $traits_arr = [];
         foreach ($route as $key => $value) {
+            $value['name'] = str_replace('/','',$value['name']);
             $function_name = 'function_'.$value['process'].'.stub';
             if(in_array($function_name,$list_file))
             {

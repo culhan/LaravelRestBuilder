@@ -6,7 +6,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"olsera.com/kikota/app/services"
-    "olsera.com/kikota/app/resources"
+    {{class}}
 )
 
 // start list function

@@ -1194,30 +1194,40 @@
             }
 
             if(ele.value == 'custom_data') {
+
                 html_code_php = 
-                    '<div class="mt-3 custom_data_'+i+' ">'+
-                        '<textarea name="'+name_route+'[custom_function]" class="d-none">'+
-                            '\\DB::beginTransaction();'+"\n"+
-                            single_data_code+
-                            '\\DB::commit();'+"\n"+
-                            'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+
+                    '<div class="mt-3 custom_data_'+i+' ">'+                        
+                        '<textarea name="'+name_route+'[custom_function]" class="d-none" rows="10">'+isi_after+
                         '</textarea>'+
-                        '<textarea id="route_text_'+i+'">'+
-                            '\\DB::beginTransaction();'+"\n"+
-                            single_data_code+
-                            '\\DB::commit();'+"\n"+
-                            'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+                            
+                        '<textarea id="tab_'+name_route+'[custom_function]">'+isi_after+
                         '</textarea>'+
-                    '</div>'
+                    '</div>';
+
+                // html_code_php = 
+                //     '<div class="mt-3 custom_data_'+i+' ">'+
+                //         '<textarea name="'+name_route+'[custom_function]" class="d-none">'+
+                //             '\\DB::beginTransaction();'+"\n"+
+                //             single_data_code+
+                //             '\\DB::commit();'+"\n"+
+                //             'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+
+                //         '</textarea>'+
+                //         '<textarea id="route_text_'+i+'">'+
+                //             '\\DB::beginTransaction();'+"\n"+
+                //             single_data_code+
+                //             '\\DB::commit();'+"\n"+
+                //             'return new \\App\\Http\\Resources\\YourResource($data);'+"\n"+                            
+                //         '</textarea>'+
+                //     '</div>'
                                 
                 $( '.custom_data_'+i ).remove()
                 toAppend.append(html_code_php)
                 
                 if(i == 'route_sementara') {
-                    eval("code_editor_process_" + i + "= ace.edit('route_text_'+i, {mode: \"ace/mode/php\",maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
-                    eval("code_editor_process_" + i + ".getSession().setMode({path:\"ace/mode/php\", inline:true})")
-                    eval("code_editor_process_" + i + ".getSession().on('change', function(e) {val_code = code_editor_process_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_function]\"]' ).val(val_code);})")
-                    eval("")
+                    aceGenerate({ name_cols : name_route + "[custom_function]" });
+                    // eval("code_editor_process_" + i + "= ace.edit('route_text_'+i, {mode: \"ace/mode/php\",maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
+                    // eval("code_editor_process_" + i + ".getSession().setMode({path:\"ace/mode/php\", inline:true})")
+                    // eval("code_editor_process_" + i + ".getSession().on('change', function(e) {val_code = code_editor_process_"+i+".getSession().getValue();$( '[name=\""+name_route+"[custom_function]\"]' ).val(val_code);})")
+                    // eval("")
                 }            
             }else if(ele.value == 'system_data') {
                 html_code_php = 
@@ -1564,6 +1574,17 @@
                             '</div>'+
                             '<div class="col-sm">'+
                                 '<input type="" class="form-control" placeholder="intermediate table" name="relation['+i+'][intermediate_table]">'+
+                            '</div>'+
+                        '</div>'+
+                        '';
+
+                    html_relasi_detail += 
+                        '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                            '<div class="col-sm-2" style="padding-top:5px;">'+
+                                '<label>Nama Model Intermediate Tabel *go</label>'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<input type="" class="form-control" placeholder="model intermediate table" name="relation['+i+'][model_intermediate_table]">'+
                             '</div>'+
                         '</div>'+
                         '';                
@@ -2617,32 +2638,38 @@
         }
         
         function build_tabel_option_details(data) {
-            if( data.with_timestamp_details.create ){
-                $( '[name="with_timestamp_details[create]"]' ).prop('checked', true)
+            if( data.with_timestamp_details ){
+                if( data.with_timestamp_details.create ){
+                    $( '[name="with_timestamp_details[create]"]' ).prop('checked', true)
+                }else{
+                    $( '[name="with_timestamp_details[create]"]' ).prop('checked', false)
+                }
+
+                if( data.with_timestamp_details.update ){
+                    $( '[name="with_timestamp_details[update]"]' ).prop('checked', true)
+                }else {
+                    $( '[name="with_timestamp_details[update]"]' ).prop('checked', false)
+                }
+
+                if( data.with_timestamp_details.delete ){
+                    $( '[name="with_timestamp_details[delete]"]' ).prop('checked', true)
+                }else {
+                    $( '[name="with_timestamp_details[delete]"]' ).prop('checked', false)
+                }
+
+                if( data.with_timestamp_details.create_column ){
+                    $( '[name="with_timestamp_details[create_column]"]' ).val(data.with_timestamp_details.create_column)
+                }
+                if( data.with_timestamp_details.update_column ){
+                    $( '[name="with_timestamp_details[update_column]"]' ).val(data.with_timestamp_details.update_column)
+                }
+                if( data.with_timestamp_details.delete_column ){
+                    $( '[name="with_timestamp_details[delete_column]"]' ).val(data.with_timestamp_details.delete_column)
+                }
             }else {
                 $( '[name="with_timestamp_details[create]"]' ).prop('checked', false)
-            }
-
-            if( data.with_timestamp_details.update ){
-                $( '[name="with_timestamp_details[update]"]' ).prop('checked', true)
-            }else {
                 $( '[name="with_timestamp_details[update]"]' ).prop('checked', false)
-            }
-
-            if( data.with_timestamp_details.delete ){
-                $( '[name="with_timestamp_details[delete]"]' ).prop('checked', true)
-            }else {
                 $( '[name="with_timestamp_details[delete]"]' ).prop('checked', false)
-            }
-
-            if( data.with_timestamp_details.create_column ){
-                $( '[name="with_timestamp_details[create_column]"]' ).val(data.with_timestamp_details.create_column)
-            }
-            if( data.with_timestamp_details.update_column ){
-                $( '[name="with_timestamp_details[update_column]"]' ).val(data.with_timestamp_details.update_column)
-            }
-            if( data.with_timestamp_details.delete_column ){
-                $( '[name="with_timestamp_details[delete_column]"]' ).val(data.with_timestamp_details.delete_column)
             }
         }
 
@@ -2819,6 +2846,9 @@
             }
             if( value_relasi['intermediate_table'] ){
                 $( '[name="relation['+jumlah_relasi_builded+'][intermediate_table]"]' ).val(value_relasi['intermediate_table']);
+            }
+            if( value_relasi['model_intermediate_table'] ){
+                $( '[name="relation['+jumlah_relasi_builded+'][model_intermediate_table]"]' ).val(value_relasi['model_intermediate_table']);
             }
 
             select_column_relasi = 0

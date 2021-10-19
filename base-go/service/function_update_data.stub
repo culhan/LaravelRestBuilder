@@ -1,6 +1,4 @@
-func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
-    // begin a transaction
-    tx := models.DB.Begin()
+func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
     {{code_validation}}
     
@@ -9,15 +7,17 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
 	{{code_sanitation}}
     {{custom_check_single_data}}
 
-    _, err := repositories.GetSingleGormData{{ModulName}}(tx, map[string]interface{}{}, singleData) 
+    _, err := repositories.GetSingleGormData{{ModulName}}(tx, map[string]interface{}{}, singleData, c) 
 	if err != nil {
 		return nil, err
 	}
 
-	resultUpdate := singleData.Select(raw_column).Updates(&this_model)
+	resultUpdate := singleData.Session(&gorm.Session{}).Select(raw_column).Updates(&this_model)
 
     if( resultUpdate.Error != nil ){
-		return nil, resultUpdate.Error
+		errorState := exceptions.ErrorException(500, "update "+this_model.ModulName()+" failed")
+
+		return nil, errorState
     }
 	
 	singleData.Select(`*`).Find(&this_model)
@@ -28,13 +28,10 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
 
     {{relation_function}}
 
-    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model) 
+    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
 	if err != nil {
 		return nil, err
 	}
-	    
-    // end transaction
-    tx.Commit()
 
 	return resultData, nil
 }

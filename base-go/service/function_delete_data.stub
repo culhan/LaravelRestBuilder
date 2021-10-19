@@ -1,23 +1,18 @@
-func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
-    // begin a transaction
-    tx := models.DB.Begin()
+func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
     this_model := models.{{ModulName}}Model{}    
 	{{custom_check_single_data}}
 
-    _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model) 
+    _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
 	if err != nil {
 		return nil, err
 	}
 
-	result := tx.Delete(&this_model)
+	result := tx.Session(&gorm.Session{}).Delete(&this_model)
 
     if result.RowsAffected <= 0 {
         return false, result.Error
     }
-
-    // end transaction
-    tx.Commit()
 
     return true, nil
 }

@@ -8,6 +8,23 @@ class ModelBuilder
 {
 
     /**
+     * default class
+     */
+    static $default_class = [
+        "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/exceptions",
+        "olsera.com/kikota/helpers",
+        "encoding/json",
+        "net/http",
+	    "strings",
+        "io/ioutil",
+        "time",
+        "github.com/twinj/uuid",
+        "github.com/gin-gonic/gin",
+        "github.com/shopspring/decimal",
+    ];
+
+    /**
      * Undocumented function
      *
      * @param [type] $name_model
@@ -38,6 +55,7 @@ class ModelBuilder
     static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details, $class )
     {
         $name = $model_file_name = UCWORDS($name_model);
+        $model_file_name = $model_file_name."Model";
         $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
         $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH);
 
@@ -62,16 +80,18 @@ class ModelBuilder
         $text_column = '';
         $text_select_column = '';
         $text_select_column_attribute = '';
+        $hidden = array_flip($hidden);
+        
         foreach ($column as $key => $value) {
             if( !empty($text_column) ){
                 $text_column .= "\n\t";
-                $text_select_column .= "\n\t\t";
-                $text_select_column_attribute .= "\n\t\t";
             }
 
             $column_type = $list_type_var[$value['type']];
             
-            if( !empty($with_timestamp_details['delete']) && !empty($with_timestamp_details['delete_column']) ){
+            if( !empty($with_timestamp_details['delete']) ){
+
+                $with_timestamp_details['delete_column'] = $with_timestamp_details['delete_column']??'deleted_time';
                 if( $value['name'] == $with_timestamp_details['delete_column']){
                     $column_type = "gorm.DeletedAt";
                 }
@@ -79,9 +99,21 @@ class ModelBuilder
             
             $text_column .= ucfirst($value['name'])."\t".$column_type."\t"."`json:\"".$value['name']."\" ";
             if( $column_type == 'int' ) {
-                $text_column .= "gorm:\"default:0\"`";
+                $text_column .= "gorm:\"default:".$value["default"]."\"`";
             }else {
                 $text_column .= "gorm:\"default:NULL\"`";
+            }
+        }
+        
+        foreach ($column as $key => $value) {
+            
+            if( isset($hidden[$value['name']]) ){
+                continue;
+            }
+
+            if( !empty($text_select_column) ){
+                $text_select_column .= "\n\t\t";
+                $text_select_column_attribute .= "\n\t\t";
             }
 
             $text_select_column .= ucfirst($value['name'])."\tstring";
@@ -93,7 +125,45 @@ class ModelBuilder
             }
         }
 
+        foreach ($column_function as $key => $value) {
+            $text_select_column .= "\n\t\t";
+            $text_select_column_attribute .= "\n\t\t";
+
+            $text_select_column .= ucfirst($value['name'])."\tstring";
+            $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['function']."`,";
+        }
+
+        // CreditCard CreditCard `gorm:"foreignkey:UserName;references:name"`
+        // CreditCards  []CreditCard `gorm:"foreignKey:UserNumber;references:MemberNumber"`
+        // Store []StoreModel `gorm:"many2many:ki_com_store_staff;foreignKey:id;joinForeignKey:staff_id;References:id;joinReferences:store_id"`
         foreach ($relation as $relation_key => $relation_value) {
+
+            if( !isset($hidden_relation[$relation_value['name']]) ){
+
+                if( !empty($text_column) ){
+                    $text_column .= "\n\t";
+                }
+
+                $model_name = $relation_value['model_name']??ucwords($relation_value['name'])."Model";
+                if( $relation_value['type'] == 'has_many' || $relation_value['type'] == 'belongs_to_many' ){
+                    $model_name = "[]".$model_name;
+                }
+                
+                $text_column .= ucfirst($relation_value['name'])."\t".$model_name."\t"."`gorm:\"";
+                if( $relation_value['type'] == 'belongs_to_many' ){
+                    $text_column .= "many2many:".$relation_value["intermediate_table"].";";
+                    $text_column .= "foreignKey:id;";
+                    $text_column .= "joinForeignKey:".$relation_value["foreign_key_model"].";";
+                    $text_column .= "References:id;";
+                    $text_column .= "joinReferences:id;".$relation_value["foreign_key_joining_model"];
+                }else{
+                    $text_column .= "foreignKey:id;";
+                    $text_column .= "references:".$relation_value["foreign_key"]."";
+                }
+                
+                $text_column .= "\"`";
+            }
+
             $query_code = file_get_contents(__DIR__.'/../../base-go/model/query_'.$relation_value['type'].'.stub', FILE_USE_INCLUDE_PATH);
 
             $rel_column = '';
@@ -105,12 +175,16 @@ class ModelBuilder
                 }
             }
             
-            if ( !(strpos($relation_value["foreign_key"], '.') !== false) ) {
-                $relation_value["foreign_key"] = $relation_value["table"].".".$relation_value["foreign_key"];
+            if( isset($relation_value["foreign_key"]) ){
+                if ( !(strpos($relation_value["foreign_key"], '.') !== false) ) {
+                    $relation_value["foreign_key"] = $relation_value["table"].".".$relation_value["foreign_key"];
+                }
             }
 
-            if ( !(strpos($relation_value["relation_key"], '.') !== false) ) {
-                $relation_value["relation_key"] = $table.".".($relation_value["relation_key"]??"id");
+            if( isset($relation_value["relation_key"]) ){
+                if ( !(strpos($relation_value["relation_key"], '.') !== false) ) {
+                    $relation_value["relation_key"] = $table.".".($relation_value["relation_key"]??"id");
+                }
             }
 
             $relation_value["custom_join"] = str_replace("\n", "\n\t\t", $relation_value["custom_join"]);
@@ -125,15 +199,23 @@ class ModelBuilder
                 "-- start list has many join option\n",
                 "-- start list has many query option\n",
                 "\n",
+                "{{intermediate_table}}",
+                "{{column_foreign_key_model}}",
+                "{{column_foreign_key_joining_model}}",
+                "{{model_table}}",
             ], [
                 $rel_column,
                 $relation_value["custom_order"],
                 $relation_value["table"],
-                $relation_value["foreign_key"],
-                $relation_value["relation_key"],
+                $relation_value["foreign_key"]??NULL,
+                $relation_value["relation_key"]??NULL,
                 "-- start list has many join option\n\t".$relation_value["custom_join"]."\n",
                 "-- start list has many query option\n\t".$relation_value["custom_option"]."\n",
                 "\n\t\t",
+                $relation_value["intermediate_table"]??NULL,
+                $relation_value["foreign_key_model"]??NULL,
+                $relation_value["foreign_key_joining_model"]??NULL,
+                $table,
             ], $query_code);
             
             $text_select_column .= "\n\t\t".ucfirst($relation_value['name'])."\tstring";
@@ -179,7 +261,7 @@ class ModelBuilder
             $base_model = str_replace('// end list query option', 'return db'."\n\t".'// end list query option',$base_model);
         }
 
-        $base_model = ServiceBuilder::generateClass($base_model, $class);
+        $base_model = self::generateClass($base_model, $class);
 
         FileCreator::create( $model_file_name, 'app/models', $base_model );
         return;
@@ -876,4 +958,34 @@ class ModelBuilder
         return $column_code;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param [type] $base
+     * @param [type] $class
+     * @return void
+     */
+    public static function generateClass($base, $class)
+    {
+        foreach (self::$default_class as $key => $value) {
+            $last_string = explode("/",$value);
+            if( $last_string[count($last_string)-1] == 'decimal' ){
+                if ( strpos($base, ' '.$last_string[count($last_string)-1]) !== false || strpos($base, "\t".$last_string[count($last_string)-1]) !== false ) {
+                    $class[] = $value;
+                }    
+            }else {
+                if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false || strpos($base, "\t".$last_string[count($last_string)-1]) !== false) {
+                    $class[] = $value;
+                }
+            }
+        }
+
+        foreach ($class as $key => $value) {
+            $base = str_replace('{{class}}','"' . $value . '"' . "\n\t" . "{{class}}",$base);
+        }
+
+        $base = str_replace('{{class}}', "",$base);
+
+        return $base;
+    }
 }

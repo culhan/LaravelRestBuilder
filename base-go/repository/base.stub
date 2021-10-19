@@ -7,10 +7,11 @@ import (
     "olsera.com/kikota/helpers"
 	"olsera.com/kikota/app/models"
     "olsera.com/kikota/exceptions"
+    "github.com/gin-gonic/gin"
     "gorm.io/gorm"
 )
 
-func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model) (models.ReturnData, interface{}) {
+func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (models.ReturnData, interface{}) {
 
 	data_result, err := models.GetSearch({{name}}Model, data)
 	if err != nil {
@@ -20,12 +21,12 @@ func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{
 	return data_result, nil
 }
 
-func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
+func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (interface{}, interface{}) {
 
 	data_result := models.GetSingleWhereData(tx, data, {{name}}Model)
 
     if 0 == len(data_result) {
-		error_return := exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
+		error_return := exceptions.ValidateException(7, helpers.Trans(c.Param("locale"), "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
 
         return nil, error_return
 	}
@@ -33,13 +34,13 @@ func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model mod
 	return data_result, nil
 }
 
-func GetSingleGormData{{Name}}(tx *gorm.DB, data interface{}, query *gorm.DB) (interface{}, interface{}) {
+func GetSingleGormData{{Name}}(tx *gorm.DB, data interface{}, query *gorm.DB, c *gin.Context) (interface{}, interface{}) {
 
     data_result := map[string]interface{}{}
 	models.GetGormWhereData(tx, models.{{Name}}Model{}, data, query).Take(&data_result)
 
     if 0 == len(data_result) {
-		error_return := exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": models.{{Name}}Model{}.ModulName()}))
+		error_return := exceptions.ValidateException(7, helpers.Trans(c.Param("locale"), "error.no_data_found", map[string]interface{}{"data": models.{{Name}}Model{}.ModulName()}))
 
         return nil, error_return
 	}
@@ -47,12 +48,12 @@ func GetSingleGormData{{Name}}(tx *gorm.DB, data interface{}, query *gorm.DB) (i
 	return data_result, nil
 }
 
-func GetMultiWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model) (interface{}, interface{}) {
+func GetMultiWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (interface{}, interface{}) {
 
 	data_result := models.GetMultiWhereData(tx, data, {{name}}Model)
 
     if 0 == len(data_result) {
-		error_return := exceptions.ValidateException(7, helpers.Trans(models.Locale, "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
+		error_return := exceptions.ValidateException(7, helpers.Trans(c.Param("locale"), "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
 
         return nil, error_return
 	}

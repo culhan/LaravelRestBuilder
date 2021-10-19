@@ -7,6 +7,23 @@ use Illuminate\Support\Facades\Schema;
 class ServiceBuilder
 {
     /**
+     * default class
+     */
+    static $default_class = [
+        "olsera.com/kikota/app/models",
+        "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/exceptions",
+        "olsera.com/kikota/helpers",
+        "encoding/json",
+        "net/http",
+	    "strings",
+        "io/ioutil",
+        "time",
+        "fmt",
+        "github.com/twinj/uuid",
+    ];
+
+    /**
      * service builder function
      *
      * @param [type] $name
@@ -45,7 +62,7 @@ class ServiceBuilder
                 continue;
             }
             $function_name = 'function_'.$value['process'].'.stub';
-
+            
             if(in_array($function_name,$list_file))
             {
                 // base code function   
@@ -80,7 +97,11 @@ class ServiceBuilder
                         }
                     }
                 }else{
-                    $code_function = str_replace('{{code_validation}}', '',$code_function);
+                    if( !empty($value['advanced_validation']) ){
+                        $code_function = str_replace('{{code_validation}}', $value['advanced_validation_code'],$code_function);
+                    }else {
+                        $code_function = str_replace('{{code_validation}}', '',$code_function);
+                    }
                 }
                 $code_function = str_replace('{{param_validate}}',$param_validation,$code_function);
 
@@ -133,17 +154,27 @@ class ServiceBuilder
                 if( !empty($relation) ){
                     foreach ($relation as $rel_key => $rel_value) {
                         $base_code_relation = file_get_contents(__DIR__.'/../../base-go/service/code_'.$rel_value['type'].'.stub', FILE_USE_INCLUDE_PATH)."\n";
-                        
+
                         $base_code_relation = str_replace([
                             "{{parameter_name}}",
-                            "{{function_name}}",
+                            "{{function_name_create}}",
+                            "{{function_name_update}}",
+                            "{{function_name_delete}}",
                             "{{column_foreign_key}}",
                             "\n",
+                            "{{ucfirst_column_foreign_key}}",
+                            "{{model_name}}",
+                            "{{function_name_create_intermediate_table}}",
                         ],[
                             $rel_value["name"],
                             UCWORDS(($rel_value["model_name"]??$rel_value["name"]).ucfirst($value["fungsi_relasi"][$rel_value["name"]]??'create')),
-                            $rel_value["foreign_key"],
+                            UCWORDS(($rel_value["model_name"]??$rel_value["name"]).ucfirst($value["fungsi_relasi_update"][$rel_value["name"]]??'update')),
+                            UCWORDS(($rel_value["model_name"]??$rel_value["name"]).ucfirst($value["fungsi_relasi_delete"][$rel_value["name"]]??'delete')),
+                            $rel_value["foreign_key"]??NULL,
                             "\n\t",
+                            ucfirst($rel_value["foreign_key"]??NULL),
+                            $rel_value["model_name"]??$rel_value["name"],
+                            UCWORDS((str_replace_first('Model','',$rel_value["model_intermediate_table"]??NULL))."create"),
                         ], $base_code_relation);
                         $code_relation .= $base_code_relation;
                     }
@@ -156,11 +187,13 @@ class ServiceBuilder
                     "{{ModulName}}",
                     "{{Name}}",
                     "{{relation_function}}",
+                    "{{custom_function}}"
                 ],[
                     $param_function,
                     $Name,
                     ucwords($value['name']),
-                    $code_relation
+                    $code_relation,
+                    $value['custom_function']??"",
                 ],$code_function);
 
                 if( $key != count($route)-1 ){
@@ -229,6 +262,13 @@ class ServiceBuilder
      */
     public static function generateClass($base, $class)
     {
+        foreach (self::$default_class as $key => $value) {
+            $last_string = explode("/",$value);
+            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
+                $class[] = $value;
+            }
+        }
+
         foreach ($class as $key => $value) {
             $base = str_replace('{{class}}','"' . $value . '"' . "\n\t" . "{{class}}",$base);
         }
@@ -238,4 +278,10 @@ class ServiceBuilder
         return $base;
     }
 
+    function str_replace_first($from, $to, $content)
+    {
+        $from = '/'.preg_quote($from, '/').'/';
+
+        return preg_replace($from, $to, $content, 1);
+    }
 }

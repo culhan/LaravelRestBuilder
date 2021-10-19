@@ -1,18 +1,13 @@
-func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
-    // begin a transaction
-    tx := models.DB.Begin()
+func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
     
     {{code_validation}}
     
     {{custom_check_single_data}}
 	
-    resultData, err := repositories.GetSingleGormDataBusinessType(tx, map[string]interface{}{}, singleData) 
+    resultData, err := repositories.GetSingleGormDataBusinessType(tx.Session(&gorm.Session{}), map[string]interface{}{}, singleData, c) 
 	if err != nil {
 		return nil, err
 	}
-    
-    // end transaction
-    tx.Commit()
 
 	return resultData, nil
 }

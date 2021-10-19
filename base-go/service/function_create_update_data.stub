@@ -1,6 +1,4 @@
-func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
-    // begin a transaction
-    tx := models.DB.Begin()
+func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
     {{code_validation}}
     
@@ -12,7 +10,7 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
 	{{code_sanitation}}
     keyFirstOrCreate.Name = data["name"].(string)
 
-    singleData := tx.Model(&models.ProductVariantUnitModel{}).Where(keyFirstOrCreate)
+    singleData := tx.Session(&gorm.Session{}).Model(&models.ProductVariantUnitModel{}).Where(keyFirstOrCreate)
     
     status := singleData.Assign(&this_model).FirstOrCreate(&model)
     
@@ -26,13 +24,10 @@ func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (inte
 
     {{relation_function}}
 
-	resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, keyFirstOrCreate) 
+	resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, keyFirstOrCreate, c) 
     if err != nil {
 		return nil, err
 	}
-
-    // end transaction
-    tx.Commit()
 	    
 	return resultData, nil
 }

@@ -8,6 +8,21 @@ class RouteBuilder
 {
 
     /**
+     * default class
+     */
+    static $default_class = [
+        "olsera.com/kikota/app/models",
+        "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/exceptions",
+        "olsera.com/kikota/helpers",
+        "encoding/json",
+        "net/http",
+	    "strings",
+        "io/ioutil",
+        "time",
+    ];
+
+    /**
      * builder route function
      *
      * @param [type] $name
@@ -85,7 +100,7 @@ class RouteBuilder
 
         $base_route = str_replace("{{ModulName}}", $Name, $base_route);
 
-        $base_route = ServiceBuilder::generateClass($base_route, $class);
+        $base_route = self::generateClass($base_route, $class);
 
         FileCreator::create( $Name, 'routes', $base_route, 'route', false );
 
@@ -141,4 +156,28 @@ class RouteBuilder
         // }        
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param [type] $base
+     * @param [type] $class
+     * @return void
+     */
+    public static function generateClass($base, $class)
+    {
+        foreach (self::$default_class as $key => $value) {
+            $last_string = explode("/",$value);
+            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
+                $class[] = $value;
+            }
+        }
+
+        foreach ($class as $key => $value) {
+            $base = str_replace('{{class}}','"' . $value . '"' . "\n\t" . "{{class}}",$base);
+        }
+
+        $base = str_replace('{{class}}', "",$base);
+
+        return $base;
+    }
 }

@@ -1,0 +1,10 @@
+func {{ModulName}}{{Name}}(c *gin.Context) {
+    tx := DB.Begin()
+    tx = tx.Set("gin_context", c)
+	dt, err := services.Service{{ModulName}}{{Name}}( tx, c.MustGet("Request").(map[string]interface {}), c{{UrlParam}} )
+	if err == nil {
+        tx.Commit()
+		c.SecureJSON(200, dt)
+	}
+}
+// end list function

@@ -1,4 +1,31 @@
 if _, ok := data["{{parameter_name}}"]; ok {
+
+    this_model_{{parameter_name}} := models.{{model_name}}Model{}
+    this_model_{{parameter_name}}.{{ucfirst_column_foreign_key}} = this_model.Id
+    data_{{parameter_name}} := models.GetMultiWhereData(tx, map[string]interface{}{}, this_model_{{parameter_name}})
+    
+    if len(data_{{parameter_name}}) > 0 {
+        for _, value := range data_{{parameter_name}} {
+
+            id_found := false
+            for _, v_{{parameter_name}} := range data["{{parameter_name}}"].([]interface{}) {
+                v_{{parameter_name}} := v_{{parameter_name}}.(map[string]interface {})
+                if _, ok := v_{{parameter_name}}["id"]; ok {
+                    if convertToString(v_{{parameter_name}}["id"]) == convertToString(value["id"]) {
+                        id_found = true
+                    }
+                }
+            }
+
+            if !id_found {
+                _ , err := Service{{function_name_delete}}(tx.Session(&gorm.Session{}), map[string]interface{}{}, locale, convertToString(value["id"]))
+                if err != nil {
+                    return nil, err
+                }
+            }
+        }
+    }
+
     for _, value := range data["{{parameter_name}}"].([]interface{}) {
         toRelation := value.(map[string]interface {})
         toRelation["{{column_foreign_key}}"] = this_model.Id
@@ -8,6 +35,17 @@ if _, ok := data["{{parameter_name}}"]; ok {
         }
 
         toRelation["header_object"] = result
-        Service{{function_name}}(toRelation)
+        if _, ok := value.(map[string]interface {})["id"]; !ok {
+            _ , err := Service{{function_name_create}}(tx.Session(&gorm.Session{}), toRelation)
+            if err != nil {
+                return nil, err
+            }
+        }else {
+            _ , err := Service{{function_name_update}}(tx.Session(&gorm.Session{}), toRelation, convertToString(value.(map[string]interface {})["id"]))
+            if err != nil {
+                return nil, err
+            }
+        }
+
     }
 }

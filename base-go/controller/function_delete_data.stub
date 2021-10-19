@@ -1,6 +1,9 @@
 func {{ModulName}}{{Name}}(c *gin.Context) {
-	dt, err := services.Service{{ModulName}}{{Name}}( Request{{UrlParam}} )
+	tx := DB.Begin()
+    tx = tx.Set("gin_context", c)
+    dt, err := services.Service{{ModulName}}{{Name}}( tx, c.MustGet("Request").(map[string]interface {}), c{{UrlParam}} )
 	if err == nil {
+        tx.Commit()
 		c.SecureJSON(200, resources.DeletedResource(dt))
 	}
 }

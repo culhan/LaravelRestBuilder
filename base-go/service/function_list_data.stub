@@ -1,17 +1,12 @@
-func Service{{ModulName}}{{Name}}(data map[string]interface{}{{UrlParam}}) (interface{}, interface{}) {
-    // begin a transaction
-    tx := models.DB.Begin()
+func Service{{ModulName}}{{Name}}(  tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
     {{code_validation}}
     
     this_model := models.{{ModulName}}Model{}
-	resultData, err := repositories.GetIndexData{{ModulName}}(tx, data, this_model) 
+	resultData, err := repositories.GetIndexData{{ModulName}}(tx.Session(&gorm.Session{}), data, this_model, c) 
 	if err != nil {
 		return nil, err
 	}
-	
-    // end transaction
-    tx.Commit()
 
 	return resultData, nil
 }
