@@ -12,6 +12,7 @@ class ServiceBuilder
     static $default_class = [
         "olsera.com/kikota/app/models",
         "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/app/resources",
         "olsera.com/kikota/exceptions",
         "olsera.com/kikota/helpers",
         "encoding/json",
@@ -21,6 +22,8 @@ class ServiceBuilder
         "time",
         "fmt",
         "github.com/twinj/uuid",
+        "golang.org/x/crypto/bcrypt",
+        "strconv",
     ];
 
     /**
@@ -77,7 +80,6 @@ class ServiceBuilder
                 // assign validation
                 $param_validation = '';
                 if( !empty($value['validation']) ){
-                    $class["encoding/json"] = "encoding/json";
                     $code_validation = file_get_contents(__DIR__.'/../../base-go/service/code_validation.stub', FILE_USE_INCLUDE_PATH);
                     $code_validation = str_replace("\n", "\n\t",$code_validation);
 
@@ -98,6 +100,7 @@ class ServiceBuilder
                     }
                 }else{
                     if( !empty($value['advanced_validation']) ){
+                        $value['advanced_validation_code'] = str_replace("\n", "\n\t", $value['advanced_validation_code']);
                         $code_function = str_replace('{{code_validation}}', $value['advanced_validation_code'],$code_function);
                     }else {
                         $code_function = str_replace('{{code_validation}}', '',$code_function);
@@ -153,10 +156,13 @@ class ServiceBuilder
                 $code_relation = '';
                 if( !empty($relation) ){
                     foreach ($relation as $rel_key => $rel_value) {
+                        
                         $base_code_relation = file_get_contents(__DIR__.'/../../base-go/service/code_'.$rel_value['type'].'.stub', FILE_USE_INCLUDE_PATH)."\n";
 
+                        $model_name_function = str_replace_first('Model','',$rel_value["model_name"]??$rel_value["name"]);
                         $base_code_relation = str_replace([
                             "{{parameter_name}}",
+                            "{{ucfirst_parameter_name}}",
                             "{{function_name_create}}",
                             "{{function_name_update}}",
                             "{{function_name_delete}}",
@@ -165,16 +171,19 @@ class ServiceBuilder
                             "{{ucfirst_column_foreign_key}}",
                             "{{model_name}}",
                             "{{function_name_create_intermediate_table}}",
+                            "{{foreign_key_model}}"
                         ],[
                             $rel_value["name"],
-                            UCWORDS(($rel_value["model_name"]??$rel_value["name"]).ucfirst($value["fungsi_relasi"][$rel_value["name"]]??'create')),
-                            UCWORDS(($rel_value["model_name"]??$rel_value["name"]).ucfirst($value["fungsi_relasi_update"][$rel_value["name"]]??'update')),
-                            UCWORDS(($rel_value["model_name"]??$rel_value["name"]).ucfirst($value["fungsi_relasi_delete"][$rel_value["name"]]??'delete')),
+                            ucfirst($rel_value["name"]),
+                            UCWORDS(($model_name_function).ucfirst($value["fungsi_relasi"][$rel_value["name"]]??'create')),
+                            UCWORDS(($model_name_function).ucfirst($value["fungsi_relasi_update"][$rel_value["name"]]??'update')),
+                            UCWORDS(($model_name_function).ucfirst($value["fungsi_relasi_delete"][$rel_value["name"]]??'delete')),
                             $rel_value["foreign_key"]??NULL,
                             "\n\t",
                             ucfirst($rel_value["foreign_key"]??NULL),
                             $rel_value["model_name"]??$rel_value["name"],
-                            UCWORDS((str_replace_first('Model','',$rel_value["model_intermediate_table"]??NULL))."create"),
+                            UCWORDS((str_replace_first('Model','',$rel_value["modul_intermediate_table"]??NULL))."Create"),
+                            $rel_value["foreign_key_model"]??NULL,
                         ], $base_code_relation);
                         $code_relation .= $base_code_relation;
                     }
@@ -193,7 +202,7 @@ class ServiceBuilder
                     $Name,
                     ucwords($value['name']),
                     $code_relation,
-                    $value['custom_function']??"",
+                    str_replace("\n", "\n\t", $value['custom_function']??""),
                 ],$code_function);
 
                 if( $key != count($route)-1 ){
@@ -264,7 +273,7 @@ class ServiceBuilder
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
-            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
+            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false || strpos($base, "\t".$last_string[count($last_string)-1]) !== false) {
                 $class[] = $value;
             }
         }

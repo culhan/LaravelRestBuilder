@@ -1,1 +1,1 @@
-r.{{method}}("{{name_route}}{{param}}", controllers.{{Name}}{{name_function}})
+r.{{method}}("{{name_route}}{{param}}" {{middleware}}, controllers.{{Name}}{{name_function}})

@@ -1,6 +1,6 @@
 if _, ok := data["{{parameter_name}}"]; ok {
 
-    this_model_{{parameter_name}} := models.{{model_name}}Model{}
+    this_model_{{parameter_name}} := models.{{model_name}}{}
     this_model_{{parameter_name}}.{{ucfirst_column_foreign_key}} = this_model.Id
     data_{{parameter_name}} := models.GetMultiWhereData(tx, map[string]interface{}{}, this_model_{{parameter_name}})
     

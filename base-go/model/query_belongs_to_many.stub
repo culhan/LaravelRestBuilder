@@ -4,10 +4,11 @@
 {{rel_column}}
         ) {{custom_order}} 
     ),''),']') 
-    from {{table}}
+    from {{intermediate_table}}
+    left join {{table}} on {{table}}.id = {{intermediate_table}}.{{column_foreign_key_joining_model}}
     -- start list has many join option
     -- end list has many join option
-    where {{column_foreign_key}} = {{column_relation_key}}
+    where {{intermediate_table}}.{{column_foreign_key_model}} = {{model_table}}.id
     -- start list has many query option
     -- end list has many query option
 )

@@ -13,6 +13,7 @@ class RouteBuilder
     static $default_class = [
         "olsera.com/kikota/app/models",
         "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/app/middleware",
         "olsera.com/kikota/exceptions",
         "olsera.com/kikota/helpers",
         "encoding/json",
@@ -68,6 +69,20 @@ class RouteBuilder
                 $route_code = str_replace('{{param}}','',$route_code);
             }
 
+            
+            if( !empty($value['middleware']) )
+            {
+                $middleware = "";
+                foreach ($value['middleware'] as $key_param => $value_param) {
+                   $middleware .= ", middleware.".$value_param."()";
+                }
+                
+                $route_code = str_replace('{{middleware}}',$middleware,$route_code);
+                
+            }else {
+                $route_code = str_replace('{{middleware}}','',$route_code);
+            }
+
             $route_code = str_replace([
                     '{',
                     '}',
@@ -77,23 +92,6 @@ class RouteBuilder
                 ],
                 $route_code
             );
-            // if( !empty($value['middleware']) )
-            // {
-            //     $middleware = "";
-            //     foreach ($value['middleware'] as $key_param => $value_param) {
-            //         $middleware .= '"'.$value_param;
-            //         if( !empty($value['middleware_parameter'][$value_param]) ) {
-            //             $middleware .= ':'.$value['middleware_parameter'][$value_param];
-            //         }
-            //         $middleware .= '"';
-            //         if( !empty($value['middleware'][$key_param+1]) ) {
-            //             $middleware .= ",";
-            //         }
-            //     }
-            //     $route_code = str_replace('{{middleware}}',$middleware,$route_code);
-            // }else {
-            //     $route_code = str_replace('{{middleware}}','',$route_code);
-            // }
 
             $base_route = str_replace("// end list function", $route_code."\t// end list function", $base_route);
         }

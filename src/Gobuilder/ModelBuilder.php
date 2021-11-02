@@ -208,7 +208,7 @@ class ModelBuilder
                 $relation_value["custom_order"],
                 $relation_value["table"],
                 $relation_value["foreign_key"]??NULL,
-                $relation_value["relation_key"]??NULL,
+                $relation_value["relation_key"]??($table.".id"),
                 "-- start list has many join option\n\t".$relation_value["custom_join"]."\n",
                 "-- start list has many query option\n\t".$relation_value["custom_option"]."\n",
                 "\n\t\t",

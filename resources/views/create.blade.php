@@ -1032,6 +1032,21 @@
         }else if( session('project')['lang'] == 'go' ) {
             $models[] = "strconv";
             $models[] = "olsera.com/kikota/exceptions";
+
+            $dir = app_path().'/../../'.session('project')['folder'].'/app/';
+
+            $files = scandir($dir.'models/');
+            $namespace = '';
+            foreach($files as $file) {
+                //skip current and parent folder entries and non-php files
+                if ($file == '.' || $file == '..' || !preg_match('/.go/', $file)) continue;
+                    $models[] = $namespace . preg_replace('/.go$/', '', $file);
+                    
+                    $select2_data[] = [
+                        'id'    => preg_replace('/.go$/', '', $file),
+                        'text'  => preg_replace('/.go$/', '', $file)
+                    ];
+            }
         }
     ?>
     <script>   
@@ -1581,10 +1596,12 @@
                     html_relasi_detail += 
                         '<div class="row mb-3 '+data.value+'_'+i+'">'+
                             '<div class="col-sm-2" style="padding-top:5px;">'+
-                                '<label>Nama Model Intermediate Tabel *go</label>'+
+                                '<label>Modul Intermediate Tabel *go</label>'+
                             '</div>'+
                             '<div class="col-sm">'+
-                                '<input type="" class="form-control" placeholder="model intermediate table" name="relation['+i+'][model_intermediate_table]">'+
+                                '<select class="multi-select2-relasi col-sm-12" name="relation['+i+'][modul_intermediate_table]" multiple="">'+
+                                '</select>'+
+                                // '<input type="" class="form-control" placeholder="model intermediate table" name="relation['+i+'][modul_intermediate_table]">'+
                             '</div>'+
                         '</div>'+
                         '';                
@@ -1721,6 +1738,13 @@
                 createCodeEditor( 'relation_custom_join_'+i, "relation["+i+"][custom_join]", 'sql' );
                 createCodeEditor( 'relation_custom_option_'+i, "relation["+i+"][custom_option]", 'sql' );
                 createCodeEditor( 'relation_custom_order_'+i, "relation["+i+"][custom_order]", 'sql' );
+
+                $('.multi-select2-relasi').select2({
+                    placeholder: 'Models',
+                    allowClear: true,
+                    width: '100%',
+                    data:select2_data,
+                });
 
                 if( refill == 1) {
                     fill_kolom_relasi(i,get_data_array(objModul,'relation.'+i,''),0)
@@ -2847,8 +2871,8 @@
             if( value_relasi['intermediate_table'] ){
                 $( '[name="relation['+jumlah_relasi_builded+'][intermediate_table]"]' ).val(value_relasi['intermediate_table']);
             }
-            if( value_relasi['model_intermediate_table'] ){
-                $( '[name="relation['+jumlah_relasi_builded+'][model_intermediate_table]"]' ).val(value_relasi['model_intermediate_table']);
+            if( value_relasi['modul_intermediate_table'] ){
+                $( '[name="relation['+jumlah_relasi_builded+'][modul_intermediate_table]"]' ).val(value_relasi['modul_intermediate_table']).change();
             }
 
             select_column_relasi = 0

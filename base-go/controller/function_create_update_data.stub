@@ -5,6 +5,8 @@ func {{ModulName}}{{Name}}(c *gin.Context) {
 	if err == nil {
         tx.Commit()
 		c.SecureJSON(200, resources.{{ModulName}}Resource(dt))
-	}
+	}else {
+        tx.Rollback()
+    }
 }
 // end list function

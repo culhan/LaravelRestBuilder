@@ -1,16 +1,17 @@
 if _, ok := data["{{parameter_name}}"]; ok {
 
-    tx.Session(&gorm.Session{}).Model(&this_model).Association({{parameter_name}}).Clear()
+    tx.Session(&gorm.Session{}).Model(&this_model).Association("{{ucfirst_parameter_name}}").Clear()
 
     for _, value := range data["{{parameter_name}}"].([]interface{}) {
         toRelation := value.(map[string]interface {})
+        toRelation["{{foreign_key_model}}"] = result["id"]
 
         if _, ok := data["header_object"]; ok {
             result["{{parameter_name}}"] = data["header_object"]
         }
 
         toRelation["header_object"] = result
-        _ , err := Service{{function_name_create_intermediate_table}}(tx.Session(&gorm.Session{}), toRelation)
+        _ , err := Service{{function_name_create_intermediate_table}}(tx.Session(&gorm.Session{}), toRelation, c, locale)
         if err != nil {
             return nil, err
         }
