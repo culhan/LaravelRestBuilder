@@ -888,7 +888,7 @@ class MigrationBuilder
                 $type = "char";
             }else if ($value->COLUMN_TYPE == 'tinyint(4)') {
                 $type = "tinyInteger";
-            }else if ($value->COLUMN_TYPE == 'tinyint(1)') {
+            }else if ($value->COLUMN_TYPE == 'tinyint(1)' || $value->COLUMN_TYPE == 'tinyint') {
                 $type = "boolean";
             }else if ($value->DATA_TYPE == 'text') {
                 $type = "text";

@@ -366,7 +366,13 @@ class ServiceBuilder
                             $param .= ',';
                         }
                         $param .= '$'.((!empty($value_param['name'])) ? $value_param['name']:$value_param);
-                        $param_function .= ',$'.((!empty($value_param['name'])) ? $value_param['name']:$value_param)." = NULL";
+
+                        $par = ((!empty($value_param['name'])) ? $value_param['name']:$value_param);
+                        if (strpos($par, '=') !== false) {
+                            $param_function .= ',$'.$par;
+                        }else {
+                            $param_function .= ',$'.$par." = NULL";
+                        }
                     }
                 }                                
 

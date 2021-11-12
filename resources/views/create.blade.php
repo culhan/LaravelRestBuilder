@@ -2698,15 +2698,15 @@
         }
 
         function build_tabel_option_by_column(data) {
-            $( '[name="with_timestamp"]' ).val(0)
-            $( '[name="with_authstamp"]' ).val(0)
-            $( '[name="with_ipstamp"]' ).val(0)
-            $( '[name="with_companystamp"]' ).val(0)
+            // $( '[name="with_timestamp"]' ).val(0)
+            // $( '[name="with_authstamp"]' ).val(0)
+            // $( '[name="with_ipstamp"]' ).val(0)
+            // $( '[name="with_companystamp"]' ).val(0)
 
             $.each(data, function( index, value ) {
-                if(value['name'] == 'created_time') $( '[name="with_timestamp"]' ).val(1)
-                if(value['name'] == 'created_by') $( '[name="with_authstamp"]' ).val(1)
-                if(value['name'] == 'created_from') $( '[name="with_ipstamp"]' ).val(1)
+                // if(value['name'] == 'created_time') $( '[name="with_timestamp"]' ).val(1)
+                // if(value['name'] == 'created_by') $( '[name="with_authstamp"]' ).val(1)
+                // if(value['name'] == 'created_from') $( '[name="with_ipstamp"]' ).val(1)
                 if(value['name'] == 'com_id') {
                     $( '[name="with_companystamp"]' ).val(1)
                     // storage_parameter.add('hidden','com_id')
