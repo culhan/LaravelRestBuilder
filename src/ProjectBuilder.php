@@ -35,6 +35,8 @@ class ProjectBuilder
     {        
         session(['project'   => Projects::find($id)->toArray() ]);
 
+        LaravelRestBuilder::setLaravelrestbuilderConnection();
+
         return redirect(Request::get('previous'));
     }
 

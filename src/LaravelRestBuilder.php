@@ -188,6 +188,7 @@ class LaravelRestBuilder
      */
     static function setLaravelrestbuilderConnection()
     {            
+        
         config([
             'database.connections.mysql'   =>  [
                 'driver' => 'mysql',
@@ -204,7 +205,7 @@ class LaravelRestBuilder
                 'strict' => false,
                 'engine' => null,
             ],
-            'laravelRestBuilder.base'    =>  !empty(Arr::get(session('project'),'base_version',NULL)) ? '-'.Arr::get(session('project'),'base_version'):NULL,
+            'laravelRestBuilder.base'    =>  (Arr::get(session('project'),'base_version',NULL) != NULL) ? '-'.Arr::get(session('project'),'base_version'):NULL,
             'laravelRestBuilder.mysql_version'    =>  !empty(Arr::get(session('project'),'mysql_version',NULL)) ? Arr::get(session('project'),'mysql_version'):NULL,
         ]);
         

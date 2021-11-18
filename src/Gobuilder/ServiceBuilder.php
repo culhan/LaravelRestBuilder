@@ -136,9 +136,9 @@ class ServiceBuilder
 
                         $code_filter .= "if _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
                         if( $type_column_assertion == 'int' ){
-                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = convertToInt(data["'.$value_filter['name'].'"])' . "\n";
+                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
                         }else {
-                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = data["'.$value_filter['name'].'"].('. $type_column_assertion .')' . "\n";
+                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
                         }
                         $code_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")";
                         $code_filter .= "\t}\n\t";

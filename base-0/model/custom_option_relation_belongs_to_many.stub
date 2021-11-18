@@ -1,0 +1,2 @@
+                    ->wherePivot("{{column_belongs_to_many_foreign_key_model}}" , '=', \DB::raw(" {{belongs_to_many_intermediate_table}}.{{column_belongs_to_many_foreign_key_model}} {{custom_option}} ") );
+                    

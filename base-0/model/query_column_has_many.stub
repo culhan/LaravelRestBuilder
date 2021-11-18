@@ -1,0 +1,16 @@
+        if( array_get($data,'show_{{has_many_name}}',1) ){
+            $query = $query->addSelect([
+                \DB::raw("(
+                        select concat('[',IFNULL(group_concat(distinct JSON_OBJECT(
+{{column_has_many}}
+                        ) {{custom_order}} 
+                    ),''),']') 
+                    from {{table_has_many}}
+                    -- start list has many join option
+                    -- end list has many join option
+                    where {{column_has_many_foreign_key}} = {{column_has_many_relation_key}}
+                    -- start list has many query option
+                    -- end list has many query option
+                ) as '{{has_many_name}}' ")
+            ]);
+        }

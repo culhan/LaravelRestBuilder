@@ -1,0 +1,33 @@
+/**
+     * [{{name}} description]
+     * @param  [type] $id [description]
+     * @return [type]     [description]
+     */
+    public function {{name}}($id)
+    {        
+        // locking function
+        
+        \DB::beginTransaction();
+
+        // custom code before
+        {{custom_code_before}}
+
+        {{check_single_data}}
+
+        // start list belongs to many delete
+        
+        // end list belongs to many delete
+
+        $return = $single_data->delete();
+        
+        // custom code after
+        {{custom_code_after}}        
+
+        \DB::commit();
+
+        // unlocking function
+
+        return $return;
+    }
+
+    // end list function

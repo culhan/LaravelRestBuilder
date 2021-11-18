@@ -665,8 +665,12 @@ class ModelBuilder
         
         $base_model = str_replace('{{user_id_code}}',config('laravelrestbuilder.user_id_code'),$base_model);
         
+        if( $base == '-0'){
+            FileCreator::create( $model_file_name, 'app/Http/Model', $base_model );
+        }else{
+            FileCreator::create( $model_file_name, 'app/Http/Models', $base_model );
+        }
         
-        FileCreator::create( $model_file_name, 'app/Http/Models', $base_model );
     }
 
     /**

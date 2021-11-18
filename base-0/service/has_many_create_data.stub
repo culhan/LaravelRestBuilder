@@ -1,0 +1,29 @@
+// create data {{name_has_many}}
+        if(!empty($data['{{name_has_many}}']))
+        {
+            if( empty($data['{{name_has_many}}'][0]) ) {
+                $this->{{service_name}}Service = New {{service_name}}Service;
+                if( count($result->{{service_name}}()->get()) > 0 ) {
+                    foreach ($result->{{service_name}}()->get() as $key_{{name_has_many}} => $value_{{name_has_many}}) {
+                        $this->{{service_name}}Service->delete($value_{{name_has_many}}->getKey());
+                    }
+                }
+            }else {
+                if( isset($data['header_object']) ){
+                    $data['header_object']['{{model_name}}'] = $result;
+                    $to_header_object = $data['header_object'];
+                }else{
+                    $to_header_object = [
+                        '{{model_name}}' => $result
+                    ];
+                }
+
+                $this->{{service_name}}Service = New {{service_name}}Service;
+                foreach ($data['{{name_has_many}}'] as $key_{{name_has_many}} => $value_{{name_has_many}}) {
+                    $this->{{service_name}}Service->{{function}}($value_{{name_has_many}}+[
+                        "{{foregin_key}}"   =>  $result->{{relation_key}},
+                        "header_object" => $to_header_object,
+                    ]);
+                }
+            }
+        }

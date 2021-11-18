@@ -1,0 +1,3 @@
+protected $soft_delete  =   true;
+            
+    // end list option

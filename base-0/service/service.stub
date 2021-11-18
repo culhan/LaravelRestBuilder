@@ -1,0 +1,33 @@
+<?php
+namespace App\Http\Services;
+
+use App;
+use Request;
+use App\Http\Locking;
+use App\Exceptions\DataEmptyException;
+use App\Exceptions\ValidationException;
+
+/**
+ * code for system logic
+ */
+class {{Name}}Service extends BaseService
+{
+    {{traits}}
+
+    /**
+     * [__construct description]
+     */
+    public function __construct()
+    {
+        {{initialization}}
+        $this->repository = new App\Http\Repositories\{{Name}}Repository;
+    }
+
+    // start list function
+    
+    // end list function
+
+    // start custom code
+    // end custom code
+
+}

@@ -1,0 +1,280 @@
+<?php
+// File ini ini di  buat dengan Laravel Rest Builder,
+// Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
+// atau hubungi A'mal Sholihan
+namespace App\Http\Models;
+
+use Request;
+use Validator;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Passport\HasApiTokens;
+
+class {{Name}} extends Authenticatable
+{
+    use HasApiTokens;
+
+    public $table = "{{table}}";
+
+    // start list option
+
+    // end list option    
+
+    /**
+     * The name of the "created at" column.
+     *
+     * @var string
+     */
+    const CREATED_AT = 'created_time';
+
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string
+     */
+    const UPDATED_AT = 'modified_time';
+
+    /**
+     * The name of the "deleted at" column.
+     *
+     * @var string
+     */
+    const DELETED_AT = 'deleted_time';
+    
+    /**
+     * [$rememberTokenName description]
+     *
+     * @var [type]
+     */
+    protected $rememberTokenName = false;
+
+    /**
+     * [getAccessToken description]
+     * @return [type] [description]
+     */
+    public function getAccessToken()
+    {
+        return $this->accessToken;
+    }
+
+    /**
+     * [AauthAcessToken description]
+     */
+    public function authAcessToken(){
+        return $this->hasMany('\App\OauthAccessToken');
+    }
+
+    /**
+     * get client function
+     *
+     * @return void
+     */
+    public function get_oauth_client(){
+        return $this->accessToken->client;
+    }
+    
+    /**
+     * [validate description]
+     * @param  [type] $data  [description]
+     * @param  array  $rules [description]
+     * @return [type]        [description]
+     */
+    public static function validate($data, $rules = [])
+    {
+        $validator = Validator::make($data, $rules);
+        if($validator->fails()) throw new  \App\Exceptions\ValidationException($validator->errors());
+        return true;
+    }
+
+    /**
+	 * check attribute function
+	 *
+	 * @param [type] $attr
+	 * @return boolean
+	 */
+	public function hasAttribute($attr)
+	{
+		return array_key_exists($attr, $this->attributes);
+	}
+
+    /**
+     * [scopeGetJoin description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetJoin($query, $data = [])
+    {
+        return $query
+                // start raw join query
+                // end raw join query
+                ;
+    }
+
+    /**
+     * [scopeGetSelect description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetSelect($query, $data = [])
+    {
+        {{column}}
+        return $query;
+    }
+
+    /**
+     * [scopeGetOption description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetOption($query, $data = [])
+    {
+        return $query
+                // start list query option
+                // end list query option
+                ;
+    }
+
+    /**
+     * [scopeGetAll description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetAll($query, $data = [])
+    {
+        return $query->getJoin($data)
+                    ->getSelect($data)                
+                    ->getOption($data);
+    }
+
+    /**
+	 * [setSortableAndSearchableColumn description]
+	 * @param array $value [description]
+	 */
+	public function scopeSetSortableAndSearchableColumn($query, $value=[])
+	{
+		$this->sortableAndSearchableColumn = $value;
+	}
+
+	/**
+	 * set relationColumn function
+	 *
+	 * @param [type] $query
+	 * @param array $value
+	 * @return void
+	 */
+	public function scopeSetRelationColumn($query, $value=[])
+	{		
+		$this->relationColumn = $value;		
+		$this->sortableAndSearchableColumn += $this->relationColumn; 		
+				
+		if( Request::has('distinct_column') ) {
+
+			$this->validate(Request::all(), [
+				'distinct_column' => [
+					'filled',
+					new \KhanCode\LaravelBaseRest\Rules\SortableAndSearchable($this->sortableAndSearchableColumn),
+				],
+			]);
+
+			if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+
+			$this->sortableAndSearchableColumn = [];
+			foreach (Request::get('distinct_column') as $key => $value) {
+				$this->sortableAndSearchableColumn[$value] = $value;
+			}
+
+		}
+	}
+
+    /**
+	 * [getSql description]
+	 * @param  [type] $model [description]
+	 * @return [type]        [description]
+	 */
+	public function getSql($model)
+	{		
+	    $replace = function ($sql, $bindings)
+	    {
+	        $needle = '?';
+	        foreach ($bindings as $replace){
+	            $pos = strpos($sql, $needle);
+	            if ($pos !== false) {
+	                if (gettype($replace) === "string") {
+	                     $replace = ' "'.addslashes($replace).'" ';
+	                }
+	                $sql = substr_replace($sql, $replace, $pos, strlen($needle));
+	            }
+	        }
+	        return $sql;
+	    };
+	    $sql = $replace($model->toSql(), $model->getBindings());
+
+	    return $sql;
+	}
+
+    /**
+	 * [encapsulatedQuery description]
+	 *
+	 * @param   [type]  $alias  [$alias description]
+	 *
+	 * @return  [type]          [return description]
+	 */
+	public function scopeEncapsulatedQuery($query, $alias = 'myTable')
+	{
+		$queryOld = $this->getSql($query);
+		$thisClass = get_class($this);
+		$model = new $thisClass;
+		$model->setSortableAndSearchableColumn( $this->sortableAndSearchableColumn );
+		$model->setRelationColumn( $this->relationColumn );
+		$query = $model->setTable(\DB::raw('('.$queryOld.') as '.$alias))->whereRaw("1=1");
+		return $query;
+	}
+
+    // start list accessor function
+
+    // end list accessor function
+    
+    // start list relation function
+    
+    // end list relation function
+
+    // start custom code    
+    // end custom code
+    
+    /**
+     * [boot description]
+     * @return [type] [description]
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function($model){
+
+            // start list creating option
+
+            // end list creating option  
+
+        });
+
+        self::updating(function($model){
+            
+            // start list updating option
+
+            // end list updating option
+
+        });
+
+    }
+}

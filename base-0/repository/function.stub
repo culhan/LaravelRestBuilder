@@ -1,0 +1,8 @@
+/**
+    * [{{name}}]
+    *
+    */
+    public function {{name}}( {{param}} ) {
+        {{code}}
+    }
+

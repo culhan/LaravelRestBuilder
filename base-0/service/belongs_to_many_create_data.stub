@@ -1,0 +1,24 @@
+// create data {{name_param_belongs_to_many}}
+        if(!empty($data['{{name_param_belongs_to_many}}']))
+        {
+            $result->detach{{ucfirst_name_param_belongs_to_many}}();
+            // ex(many data) : {{name_param_belongs_to_many}}[0][98][additional_column] = 207
+            // ex(single data) : {{name_param_belongs_to_many}}[0] = 98
+            // ex(delete data) : {{name_param_belongs_to_many}}[0] = 0
+            if( !empty($data['{{name_param_belongs_to_many}}'][0]) ) {
+                $data['{{name_param_belongs_to_many}}'] = array_map("unserialize", array_unique(array_map("serialize", $data['{{name_param_belongs_to_many}}'])));
+                foreach ($data['{{name_param_belongs_to_many}}'] as $key_belongs_to_many => $value_relation_belongs_to_many) {
+                    if(is_array($value_relation_belongs_to_many)) {
+                        foreach ($value_relation_belongs_to_many as $key_belongs_to_many_2 => $value_relation_belongs_to_many_2) {
+                            // {{service_name}}Service::{{check_data_function}}($key_belongs_to_many_2);
+                            (New \App\Http\Repositories\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($key_belongs_to_many_2,$data);
+                            $result->{{name_param_belongs_to_many}}()->attach($key_belongs_to_many_2,$value_relation_belongs_to_many_2);
+                        }
+                    }else {
+                        // {{service_name}}Service::{{check_data_function}}($value_relation_belongs_to_many);
+                        (New \App\Http\Repositories\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($value_relation_belongs_to_many,$data);
+                        $result->{{name_param_belongs_to_many}}()->attach($value_relation_belongs_to_many);
+                    }
+                }
+            }
+        }

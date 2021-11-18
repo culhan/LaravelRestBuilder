@@ -1,0 +1,24 @@
+/**
+     * [{{name}} description]
+     * @return [type] [description]
+     */
+    public function get{{Name}}Data($searchableSortableColumn,$relation,$data{{param_function}})
+    {
+        $dataRecord = $data_filter = $data;
+
+        {{data-filter}}
+        
+        {{data-validation}}
+
+        // custom code before
+        {{custom_code_before}}
+
+        $return = $this->repository->getIndexData($searchableSortableColumn,$relation,$data_filter);
+
+        // custom code after
+        {{custom_code_after}}
+
+        return $return;
+    }
+
+    // end list function

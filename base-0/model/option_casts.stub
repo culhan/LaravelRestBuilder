@@ -1,0 +1,5 @@
+protected $casts = [
+        {{column_casts}}
+    ];
+            
+    // end list option

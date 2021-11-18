@@ -1,0 +1,1 @@
+->union((New {{union}})->getJoin($data)->getSelect($data)->getOption($data))

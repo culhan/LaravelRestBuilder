@@ -244,7 +244,7 @@
             return subject.replace(regex, replace_with);
         }      
 
-        var project_lang = '<?=(session('project')['lang']=='go'?'golang':'php')?>';
+        var project_lang = '<?=((session('project')['lang']??'php')=='go'?'golang':'php')?>';
     </script>
 <body>
     <div class="app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header">
