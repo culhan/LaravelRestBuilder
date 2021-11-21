@@ -11,7 +11,7 @@ func {{Name}}Resource(data interface{}) interface{} {
 
 	switch data.(type) { 
     default:
-        panic("Param {{Name}}Resource undefined")
+        panic("Param "+ reflect.TypeOf(data).String() +" in {{Name}}Resource undefined")
     case models.ReturnData:
         data_result := data.(models.ReturnData)
 		data_result_processed := Multi{{Name}}Resource(data_result.Data)

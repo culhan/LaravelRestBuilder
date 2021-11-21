@@ -22,6 +22,7 @@ class ModelBuilder
         "github.com/twinj/uuid",
         "github.com/gin-gonic/gin",
         "github.com/shopspring/decimal",
+        "fmt",
     ];
 
     /**
@@ -240,17 +241,17 @@ class ModelBuilder
         $base_model);
 
         if( !empty($custom_creating) ) {
-            $custom_creating = str_replace("\n","\n\t\t\t",$custom_creating."\n\n// end list creating option");
+            $custom_creating = str_replace("\n","\n\t",$custom_creating."\n\n// end list creating option");
             $base_model = str_replace('// end list creating option',$custom_creating,$base_model);
         }
 
         if ( !empty($custom_updating) ) {
-            $custom_updating = str_replace("\n","\n\t\t\t",$custom_updating."\n\n// end list updating option");
+            $custom_updating = str_replace("\n","\n\t",$custom_updating."\n\n// end list updating option");
             $base_model = str_replace('// end list updating option',$custom_updating,$base_model);
         }
 
         if ( !empty($custom_deleting) ) {
-            $custom_deleting = str_replace("\n","\n\t\t\t",$custom_deleting."\n\n// end list deleting option");
+            $custom_deleting = str_replace("\n","\n\t",$custom_deleting."\n\n// end list deleting option");
             $base_model = str_replace('// end list deleting option',$custom_deleting,$base_model);
         }
 
@@ -969,15 +970,19 @@ class ModelBuilder
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
-            if( $last_string[count($last_string)-1] == 'decimal' ){
-                if ( strpos($base, ' '.$last_string[count($last_string)-1]) !== false || strpos($base, "\t".$last_string[count($last_string)-1]) !== false ) {
-                    $class[] = $value;
-                }    
-            }else {
-                if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false || strpos($base, "\t".$last_string[count($last_string)-1]) !== false) {
-                    $class[] = $value;
-                }
-            }
+            $string_searched = $last_string[count($last_string)-1];
+            if ( strpos($base, '*'.$string_searched.'.') !== false ||strpos($base, ' '.$string_searched.')') !== false || strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false ) {
+                $class[] = $value;
+            } 
+            // if( $string_searched == 'decimal' ){
+            //     if ( strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false ) {
+            //         $class[] = $value;
+            //     }    
+            // }else {
+            //     if (strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false) {
+            //         $class[] = $value;
+            //     }
+            // }
         }
 
         foreach ($class as $key => $value) {

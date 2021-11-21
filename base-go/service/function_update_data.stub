@@ -11,9 +11,9 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 	if err != nil {
 		return nil, err
 	}
-
+    {{custom_code_before}}
 	resultUpdate := singleData.Session(&gorm.Session{}).Select(raw_column).Updates(&this_model)
-
+    {{custom_code_after}}
     if( resultUpdate.Error != nil ){
 		errorState := exceptions.ErrorException(500, "update "+this_model.ModulName()+" failed")
 

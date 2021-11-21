@@ -61,9 +61,9 @@ class ServiceBuilder
         
         $list_file = scandir(__DIR__.'/../../base-go/service', SCANDIR_SORT_DESCENDING);
         foreach ($route as $key => $value) {
-            if($value['name'] == 'system_data') {
-                continue;
-            }
+            // if($value['name'] == 'system_data') {
+            //     continue;
+            // }
             $function_name = 'function_'.$value['process'].'.stub';
             
             if(in_array($function_name,$list_file))
@@ -190,19 +190,37 @@ class ServiceBuilder
                 }
                 // {{relation_function}}
 
+                if(!empty($value['custom_code_before'])){
+                    $custom_code_before = "\n\t".str_replace("\n", "\n\t", $value['custom_code_before'])."\n";
+                }else {
+                    $custom_code_before = NULL;
+                }
+
+                if(!empty($value['custom_code_after'])){
+                    $custom_code_after = "\n\t".str_replace("\n", "\n\t", $value['custom_code_after'])."\n";
+                }else {
+                    $custom_code_after = NULL;
+                }
+
                 // replace param umum
                 $code_function = str_replace([
                     "{{UrlParam}}",
                     "{{ModulName}}",
                     "{{Name}}",
                     "{{relation_function}}",
-                    "{{custom_function}}"
+                    "{{custom_function}}",
+                    "{{custom_code_before}}",
+                    "{{custom_code_after}}",
+                    "{{system_function}}",
                 ],[
                     $param_function,
                     $Name,
                     ucwords($value['name']),
                     $code_relation,
                     str_replace("\n", "\n\t", $value['custom_function']??""),
+                    $custom_code_before,
+                    $custom_code_after,
+                    str_replace("\n", "\n\t", $value['system_function']??""),
                 ],$code_function);
 
                 if( $key != count($route)-1 ){

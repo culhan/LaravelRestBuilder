@@ -19,6 +19,7 @@ class ResourceBuilder
 	    "strings",
         "io/ioutil",
         "time",
+        "reflect",
     ];
 
     /**
@@ -193,7 +194,7 @@ class ResourceBuilder
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
-            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
+            if ( strpos($base, ' '.$last_string[count($last_string)-1]) !== false ) {
                 $class[] = $value;
             }
         }

@@ -22,7 +22,6 @@ func (s {{Name}}Model) ModulName() string {
 }
 
 func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
-    data = data.(map[string]interface{})
 	selectColumn := struct {
 		{{select_column}}
 	}{
@@ -41,35 +40,30 @@ func (s {{Name}}Model) ScopesGetSelect(data interface{}) func (db *gorm.DB) *gor
 
 func (s {{Name}}Model) ScopesGetAll(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    data = data.(map[string]interface{})
     return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetUnion(data), s.ScopesGetOptions(data) )
   }
 }
 
 func (s {{Name}}Model) getAll(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    data = data.(map[string]interface{})
     return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetUnion(data), s.ScopesGetOptions(data) )
   }
 }
 
 func (s {{Name}}Model) ScopesGetJoin(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    data = data.(map[string]interface{})
     return db
   }
 }
 
 func (s {{Name}}Model) ScopesGetUnion(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    data = data.(map[string]interface{})
     return db
   }
 }
 
 func (s {{Name}}Model) ScopesGetOptions(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    data = data.(map[string]interface{})
     // start list query option
 
     // end list query option
