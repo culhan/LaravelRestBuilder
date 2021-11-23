@@ -13,7 +13,7 @@ import (
 
 func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (models.ReturnData, interface{}) {
 
-	data_result, err := models.GetSearch({{name}}Model, data)
+	data_result, err := models.GetSearch(tx, {{name}}Model, data)
 	if err != nil {
 		return models.ReturnData{}, err
 	}

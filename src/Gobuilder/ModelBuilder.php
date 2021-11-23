@@ -971,9 +971,21 @@ class ModelBuilder
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
             $string_searched = $last_string[count($last_string)-1];
-            if ( strpos($base, '*'.$string_searched.'.') !== false ||strpos($base, ' '.$string_searched.')') !== false || strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false ) {
-                $class[] = $value;
-            } 
+
+            $stringToFind = [
+                '*'.$string_searched.'.',
+                ' '.$string_searched.')',
+                ' '.$string_searched.'.',
+                "\t".$string_searched.'.',
+                '+'.$string_searched.'.',
+            ];
+
+            foreach ($stringToFind as $stf_value) {
+                if ( strpos($base, $stf_value) !== false ){
+                    $class[] = $value;
+                } 
+            }
+            
             // if( $string_searched == 'decimal' ){
             //     if ( strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false ) {
             //         $class[] = $value;

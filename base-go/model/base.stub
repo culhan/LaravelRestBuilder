@@ -22,7 +22,10 @@ func (s {{Name}}Model) ModulName() string {
 }
 
 func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
-	selectColumn := struct {
+	get_gin_context, _ := data.(map[string]interface{})["db"].(*gorm.DB).Get("gin_context")
+	get_gin_context = get_gin_context.(*gin.Context)
+    
+    selectColumn := struct {
 		{{select_column}}
 	}{
 		{{select_column_attribute}}
@@ -33,6 +36,8 @@ func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
 
 func (s {{Name}}Model) ScopesGetSelect(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
+    data := data.(map[string]interface{})
+	data["db"] = db
 	db = db.Select(BuildSelect(s.ScopesGetReflectSelect(data)))
     return db
   }
