@@ -2,7 +2,9 @@
 // File ini ini di  buat dengan Laravel Rest Builder,
 // Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
 // atau hubungi A'mal Sholihan
-namespace App\Http\Model;
+namespace App\Http\Model{{custom_folder_namespace}};
+
+use App\Http\Model\BaseModel;
 
 class {{Name}} extends BaseModel
 {

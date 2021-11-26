@@ -171,6 +171,10 @@
                             <input type="text" class="form-control" name="key" id="key" placeholder="default: kolom pertama">
                         </div>
                         <div class="form-group">
+                            <label for="with_timestamp">Custom Folder</label>
+                            <input type="text" class="form-control" name="custom_folder" id="custom_folder" placeholder="">
+                        </div>
+                        <div class="form-group">
                             <label>Increment Key</label>
                             <input class="d-none" name="increment_key" value="0">
                             <div class="form-check form-check-inline with-check col-md">
@@ -2716,6 +2720,7 @@
 
         function build_tabel_option(data) {
             $( '[name="key"]' ).val('').change();
+            $( '[name="custom_folder"]' ).val('').change();
             $( '[name="with_timestamp"]' ).val(0).change();
             $( '[name="with_authstamp"]' ).val(0).change();
             $( '[name="with_ipstamp"]' ).val(0).change();
@@ -2728,6 +2733,7 @@
             eval("code_editor_custom_filter.clearSelection()")
 
             if(data.key) $( '[name="key"]' ).val(data.key).change();
+            if(data.custom_folder) $( '[name="custom_folder"]' ).val(data.custom_folder).change();
             if(data.increment_key) {
                 if( data.increment_key == 1 ) {
                     $( '[name="increment_key"]' ).prop('checked',true).change();

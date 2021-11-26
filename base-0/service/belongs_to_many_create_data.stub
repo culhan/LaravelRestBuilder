@@ -11,12 +11,12 @@
                     if(is_array($value_relation_belongs_to_many)) {
                         foreach ($value_relation_belongs_to_many as $key_belongs_to_many_2 => $value_relation_belongs_to_many_2) {
                             // {{service_name}}Service::{{check_data_function}}($key_belongs_to_many_2);
-                            (New \App\Http\Repositories\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($key_belongs_to_many_2,$data);
+                            (New \App\Http\Repositories{{custom_folder_namespace}}\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($key_belongs_to_many_2,$data);
                             $result->{{name_param_belongs_to_many}}()->attach($key_belongs_to_many_2,$value_relation_belongs_to_many_2);
                         }
                     }else {
                         // {{service_name}}Service::{{check_data_function}}($value_relation_belongs_to_many);
-                        (New \App\Http\Repositories\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($value_relation_belongs_to_many,$data);
+                        (New \App\Http\Repositories{{custom_folder_namespace}}\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($value_relation_belongs_to_many,$data);
                         $result->{{name_param_belongs_to_many}}()->attach($value_relation_belongs_to_many);
                     }
                 }

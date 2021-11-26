@@ -35,7 +35,7 @@ class ModelBuilder
      * @param [type] $hidden_relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details, $custom_folder = '' )
     {
         $base = config('laravelRestBuilder.base');
         $mysql_version = config('laravelRestBuilder.mysql_version');
@@ -53,7 +53,17 @@ class ModelBuilder
         }else {
             $base_model = file_get_contents(__DIR__.'/../base'.$base.'/model/base.stub', FILE_USE_INCLUDE_PATH);
         }
-        $base_model = str_replace('{{Name}}',$name,$base_model);
+        
+        $base_model = str_replace([
+            '{{Name}}',
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $name,
+            $custom_folder,
+            str_replace('/','\\',$custom_folder),
+        ],$base_model);
+
         $function_accessor = file_get_contents(__DIR__.'/../base'.$base.'/model/function_accessor.stub', FILE_USE_INCLUDE_PATH);
         
         if( !empty($casts) ) {
@@ -666,9 +676,9 @@ class ModelBuilder
         $base_model = str_replace('{{user_id_code}}',config('laravelrestbuilder.user_id_code'),$base_model);
         
         if( $base == '-0'){
-            FileCreator::create( $model_file_name, 'app/Http/Model', $base_model );
+            FileCreator::create( $model_file_name, 'app/Http/Model'.$custom_folder, $base_model );
         }else{
-            FileCreator::create( $model_file_name, 'app/Http/Models', $base_model );
+            FileCreator::create( $model_file_name, 'app/Http/Models'.$custom_folder, $base_model );
         }
         
     }

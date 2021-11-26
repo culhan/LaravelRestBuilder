@@ -16,12 +16,20 @@ class ControllerBuilder
      * @param [type] $route
      * @return void
      */
-    static function build( $name, $column, $column_function, $route, $relation, $hidden )
+    static function build( $name, $column, $column_function, $route, $relation, $hidden, $custom_folder = '' )
     {
         $name = UCWORDS($name);
         $controller_file_name = $name.'Controller';
         $base_controller = file_get_contents(__DIR__.'/../base/controller/controller.stub', FILE_USE_INCLUDE_PATH);
-        $base_controller = str_replace('{{name}}',$name,$base_controller);
+        $base_controller = str_replace([
+            '{{name}}',
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $name,
+            $custom_folder,
+            str_replace('/','\\',$custom_folder)
+        ],$base_controller);
 
         $list_file = scandir(__DIR__.'/../base/controller', SCANDIR_SORT_DESCENDING);
         foreach ($route as $key => $value) {
@@ -85,8 +93,8 @@ class ControllerBuilder
                 $base_controller = str_replace('// end list column',$cols,$base_controller);
             }
         }
-        
-        FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api', $base_controller );
+
+        FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api'.$custom_folder, $base_controller );
     }
 
 }

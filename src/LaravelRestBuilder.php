@@ -379,6 +379,7 @@ class LaravelRestBuilder
         if(empty($data['casts'])) $data['casts'] = [];
         if(empty($data['get_company_code'])) $data['get_company_code'] = NULL;        
         $old_name = '';
+        $old_custom_folder = '';
 
         // save to moduls table
         $detail_data = json_encode( array_except($data,['column']) );                
@@ -389,9 +390,10 @@ class LaravelRestBuilder
             $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::getAll()->where('id',$data['id'])->first();
             
             $old_name = $old_data->name;
+            $old_custom_folder = json_decode($old_data->detail)->custom_folder;
 
             // jika beda nama
-            if($data['name'] != $old_data->name) {
+            if($data['name'] != $old_data->name || $data['custom_folder'] != $old_data->custom_folder) {
                 $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()->where('modul_id',$data['id'])->get();
         
                 foreach ($files as $key => $value) {
@@ -439,6 +441,8 @@ class LaravelRestBuilder
             }
         }
 
+        if(!empty($data['custom_folder'])) $data['custom_folder'] = '/'.ucfirst($data['custom_folder']);
+
         if( session('project')['lang'] == 'php'){
             if( !empty($data['table']) && !empty($data['column']) ) {
                 TableBuilder::buildMigration();
@@ -451,7 +455,8 @@ class LaravelRestBuilder
                     $data['column_function'],
                     $data['route'],
                     $data['relation'],
-                    $data['hidden']
+                    $data['hidden'],
+                    $data['custom_folder']
                 );
             }
             
@@ -462,7 +467,8 @@ class LaravelRestBuilder
                     $data['column']??[],
                     $data['key'],
                     $data['route'],
-                    $data['relation']
+                    $data['relation'],
+                    $data['custom_folder'],
                 );
             }
             
@@ -496,6 +502,7 @@ class LaravelRestBuilder
                     $data['with_timestamp_details'],
                     $data['with_authstamp_details'],
                     $data['with_ipstamp_details'],
+                    $data['custom_folder'],
                 );    
             }
 
@@ -503,6 +510,7 @@ class LaravelRestBuilder
                 $data['name'],
                 $data['table']??NULL,
                 $data['repositories']??[],
+                $data['custom_folder'],
             );
 
             if( !empty($data['table']) && !empty($data['route']) ) {
@@ -512,7 +520,8 @@ class LaravelRestBuilder
                     $data['column_function'],
                     $data['relation'],
                     $data['hidden'],
-                    $data['hidden_relation']
+                    $data['hidden_relation'],
+                    $data['custom_folder'],
                 );
 
             }
@@ -521,7 +530,9 @@ class LaravelRestBuilder
                 RouteBuilder::build(
                     $data['name'],
                     $data['route'],
-                    $old_name
+                    $old_name,
+                    $data['custom_folder'],
+                    $old_custom_folder
                 );
             }
             

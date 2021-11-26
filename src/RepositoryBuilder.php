@@ -14,7 +14,7 @@ class RepositoryBuilder
      * @param [type] $table
      * @return void
      */
-    static function build( $name, $table, $repositories )
+    static function build( $name, $table, $repositories, $custom_folder = '' )
     {
         $base = config('laravelRestBuilder.base');                
 
@@ -28,8 +28,17 @@ class RepositoryBuilder
         }
         
         $base_function_repository = file_get_contents(__DIR__.'/../base'.$base.'/repository/function.stub', FILE_USE_INCLUDE_PATH);
-        $base_repository = str_replace('{{Name}}',$name,$base_repository);
-        $base_repository = str_replace('{{title_case_name}}',Helper::camelToTitle($name),$base_repository);
+        $base_repository = str_replace([
+            '{{Name}}',
+            '{{custom_folder}}',
+            '{{title_case_name}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $name,
+            $custom_folder,
+            Helper::camelToTitle($name),
+            str_replace('/','\\',$custom_folder),
+        ],$base_repository);
 
         $function_code = '';
         foreach ($repositories as $repository) {
@@ -60,7 +69,7 @@ class RepositoryBuilder
         
         $base_repository = str_replace('// end function',$function_code."// end function",$base_repository);
              
-        FileCreator::create( $repository_file_name, 'app/Http/Repositories', $base_repository );
+        FileCreator::create( $repository_file_name, 'app/Http/Repositories'.$custom_folder, $base_repository );
     }
     
 }

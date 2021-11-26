@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Services;
+namespace App\Http\Services{{custom_folder_namespace}};
 
 use App;
 use Request;
@@ -22,7 +22,7 @@ class {{Name}}Service extends BaseService
     public function __construct()
     {
         {{initialization}}
-        $this->repository = new App\Http\Repositories\{{Name}}Repository;
+        $this->repository = new App\Http\Repositories{{custom_folder_namespace}}\{{Name}}Repository;
     }
 
     // start list function

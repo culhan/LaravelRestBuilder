@@ -16,7 +16,7 @@ class ResourceBuilder
      * @param [type] $relation
      * @return void
      */
-    static function build( $name, $column, $column_function, $relation, $hidden, $hidden_relation )
+    static function build( $name, $column, $column_function, $relation, $hidden, $hidden_relation, $custom_folder = '' )
     {
         $base = config('laravelRestBuilder.base');
         $resource_file = ucwords($name).'Resource';        
@@ -24,7 +24,15 @@ class ResourceBuilder
         $base_column = file_get_contents(__DIR__.'/../base'.$base.'/resource/column.stub', FILE_USE_INCLUDE_PATH);
         // $base_column_with_json = file_get_contents(__DIR__.'/../base'.$base.'/resource/column_with_json.stub', FILE_USE_INCLUDE_PATH);
 
-        $base_resource = str_replace('{{Name}}',ucwords($name),$base_resource);
+        $base_resource = str_replace([
+            '{{Name}}',
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            ucwords($name),
+            $custom_folder,
+            str_replace('/','\\',$custom_folder),
+        ],$base_resource);
 
         $code_column = '';
         $hidden = array_flip($hidden);
@@ -68,7 +76,7 @@ class ResourceBuilder
         }        
         $base_resource = str_replace('// end list relation',$code_relation."\t\t\t"."// end list relation",$base_resource);
 
-        FileCreator::create( $resource_file, 'app/Http/Resources', $base_resource );
+        FileCreator::create( $resource_file, 'app/Http/Resources'.$custom_folder, $base_resource );
     }
 
 }

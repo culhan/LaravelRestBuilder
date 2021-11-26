@@ -2,7 +2,7 @@
 // File ini ini di  buat dengan Laravel Rest Builder,
 // Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
 // atau hubungi A'mal Sholihan
-namespace App\Http\Models;
+namespace App\Http\Models{{custom_folder_namespace}};
 
 use Request;
 use Validator;

@@ -1,6 +1,6 @@
 // check data {{name_belongs_to}}
         if(!empty($data['{{foreign_key}}']))
         {
-            $check_data_{{foreign_key}}  = (New \App\Http\Repositories\{{service_name}}Repository)->setModulName('{{name_belongs_to}}')->{{check_data_function}}($data['{{foreign_key}}'],$data);
+            $check_data_{{foreign_key}}  = (New \App\Http\Repositories{{custom_folder_namespace}}\{{service_name}}Repository)->setModulName('{{name_belongs_to}}')->{{check_data_function}}($data['{{foreign_key}}'],$data);
         }
         

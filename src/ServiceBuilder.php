@@ -18,7 +18,7 @@ class ServiceBuilder
      *
      * @return  [type]             [return description]
      */
-    static function build( $name, $table, $column, $primary_key = 'id', $route, $relation)
+    static function build( $name, $table, $column, $primary_key = 'id', $route, $relation, $custom_folder = '')
     {
         LaravelRestBuilder::setLaravelrestbuilderConnection();        
 
@@ -32,8 +32,17 @@ class ServiceBuilder
             $initialization = file_get_contents(__DIR__.'/../base'.$base.'/service/initialization.stub', FILE_USE_INCLUDE_PATH);            
         }
         
-        $base_service = str_replace('{{initialization}}',$initialization,$base_service);
-        $base_service = str_replace('{{Name}}',$name,$base_service);        
+        $base_service = str_replace([
+            '{{initialization}}',
+            '{{Name}}',
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $initialization,
+            $name,
+            $custom_folder,
+            str_replace('/','\\',$custom_folder),
+        ],$base_service);
         
         $list_file = scandir(__DIR__.'/../base'.$base.'/service', SCANDIR_SORT_DESCENDING);
         $traits_arr = [];
@@ -407,7 +416,7 @@ class ServiceBuilder
 
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
         
-        FileCreator::create( $service_file_name, 'app/Http/Services', $base_service );
+        FileCreator::create( $service_file_name, 'app/Http/Services'.$custom_folder, $base_service );
     }
 
 }

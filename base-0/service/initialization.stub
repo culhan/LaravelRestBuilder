@@ -1,1 +1,1 @@
-$this->model = new App\Http\Model\{{Name}};
+$this->model = new App\Http\Model{{custom_folder_namespace}}\{{Name}};
