@@ -390,7 +390,7 @@ class LaravelRestBuilder
             $old_data = \KhanCode\LaravelRestBuilder\Models\Moduls::getAll()->where('id',$data['id'])->first();
             
             $old_name = $old_data->name;
-            $old_custom_folder = json_decode($old_data->detail)->custom_folder;
+            $old_custom_folder = (json_decode($old_data->detail)->custom_folder)??'';
 
             // jika beda nama
             if($data['name'] != $old_data->name || $data['custom_folder'] != $old_data->custom_folder) {

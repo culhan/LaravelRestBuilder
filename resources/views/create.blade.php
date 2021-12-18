@@ -1196,7 +1196,7 @@
                         single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
                         single_data_code += '\treturn nil, err_int\n'
                     single_data_code += '}\n'
-                    single_data_code += 'this_model.Id = idt\n'
+                    single_data_code += 'keyForDelete["id"] = idt\n'
 
                     fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
                 }else if( ele.value == 'update_data' ){
@@ -1315,9 +1315,15 @@
                     isi_after = dataOld[name_route+'[custom_code_after]']
                 }
                 
-                if(ele.value == 'create_update_data' && !isi_before.includes("$keyFirstOrCreate")) {
-                    isi_before = '$keyFirstOrCreate = [\'key\' => \'value\'];'+"\n"+isi_before                    
-                }  
+                if( project_lang == 'php' ){
+                    if(ele.value == 'create_update_data' && !isi_before.includes("$keyFirstOrCreate")) {
+                        isi_before = '$keyFirstOrCreate = [\'key\' => \'value\'];'+"\n"+isi_before
+                    }
+                }else if( project_lang == 'golang' ){
+                    if(ele.value == 'create_update_data' && !isi_before.includes("keyFirstOrCreate")) {
+                        isi_before = 'keyFirstOrCreate.Key = data["value"].(string)'+"\n"+isi_before
+                    }
+                }
 
                 html_code_php = 
                     '<div class="row mb-3 custom_data_'+i+'">'+

@@ -94,6 +94,14 @@ class ControllerBuilder
             }
         }
 
+        $base_controller = str_replace([
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $custom_folder,
+            str_replace('/','\\',$custom_folder)
+        ],$base_controller);
+
         FileCreator::create( $controller_file_name, 'app/Http/Controllers/Api'.$custom_folder, $base_controller );
     }
 

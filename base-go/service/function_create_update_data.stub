@@ -4,19 +4,23 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
     
     raw_column := []string{}
     this_model := models.{{ModulName}}Model{}
-    keyFirstOrCreate := models.{{ModulName}}Model{}
+    keyFirstOrCreate := map[string]interface{}{}
     model := models.{{ModulName}}Model{}
     
 	{{code_sanitation}}
-    keyFirstOrCreate.Name = data["name"].(string)
+    // keyFirstOrCreate.Name = data["name"].(string)
 
-    singleData := tx.Session(&gorm.Session{}).Model(&models.ProductVariantUnitModel{}).Where(keyFirstOrCreate)
+    {{custom_code_before}}
+
+    singleData := tx.Session(&gorm.Session{}).Model(&models.{{ModulName}}Model{}).Where(keyFirstOrCreate)
     
     status := singleData.Assign(&this_model).FirstOrCreate(&model)
     
     if status.RowsAffected > 0 {
-        singleData.Updates(&model)
+        singleData.Select(raw_column).Updates(&model)
     }
+
+    {{custom_code_after}}
 
     var result map[string]interface{}
     inrec, _ := json.Marshal(this_model)
@@ -24,7 +28,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{relation_function}}
 
-	resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, keyFirstOrCreate, c) 
+	resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, model, c) 
     if err != nil {
 		return nil, err
 	}

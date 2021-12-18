@@ -120,9 +120,9 @@ class ModelBuilder
             $text_select_column .= ucfirst($value['name'])."\tstring";
 
             if( $column_type == 'datetime' ){
-                $text_select_column_attribute .= ucfirst($value['name']).":\t`DATE_FORMAT(".$value['name'].", \"%Y-%m-%d %H:%i:%s\")`,";
+                $text_select_column_attribute .= ucfirst($value['name']).":\t`DATE_FORMAT(".$table.".".$value['name'].", \"%Y-%m-%d %H:%i:%s\")`,";
             }else {
-                $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['name']."`,";
+                $text_select_column_attribute .= ucfirst($value['name']).":\t`".$table.".".$value['name']."`,";
             }
         }
 
@@ -230,6 +230,7 @@ class ModelBuilder
             '{{table}}',
             '{{select_column}}',
             '{{select_column_attribute}}',
+            '{{custom_join}}',
         ],[
             $name,
             $name_spaces,
@@ -237,6 +238,7 @@ class ModelBuilder
             $table,
             $text_select_column,
             $text_select_column_attribute,
+            $custom_join,
         ],
         $base_model);
 
@@ -982,7 +984,7 @@ class ModelBuilder
 
             foreach ($stringToFind as $stf_value) {
                 if ( strpos($base, $stf_value) !== false ){
-                    $class[] = $value;
+                    $class[$value] = $value;
                 } 
             }
             

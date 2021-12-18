@@ -675,6 +675,14 @@ class ModelBuilder
         
         $base_model = str_replace('{{user_id_code}}',config('laravelrestbuilder.user_id_code'),$base_model);
         
+        $base_model = str_replace([
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $custom_folder,
+            str_replace('/','\\',$custom_folder),
+        ],$base_model);
+
         if( $base == '-0'){
             FileCreator::create( $model_file_name, 'app/Http/Model'.$custom_folder, $base_model );
         }else{

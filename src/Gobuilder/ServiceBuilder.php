@@ -24,6 +24,7 @@ class ServiceBuilder
         "github.com/twinj/uuid",
         "golang.org/x/crypto/bcrypt",
         "strconv",
+        "encoding/base64",
     ];
 
     /**

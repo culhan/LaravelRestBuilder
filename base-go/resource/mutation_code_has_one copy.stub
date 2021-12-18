@@ -1,2 +1,0 @@
-var {{var_name}} map[string]interface{}
-json.Unmarshal([]byte(data_result["{{relation_name}}"].(string)), &{{var_name}} )

@@ -57,7 +57,7 @@ func (s {{Name}}Model) getAll(data interface{}) func (db *gorm.DB) *gorm.DB {
 
 func (s {{Name}}Model) ScopesGetJoin(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    return db
+    return db.Joins(`{{custom_join}}`)
   }
 }
 

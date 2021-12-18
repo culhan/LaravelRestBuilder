@@ -69,6 +69,14 @@ class RepositoryBuilder
         
         $base_repository = str_replace('// end function',$function_code."// end function",$base_repository);
              
+        $base_repository = str_replace([
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $custom_folder,
+            str_replace('/','\\',$custom_folder),
+        ],$base_repository);
+
         FileCreator::create( $repository_file_name, 'app/Http/Repositories'.$custom_folder, $base_repository );
     }
     

@@ -416,6 +416,14 @@ class ServiceBuilder
 
         LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
         
+        $base_service = str_replace([
+            '{{custom_folder}}',
+            '{{custom_folder_namespace}}',
+        ],[
+            $custom_folder,
+            str_replace('/','\\',$custom_folder),
+        ],$base_service);
+
         FileCreator::create( $service_file_name, 'app/Http/Services'.$custom_folder, $base_service );
     }
 

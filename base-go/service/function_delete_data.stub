@@ -1,6 +1,7 @@
 func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
-    this_model := models.{{ModulName}}Model{}    
+    this_model := models.{{ModulName}}Model{}
+    keyForDelete := map[string]interface{}{}
 	{{custom_check_single_data}}
 
     _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
@@ -8,10 +9,11 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 		return nil, err
 	}
 
-	result := tx.Session(&gorm.Session{}).Delete(&this_model)
+	result := models.Delete(tx.Debug().Model(&this_model).Where(keyForDelete))
 
     if result.RowsAffected <= 0 {
-        return false, result.Error
+        err_exp := exceptions.ValidateException(7, `Failed delete data `+this_model.ModulName())
+        return false, err_exp
     }
 
     return true, nil

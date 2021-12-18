@@ -37,6 +37,7 @@ class ResourceBuilder
         $resource_file = $Name.'Resource';
 
         $base_resource = file_get_contents(__DIR__.'/../../base-go/resource/base.stub', FILE_USE_INCLUDE_PATH);
+        $base_mutation_code = file_get_contents(__DIR__.'/../../base-go/resource/mutation.stub', FILE_USE_INCLUDE_PATH);
 
         $list_type_var = [
             'increment' => 'int',
@@ -56,6 +57,7 @@ class ResourceBuilder
             'time'  => 'string'
         ];
 
+        $mutation_data_code = '';
         $addr_text_column = '';
         $text_column = '';
         $text_column_attribute = '';
@@ -81,10 +83,15 @@ class ResourceBuilder
             }
             $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
             $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
-            $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
+
+            if( isset($value['json']) ){
+                $mutation_code = str_replace("{{var_name}}", $value['name'], $base_mutation_code);
+                $addr_text_column .= $mutation_code;
+            }else {
+                $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
+            }
         }
 
-        $mutation_data_code = '';
         $hidden_relation = array_flip($hidden_relation);
         foreach ($relation as $key => $value) {
             if(isset($hidden_relation[$value['name']])) continue;
