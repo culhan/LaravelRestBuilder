@@ -596,7 +596,7 @@ class MigrationBuilder
     {
         if(empty($column['type']))
         {
-            throw new \Exception('data type for column'.$column['name'].' does not avilable yet');
+            throw new \Exception('data type for column '.$column['name'].' does not avilable yet');
         }
         
         $where = '';
@@ -645,6 +645,9 @@ class MigrationBuilder
         }
         if ($column['type'] == 'boolean') {
             $where .= ' and column_type = "tinyint(1)" ';
+        }
+        if ($column['type'] == 'json') {
+            $where .= ' and data_type = "json" ';
         }
         
         if(empty($where))
@@ -898,6 +901,8 @@ class MigrationBuilder
                 $type = "bigint";
             }else if ($value->DATA_TYPE == 'date') {
                 $type = "date";
+            }else if ($value->DATA_TYPE == 'json') {
+                $type = "json";
             }else {
                 $type = "unidentified (".$value->DATA_TYPE.")";
             }
@@ -1012,6 +1017,10 @@ class MigrationBuilder
             }
 
             $extra = $dataColumn[0]->EXTRA;
+            
+            if (strpos($extra, 'DEFAULT_GENERATED') !== false) {
+                $extra = str_replace("DEFAULT_GENERATED", "", $extra);
+            }
             
             if($key == 0) {
                 $ordinal_position = 'FIRST';

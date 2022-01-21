@@ -94,6 +94,7 @@
                                                     <option value="char">Char</option>
                                                     <option value="text">Text</option>
                                                     <option value="time">Time</option>
+                                                    <option value="json">Json</option>
                                                 </select>                                        
                                             </div>
                                         </div>
@@ -2569,6 +2570,7 @@
                             build_tabel_option_by_column(objModul['column'])
                             build_modul_tabel(objModul['column'],objForbiddenCOlumn);
                             build_list_index_tabel(json['list_index'])
+                            storage_parameter.update('column_to_save',json[ele.value])
                         }else {
                             objColumn = []
                             objModul['column'] = []
@@ -2578,6 +2580,7 @@
                             build_tabel_option_by_column([])
                             build_modul_tabel([]);
                             build_list_index_tabel([])
+                            storage_parameter.update('column_to_save',[])
                         }
                     },
                     error: function(e) {
@@ -2589,6 +2592,7 @@
                         build_tabel_option_by_column([])
                         build_modul_tabel([]);
                         build_list_index_tabel([])
+                        storage_parameter.update('column_to_save',[])
                     }
                 });
             }, 500);
@@ -2656,6 +2660,7 @@
             storage_parameter.update('repositories',objModul['repositories'])
             storage_parameter.update('files',data['files'])
             storage_parameter.update('classtab',objModul['classtab'])
+            storage_parameter.update('column_to_save', objColumn)
 
             build_route_tabel(dataDetail['route'])
             build_relation_tabel(dataDetail['relation'])

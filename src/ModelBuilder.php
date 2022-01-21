@@ -222,7 +222,7 @@ class ModelBuilder
                 //     $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']';
                 // }
 
-                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '$this->attributes[\''.$value_column_function['name'].'\']??NULL';
+                $value_column_function['response_code'] = !empty($value_column_function['response_code']) ? $value_column_function['response_code'] : '($this->attributes[\''.$value_column_function['name'].'\']??NULL)';
                 $json_converter = str_replace("{{json}}",$value_column_function['response_code'],$option_isJson);
 
                 $value_column_function['response_code'] = !empty($value_column_function['json']) ? $json_converter : $value_column_function['response_code']; 
@@ -277,7 +277,7 @@ class ModelBuilder
                     $json_converter = str_replace([
                         "{{json}}"
                     ],[
-                        '$this->attributes[\''.$value_relation['name'].'\']??NULL'
+                        '($this->attributes[\''.$value_relation['name'].'\']??NULL)'
                     ],$option_isJson);
                     
                     // check response code

@@ -29,4 +29,6 @@ class {{Name}}Service extends BaseService
     
     // end list function    
 
+    // start custom code
+    // end custom code
 }
