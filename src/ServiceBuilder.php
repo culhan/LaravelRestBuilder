@@ -286,11 +286,21 @@ class ServiceBuilder
                             $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/belongs_to_many_create_data_without_check.stub', FILE_USE_INCLUDE_PATH);
                         }
                         
-                        $base_create_code = str_replace('{{name_belongs_to_many}}',$value_relation['name'],$base_create_code);
-                        $base_create_code = str_replace('{{name_param_belongs_to_many}}',(!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] ),$base_create_code);
-                        $base_create_code = str_replace('{{ucfirst_name_param_belongs_to_many}}',ucfirst((!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] )),$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : '{{service_name}}'),$base_create_code);
-                        $base_create_code = str_replace('{{service_name}}',((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name'])),$base_create_code);
+                        $base_create_code = str_replace([
+                                '{{foreign_key_joining_model}}',
+                                '{{name_belongs_to_many}}',
+                                '{{name_param_belongs_to_many}}',
+                                '{{ucfirst_name_param_belongs_to_many}}',
+                                '{{service_name}}',
+                                '{{service_name}}',
+                            ],[
+                                $value_relation['foreign_key_joining_model'],
+                                $value_relation['name'],
+                                (!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] ),
+                                ucfirst((!empty($value_relation['name_param']) ? $value_relation['name_param']:$value_relation['name'] )),
+                                ((!empty($value_relation['service_name'])) ? ucwords($value_relation['service_name']) : '{{service_name}}'),
+                                ((!empty($value_relation['model_name'])) ? ucwords($value_relation['model_name']) : ucwords($value_relation['name']))
+                            ],$base_create_code);
                                                 
                         $check_data_function = (!empty($value_relation['check_data_function']) ? $value_relation['check_data_function']:'getSingleData');
                         $check_data_function = (empty(array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function))) ? $check_data_function : array_get($value,'fungsi_check_relasi.'.$value_relation['name'],$check_data_function);

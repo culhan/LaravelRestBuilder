@@ -586,11 +586,11 @@ class ModelBuilder
                     $value_relation['column'] = [
                     [
                         'name'  =>  $value_relation['foreign_key_model'],
-                        'type'  =>  'integer',
+                        'type'  =>  ($value_relation['foreign_key_model_type']??"integer"),
                     ],
                     [
                         'name'  =>  $value_relation['foreign_key_joining_model'],
-                        'type'  =>  'integer',
+                        'type'  =>  ($value_relation['foreign_key_joining_model_type']??"integer"),
                     ],  
                     ];
 

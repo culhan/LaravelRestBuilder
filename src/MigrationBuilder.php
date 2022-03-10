@@ -649,6 +649,9 @@ class MigrationBuilder
         if ($column['type'] == 'json') {
             $where .= ' and data_type = "json" ';
         }
+        if( $column['type'] == 'enum') {
+            $where .= ' and column_type = "'.$column['column_type'].'" ';
+        }
         
         if(empty($where))
         {
@@ -903,6 +906,8 @@ class MigrationBuilder
                 $type = "date";
             }else if ($value->DATA_TYPE == 'json') {
                 $type = "json";
+            }else if ($value->DATA_TYPE == 'enum') {
+                $type = "enum";
             }else {
                 $type = "unidentified (".$value->DATA_TYPE.")";
             }
@@ -923,6 +928,16 @@ class MigrationBuilder
                 'precision' => $value->NUMERIC_PRECISION,
                 'scale' => $value->NUMERIC_SCALE,
                 'length' => $value->CHARACTER_MAXIMUM_LENGTH,
+                'column_type'   => $value->COLUMN_TYPE,
+                'enum_type' => str_replace([
+                        'enum',
+                        '(',
+                        ')'    
+                    ],[
+                        "",
+                        "",
+                        ""
+                    ], $value->COLUMN_TYPE),
             ];
         }
                 

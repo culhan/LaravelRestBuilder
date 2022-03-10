@@ -497,6 +497,7 @@
                             build_modul_tabel(objModul['column'],objForbiddenCOlumn);
                             build_list_index_tabel(json['list_index'])
                             buildListData(objModul['column'])
+                            storage_parameter.update('column_to_save',json[ele.value])
                         }else {
                             objColumn = []
                             objModul['column'] = []
@@ -507,6 +508,7 @@
                             build_modul_tabel([]);
                             build_list_index_tabel([])
                             buildListData([])
+                            storage_parameter.update('column_to_save',[])
                         }
                     },
                     error: function(e) {
@@ -697,6 +699,8 @@
             removeColumn(i)
             build_modul_tabel(objColumn,objForbiddenCOlumn)
 
+            storage_parameter.remove('column_to_save.' + i)
+
             if(column_sementara['name'] == 'com_id') {
                 $( "#with_companystamp" ).val(0)
             }
@@ -704,6 +708,7 @@
 
         function moveColumnModulTable(i,y) {
             moveColumn(i,y)
+            storage_parameter.update('column_to_save', move(storage_parameter.get('column_to_save'), i, y))
             build_modul_tabel(objColumn,objForbiddenCOlumn)
         }
 
@@ -712,6 +717,8 @@
             objModul = $('#modul').serializeJSON()
             column_sementara = objModul['column_sementara']
             
+            storage_parameter.add('column_to_save', column_sementara)
+
             update_data_storage_hidden_column(column_sementara['name'])
 
             $.each(column_sementara, function( index_column_sementara, value_column_sementara ) {
@@ -757,6 +764,8 @@
         function ubah_kolom_modul_table_click(i) {
             objModul = $('#modul').serializeJSON()
             column_sementara = objModul['column_sementara']
+
+            storage_parameter.update('column_to_save.' + i, column_sementara)
 
             update_data_storage_hidden_column(column_sementara['name'])
             

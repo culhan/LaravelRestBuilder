@@ -95,6 +95,7 @@
                                                     <option value="text">Text</option>
                                                     <option value="time">Time</option>
                                                     <option value="json">Json</option>
+                                                    <option value="enum">Enum</option>
                                                 </select>                                        
                                             </div>
                                         </div>
@@ -1579,6 +1580,9 @@
                             '<div class="col-sm">'+
                                 '<input type="" class="form-control" placeholder="foregin key tabel relasi" name="relation['+i+'][foreign_key_model]">'+
                             '</div>'+
+                            '<div class="col-sm">'+
+                                '<select class="form-control" name="relation['+i+'][foreign_key_model_type]"><option value="integer">Integer</option><option value="string">String</option></select>'+
+                            '</div>'+
                         '</div>'+
                         '';
                     
@@ -1589,6 +1593,9 @@
                             '</div>'+
                             '<div class="col-sm">'+
                                 '<input type="" class="form-control" placeholder="foregin key joining tabel relasi" name="relation['+i+'][foreign_key_joining_model]">'+
+                            '</div>'+
+                            '<div class="col-sm">'+
+                                '<select class="form-control" name="relation['+i+'][foreign_key_joining_model_type]"><option value="integer">Integer</option><option value="string">String</option></select>'+
                             '</div>'+
                         '</div>'+
                         '';
@@ -2859,6 +2866,14 @@
             if( value_relasi['relation_key'] ) {
                 $( '[name="relation['+jumlah_relasi_builded+'][relation_key]"]' ).val(value_relasi['relation_key']);
             }
+
+            if( value_relasi['foreign_key_type'] ) {
+                $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_type]"]' ).val(value_relasi['foreign_key_type']);
+            }
+            if( value_relasi['relation_key_type'] ) {
+                $( '[name="relation['+jumlah_relasi_builded+'][relation_key_type]"]' ).val(value_relasi['relation_key_type']);
+            }
+
             if( value_relasi['check_data_function'] ) {
                 $( '[name="relation['+jumlah_relasi_builded+'][check_data_function]"]' ).val(value_relasi['check_data_function']);
             }
@@ -2885,6 +2900,18 @@
             if( value_relasi['foreign_key_joining_model'] ){
                 $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_joining_model]"]' ).val(value_relasi['foreign_key_joining_model']);
             }
+
+            if( value_relasi['foreign_key_model_type'] ){
+                $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_model_type]"]' ).val(value_relasi['foreign_key_model_type']);
+            }else{
+                $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_model_type]"]' ).val("integer");
+            }
+            if( value_relasi['foreign_key_joining_model_type'] ){
+                $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_joining_model_type]"]' ).val(value_relasi['foreign_key_joining_model_type']);
+            }else{
+                $( '[name="relation['+jumlah_relasi_builded+'][foreign_key_joining_model_type]"]' ).val("integer");
+            }
+
             if( value_relasi['intermediate_table'] ){
                 $( '[name="relation['+jumlah_relasi_builded+'][intermediate_table]"]' ).val(value_relasi['intermediate_table']);
             }
