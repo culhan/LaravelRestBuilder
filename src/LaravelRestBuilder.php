@@ -130,6 +130,86 @@ class LaravelRestBuilder
         return $data;
     }
 
+    /** 
+     * 
+     */
+    public function getFileFolder($folder, $level = 0)
+    {
+        if( session('project')['lang'] == 'php' ){
+            $models = [];
+            $select2_data = [];
+
+            $dir = "";
+            if( empty($level) ){
+                $dir = app_path().'/../../'.session('project')['folder'].'/app/';
+            }
+            $files = scandir($dir.$folder.'/');
+            $namespace = "\App\\".$folder."\\";
+            foreach($files as $file) {
+
+                $file_path = $dir.$folder.'/'.$file;
+                if( $file != '.' && $file != '..' ){
+                    if( is_dir($file_path)){
+                        $return_from_dir = $this->getFileFolder($file_path, $level+1);
+                        $models = array_merge($models, $return_from_dir['models']);
+                        $select2_data = array_merge($select2_data, $return_from_dir['select2_data']);
+                    }
+                }
+                
+                //skip current and parent folder entries and non-php files
+                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)){
+                    continue;
+                }else{
+                    
+                    if (strpos(strtolower($namespace), 'model') !== false) {
+                        
+                        $select2_data[] = [
+                            'id'    => preg_replace('/.php$/', '', $file),
+                            'text'  => preg_replace('/.php$/', '', $file)
+                        ];
+                    }
+
+                    $namespace = str_replace( [
+                        app_path().'/../../'.session('project')['folder'].'/app/',
+                        '/',
+                        'Api\\',
+                        'v1\\',
+                    ],[
+                        '',
+                        '\\',
+                        '',
+                        '',
+                    ], $namespace);
+
+                    $models[] = $namespace . str_replace("/", "\\", (preg_replace('/.php$/', '', $file)));
+                }
+            }
+        }else if( session('project')['lang'] == 'go' ){
+            $models[] = "strconv";
+            $models[] = "olsera.com/kikota/exceptions";
+
+            $dir = app_path().'/../../'.session('project')['folder'].'/app/';
+
+            $files = scandir($dir.'models/');
+            $namespace = '';
+            foreach($files as $file) {
+                //skip current and parent folder entries and non-php files
+                if ($file == '.' || $file == '..' || !preg_match('/.go/', $file)) continue;
+                    $models[] = $namespace . preg_replace('/.go$/', '', $file);
+                    
+                    $select2_data[] = [
+                        'id'    => preg_replace('/.go$/', '', $file),
+                        'text'  => preg_replace('/.go$/', '', $file)
+                    ];
+            }
+        }
+
+        return [
+            'models'    => $models,
+            'select2_data'  => $select2_data,
+        ];
+    }
+
     /**
      * Undocumented function
      *
@@ -137,10 +217,14 @@ class LaravelRestBuilder
      */
     public function create()
     {
+        $mapping_file_folder = $this->getFileFolder('Http');
+
         return view('khancode::create', [
             'data'=>[
                 'simpan_api'    =>  1
             ],
+            'models'    => $mapping_file_folder['models'],
+            'select2_data'    => $mapping_file_folder['select2_data'],
             'projects'   =>  Projects::userData()->get(),
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
         ]);
@@ -153,11 +237,15 @@ class LaravelRestBuilder
      */
     public function update($id)
     {        
+        $mapping_file_folder = $this->getFileFolder('Http');
+
         return view('khancode::create', [
             'data'  => [
                 'id'    =>  $id,
                 'simpan_api'    =>  1
             ],
+            'models'    => $mapping_file_folder['models'],
+            'select2_data'    => $mapping_file_folder['select2_data'],
             'projects'   =>  Projects::userData()->get(),
             'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
         ]);

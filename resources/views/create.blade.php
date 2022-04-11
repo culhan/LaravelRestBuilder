@@ -962,98 +962,112 @@
 @section('script_add_on')    
 
     <?php
-        $models = array();
-        $select2_data = array();
+        // $models = array();
+        // $select2_data = array();
         
-        if( session('project')['lang'] == 'php' ) {
-            $dir = app_path().'/../../'.session('project')['folder'].'/app/';
+        // if( session('project')['lang'] == 'php' ) {
+            // $dir = app_path().'/../../'.session('project')['folder'].'/app/';
 
-            \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Controllers/');
-            \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Models/');
-            \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Services/');
-            \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Repositories/');
-            \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Resources/');
-            \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Exceptions/');
+            // \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Controllers/');
+            // \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Models/');
+            // \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Services/');
+            // \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Repositories/');
+            // \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Http/Resources/');
+            // \KhanCode\LaravelRestBuilder\FileCreator::createPath($dir.'Exceptions/');
             
-            $files = scandir($dir.'Http/Controllers/');
-            $namespace = '\App\Http\Controllers\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
-            }
+            // $files = scandir($dir.'Http/Controllers/');
+            // $namespace = '\App\Http\Controllers\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // }
 
-            $files = scandir($dir.'Http/Models/');
-            $namespace = '\App\Http\Models\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // $files = scandir($dir.'Http/Models/');
+            // $namespace = '\App\Http\Models\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
                     
-                    $select2_data[] = [
-                        'id'    => preg_replace('/.php$/', '', $file),
-                        'text'  => preg_replace('/.php$/', '', $file)
-                    ];
-            }
+            //         $select2_data[] = [
+            //             'id'    => preg_replace('/.php$/', '', $file),
+            //             'text'  => preg_replace('/.php$/', '', $file)
+            //         ];
+            // }
 
-            $files = scandir($dir.'Http/Services/');
-            $namespace = '\App\Http\Services\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
-            }
-
-            $files = scandir($dir.'Http/Repositories/');
-            $namespace = '\App\Http\Repositories\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
-            }
-
-            $files = scandir($dir.'Http/Resources/');
-            $namespace = '\App\Http\Resources\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
-            }
-
-            $files = scandir($dir.'Exceptions/');
-            $namespace = '\App\Exceptions\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
-            }
-
-            $files = scandir($dir.'Http/');
-            $namespace = '\App\Http\\';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.php$/', '', $file);
-            }
-        }else if( session('project')['lang'] == 'go' ) {
-            $models[] = "strconv";
-            $models[] = "olsera.com/kikota/exceptions";
-
-            $dir = app_path().'/../../'.session('project')['folder'].'/app/';
-
-            $files = scandir($dir.'models/');
-            $namespace = '';
-            foreach($files as $file) {
-                //skip current and parent folder entries and non-php files
-                if ($file == '.' || $file == '..' || !preg_match('/.go/', $file)) continue;
-                    $models[] = $namespace . preg_replace('/.go$/', '', $file);
+            // $files = scandir($dir.'Http/Model/');
+            // $namespace = '\App\Http\Model\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
                     
-                    $select2_data[] = [
-                        'id'    => preg_replace('/.go$/', '', $file),
-                        'text'  => preg_replace('/.go$/', '', $file)
-                    ];
-            }
-        }
+            //         $select2_data[] = [
+            //             'id'    => preg_replace('/.php$/', '', $file),
+            //             'text'  => preg_replace('/.php$/', '', $file)
+            //         ];
+            // }
+
+            // $files = scandir($dir.'Http/Services/');
+            // $namespace = '\App\Http\Services\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // }
+
+            // $files = scandir($dir.'Http/Repositories/');
+            // $namespace = '\App\Http\Repositories\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // }
+
+            // $files = scandir($dir.'Http/Resources/');
+            // $namespace = '\App\Http\Resources\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // }
+
+            // $files = scandir($dir.'Exceptions/');
+            // $namespace = '\App\Exceptions\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // }
+
+            // $files = scandir($dir.'Http/');
+            // $namespace = '\App\Http\\';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.php/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.php$/', '', $file);
+            // }
+            
+        // }else if( session('project')['lang'] == 'go' ) {
+            // $models[] = "strconv";
+            // $models[] = "olsera.com/kikota/exceptions";
+
+            // $dir = app_path().'/../../'.session('project')['folder'].'/app/';
+
+            // $files = scandir($dir.'models/');
+            // $namespace = '';
+            // foreach($files as $file) {
+            //     //skip current and parent folder entries and non-php files
+            //     if ($file == '.' || $file == '..' || !preg_match('/.go/', $file)) continue;
+            //         $models[] = $namespace . preg_replace('/.go$/', '', $file);
+                    
+            //         $select2_data[] = [
+            //             'id'    => preg_replace('/.go$/', '', $file),
+            //             'text'  => preg_replace('/.go$/', '', $file)
+            //         ];
+            // }
+        // }
     ?>
     <script>   
         var dataModels = <?php echo json_encode($models)?>;

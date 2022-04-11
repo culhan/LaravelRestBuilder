@@ -4,9 +4,9 @@
 // atau hubungi A'mal Sholihan
 namespace App\Http\Model{{custom_folder_namespace}};
 
-use App\Http\Model\BaseModel;
+use App\Http\Model\BaseModelV2;
 
-class {{Name}} extends BaseModel
+class {{Name}} extends BaseModelV2
 {
     public $table = "{{table}}";
 
