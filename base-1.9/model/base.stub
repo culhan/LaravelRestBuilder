@@ -171,5 +171,13 @@ class {{Name}} extends BaseModelV2
 
         });
 
+        self::deleting(function($model){
+            
+            // start list deleting option
+
+            // end list deleting option
+
+        });
+
     }
 }
