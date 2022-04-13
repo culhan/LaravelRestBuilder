@@ -18,8 +18,9 @@
         
         // end list belongs to many delete
 
-        $return = $single_data->delete();
-        
+        $is_deleted = $single_data->delete();
+        $return = ['is_deleted'    => $is_deleted];
+
         // custom code after
         {{custom_code_after}}        
 
