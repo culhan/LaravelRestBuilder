@@ -25,21 +25,19 @@ class FileCreator
     static function create( $name_file, $folder, $content = "some text here", $type = 'modul', $copy = true )
     {
         $file_folder = $folder;
-        
-        $file_model = new ModulFiles;
-        $file_key = 'modul_id';
-        $data_file_key = config('laravelrestbuilder.modul')['id'];
 
         if($type == 'email') {
             $file_model = new EmailFiles;
             $file_key = 'email_id';
             $data_file_key = config('laravelrestbuilder.email')['id'];
-        }
-
-        if($type == 'event') {
+        }elseif($type == 'event') {
             $file_model = new EventFiles;
             $file_key = 'event_id';
             $data_file_key = config('laravelrestbuilder.event')['id'];
+        }else{
+            $file_model = new ModulFiles;
+            $file_key = 'modul_id';
+            $data_file_key = config('laravelrestbuilder.modul')['id'];
         }
 
         $folder = config('laravelrestbuilder.copy_to')."/".$folder;        

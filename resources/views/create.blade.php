@@ -193,7 +193,7 @@
                         <div class="form-group">
                             <div class="with_timestamp_detail">
                                 <div class="col-sm" style="padding-top:5px;">
-                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".with_timestamp_details" aria-expanded="true" aria-controls="with_timestamp_details"><b>Details</b></label>
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target="['with_timestamp_details']" aria-expanded="true" aria-controls="with_timestamp_details"><b>Details</b></label>
                                 </div>
                             </div>
                             <div class="col-sm-11 container with_timestamp_details collapse">
@@ -2687,7 +2687,9 @@
             build_relation_tabel(dataDetail['relation'])
             build_kolom_tabel(objModul['column'],objForbiddenCOlumn)
             build_tabel_option_by_column(objModul['column'])
-            build_tabel_option_details(objModul)
+            build_tabel_option_details(objModul, 'time')
+            build_tabel_option_details(objModul, 'auth')
+            build_tabel_option_details(objModul, 'ip')
             build_modul_tabel(objModul['column'],objForbiddenCOlumn)
             build_list_index_tabel(data['table']['list_index'])
             build_list_column_function_tabel(objModul['column_function'])
@@ -2697,39 +2699,39 @@
             build_list_classtab_tabel(objModul['classtab'])
         }
         
-        function build_tabel_option_details(data) {
-            if( data.with_timestamp_details ){
-                if( data.with_timestamp_details.create ){
-                    $( '[name="with_timestamp_details[create]"]' ).prop('checked', true)
+        function build_tabel_option_details(data, type) {
+            if( data['with_'+type+'stamp_details'] ){
+                if( data['with_'+type+'stamp_details'].create ){
+                    $( '[name="with_'+type+'stamp_details[create]"]' ).prop('checked', true)
                 }else{
-                    $( '[name="with_timestamp_details[create]"]' ).prop('checked', false)
+                    $( '[name="with_'+type+'stamp_details[create]"]' ).prop('checked', false)
                 }
 
-                if( data.with_timestamp_details.update ){
-                    $( '[name="with_timestamp_details[update]"]' ).prop('checked', true)
+                if( data['with_'+type+'stamp_details'].update ){
+                    $( '[name="with_'+type+'stamp_details[update]"]' ).prop('checked', true)
                 }else {
-                    $( '[name="with_timestamp_details[update]"]' ).prop('checked', false)
+                    $( '[name="with_'+type+'stamp_details[update]"]' ).prop('checked', false)
                 }
 
-                if( data.with_timestamp_details.delete ){
-                    $( '[name="with_timestamp_details[delete]"]' ).prop('checked', true)
+                if( data['with_'+type+'stamp_details'].delete ){
+                    $( '[name="with_'+type+'stamp_details[delete]"]' ).prop('checked', true)
                 }else {
-                    $( '[name="with_timestamp_details[delete]"]' ).prop('checked', false)
+                    $( '[name="with_'+type+'stamp_details[delete]"]' ).prop('checked', false)
                 }
 
-                if( data.with_timestamp_details.create_column ){
-                    $( '[name="with_timestamp_details[create_column]"]' ).val(data.with_timestamp_details.create_column)
+                if( data['with_'+type+'stamp_details'].create_column ){
+                    $( '[name="with_'+type+'stamp_details[create_column]"]' ).val(data['with_'+type+'stamp_details'].create_column)
                 }
-                if( data.with_timestamp_details.update_column ){
-                    $( '[name="with_timestamp_details[update_column]"]' ).val(data.with_timestamp_details.update_column)
+                if( data['with_'+type+'stamp_details'].update_column ){
+                    $( '[name="with_'+type+'stamp_details[update_column]"]' ).val(data['with_'+type+'stamp_details'].update_column)
                 }
-                if( data.with_timestamp_details.delete_column ){
-                    $( '[name="with_timestamp_details[delete_column]"]' ).val(data.with_timestamp_details.delete_column)
+                if( data['with_'+type+'stamp_details'].delete_column ){
+                    $( '[name="with_'+type+'stamp_details[delete_column]"]' ).val(data['with_'+type+'stamp_details'].delete_column)
                 }
             }else {
-                $( '[name="with_timestamp_details[create]"]' ).prop('checked', false)
-                $( '[name="with_timestamp_details[update]"]' ).prop('checked', false)
-                $( '[name="with_timestamp_details[delete]"]' ).prop('checked', false)
+                $( '[name="with_'+type+'stamp_details[create]"]' ).prop('checked', false)
+                $( '[name="with_'+type+'stamp_details[update]"]' ).prop('checked', false)
+                $( '[name="with_'+type+'stamp_details[delete]"]' ).prop('checked', false)
             }
         }
 

@@ -3,7 +3,7 @@
      * @return [type] [description]
      */
     public function {{belongs_to_name}}(){
-        return $this->belongsTo('\App\Http\Models\{{belongs_to_name_model}}','{{column_belongs_to_foreign_key}}','id');
+        return $this->belongsTo('\App\Http\Model\{{belongs_to_name_model}}','{{column_belongs_to_foreign_key}}','id');
     }
 
     // end list relation function
