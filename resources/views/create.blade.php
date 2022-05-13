@@ -193,7 +193,7 @@
                         <div class="form-group">
                             <div class="with_timestamp_detail">
                                 <div class="col-sm" style="padding-top:5px;">
-                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target="['with_timestamp_details']" aria-expanded="true" aria-controls="with_timestamp_details"><b>Details</b></label>
+                                    <label data-toggle="collapse" class="list-collapse collapsed" data-target=".with_timestamp_details" aria-expanded="true" aria-controls="with_timestamp_details"><b>Details</b></label>
                                 </div>
                             </div>
                             <div class="col-sm-11 container with_timestamp_details collapse">
@@ -1195,37 +1195,73 @@
                     single_data_code = '$single_data = $this->getSingleData(1);\n' 
                 }
             }else if ( project_lang == 'golang' ){
-                if( ele.value == 'single_data' ){
-                    single_data_code = ''
-                    single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
-                    single_data_code += 'if( err_int != nil ){\n'
-                        single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
-                        single_data_code += '\treturn nil, err_int\n'
-                    single_data_code += '}\n'
-                    single_data_code += 'singleData := tx.Where("id = ?", idt)\n'
 
-                    fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
-                }else if( ele.value == 'delete_data' ){
-                    single_data_code = ''
-                    single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
-                    single_data_code += 'if( err_int != nil ){\n'
-                        single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
-                        single_data_code += '\treturn nil, err_int\n'
-                    single_data_code += '}\n'
-                    single_data_code += 'keyForDelete["id"] = idt\n'
+                if (storage_parameter.get("column_to_save.0.type") == 'bigint'){
+                    if( ele.value == 'single_data' ){
+                        single_data_code = ''
+                        single_data_code += 'idt, err_int := strconv.ParseInt(id, 10, 64)\n'
+                        single_data_code += 'if( err_int != nil ){\n'
+                            single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                            single_data_code += '\treturn nil, err_int\n'
+                        single_data_code += '}\n'
+                        single_data_code += 'singleData := tx.Where("id = ?", idt)\n'
 
-                    fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
-                }else if( ele.value == 'update_data' ){
-                    single_data_code = ''
-                    single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
-                    single_data_code += 'if( err_int != nil ){\n'
-                        single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
-                        single_data_code += '\treturn nil, err_int\n'
-                    single_data_code += '}\n'
-                    single_data_code += 'singleData:= tx.Model(&this_model).Where("id = ?", idt)'
+                        fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                    }else if( ele.value == 'delete_data' ){
+                        single_data_code = ''
+                        single_data_code += 'idt, err_int := strconv.ParseInt(id, 10, 64)\n'
+                        single_data_code += 'if( err_int != nil ){\n'
+                            single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                            single_data_code += '\treturn nil, err_int\n'
+                        single_data_code += '}\n'
+                        single_data_code += 'keyForDelete["id"] = idt\n'
 
-                    fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                        fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                    }else if( ele.value == 'update_data' ){
+                        single_data_code = ''
+                        single_data_code += 'idt, err_int := strconv.ParseInt(id, 10, 64)\n'
+                        single_data_code += 'if( err_int != nil ){\n'
+                            single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                            single_data_code += '\treturn nil, err_int\n'
+                        single_data_code += '}\n'
+                        single_data_code += 'singleData:= tx.Model(&this_model).Where("id = ?", idt)'
+
+                        fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                    }
+                }else{
+                    if( ele.value == 'single_data' ){
+                        single_data_code = ''
+                        single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
+                        single_data_code += 'if( err_int != nil ){\n'
+                            single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                            single_data_code += '\treturn nil, err_int\n'
+                        single_data_code += '}\n'
+                        single_data_code += 'singleData := tx.Where("id = ?", idt)\n'
+
+                        fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                    }else if( ele.value == 'delete_data' ){
+                        single_data_code = ''
+                        single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
+                        single_data_code += 'if( err_int != nil ){\n'
+                            single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                            single_data_code += '\treturn nil, err_int\n'
+                        single_data_code += '}\n'
+                        single_data_code += 'keyForDelete["id"] = idt\n'
+
+                        fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                    }else if( ele.value == 'update_data' ){
+                        single_data_code = ''
+                        single_data_code += 'idt, err_int := strconv.Atoi(id)\n'
+                        single_data_code += 'if( err_int != nil ){\n'
+                            single_data_code += '\texceptions.ValidateException(7, `url param id must be a number`)\n'
+                            single_data_code += '\treturn nil, err_int\n'
+                        single_data_code += '}\n'
+                        single_data_code += 'singleData:= tx.Model(&this_model).Where("id = ?", idt)'
+
+                        fillAceGenerate({ name_cols: 'route_sementara[custom_check_single_data]', code: single_data_code })
+                    }
                 }
+                
             }
 
             if(ele.value == 'custom_data') {

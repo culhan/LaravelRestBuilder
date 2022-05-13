@@ -16,6 +16,7 @@ class RouteBuilder
         "olsera.com/kikota/app/middleware",
         "olsera.com/kikota/exceptions",
         "olsera.com/kikota/helpers",
+        "olsera.com/kikota/app/controllers",
         "encoding/json",
         "net/http",
 	    "strings",
@@ -42,8 +43,7 @@ class RouteBuilder
         $route_builded = 0;
         foreach ($route as $key => $value) {
             if( empty($value['tanpa_route']) ) {
-                $value['tanpa_route'] = '0';
-                $class["olsera.com/kikota/app/controllers"] = "olsera.com/kikota/app/controllers";
+                $value['tanpa_route'] = '0';                
             }
             if($value['process'] == 'system_data' || $value['tanpa_route'] == '1') {
                 continue;

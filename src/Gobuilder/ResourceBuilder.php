@@ -20,6 +20,7 @@ class ResourceBuilder
         "io/ioutil",
         "time",
         "reflect",
+        "math/big",
     ];
 
     /**
@@ -41,9 +42,9 @@ class ResourceBuilder
 
         $list_type_var = [
             'increment' => 'int',
-            'bigIncrement'  => 'int',
+            'bigIncrement'  => 'int64',
             'integer'   => 'int',
-            'bigint'    => 'int',
+            'bigint'    => 'int64',
             'smallInteger'  => 'int',
             'tinyInteger'   => 'int',
             'boolean'   => 'int',

@@ -3,7 +3,9 @@ func {{ModulName}}{{Name}}(c *gin.Context) {
     dt, err := services.Service{{ModulName}}{{Name}}( tx, c.MustGet("Request").(map[string]interface {}), c{{UrlParam}} )
 	if err == nil {
         tx.Commit()
-		c.SecureJSON(200, resources.{{ModulName}}Resource(dt))
+        if dt != nil {
+		    c.SecureJSON(200, resources.{{ModulName}}Resource(dt))
+        }
 	}else {
         tx.Rollback()
     }

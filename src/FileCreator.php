@@ -34,7 +34,7 @@ class FileCreator
             $file_model = new EventFiles;
             $file_key = 'event_id';
             $data_file_key = config('laravelrestbuilder.event')['id'];
-        }else{
+        }elseif($type != 'migration'){
             $file_model = new ModulFiles;
             $file_key = 'modul_id';
             $data_file_key = config('laravelrestbuilder.modul')['id'];

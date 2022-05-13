@@ -2,11 +2,15 @@ func Service{{ModulName}}{{Name}}(  tx *gorm.DB, data map[string]interface{}, c 
 
     {{code_validation}}
     
+	{{custom_code_before}}
+
     this_model := models.{{ModulName}}Model{}
 	resultData, err := repositories.GetIndexData{{ModulName}}(tx.Session(&gorm.Session{}), data, this_model, c) 
 	if err != nil {
 		return nil, err
 	}
+
+	{{custom_code_after}}
 
 	return resultData, nil
 }

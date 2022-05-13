@@ -2,8 +2,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{code_validation}}
     
-    raw_column := []string{}
-    this_model := models.{{ModulName}}Model{}
+    
     keyFirstOrCreate := map[string]interface{}{}
     model := models.{{ModulName}}Model{}
     

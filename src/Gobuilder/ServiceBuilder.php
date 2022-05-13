@@ -2,7 +2,9 @@
 
 namespace KhanCode\LaravelRestBuilder\Gobuilder;
 
+use KhanCode\LaravelBaseRest\Helpers;
 use Illuminate\Support\Facades\Schema;
+use KhanCode\LaravelBaseRest\ValidationException;
 
 class ServiceBuilder
 {
@@ -15,6 +17,7 @@ class ServiceBuilder
         "olsera.com/kikota/app/resources",
         "olsera.com/kikota/exceptions",
         "olsera.com/kikota/helpers",
+        "olsera.com/kikota/customvalidator",        
         "encoding/json",
         "net/http",
 	    "strings",
@@ -25,6 +28,19 @@ class ServiceBuilder
         "golang.org/x/crypto/bcrypt",
         "strconv",
         "encoding/base64",
+        "reflect",
+        "os",
+        "github.com/aws/aws-sdk-go/aws/credentials",
+        "github.com/aws/aws-sdk-go/aws/session",
+        "github.com/aws/aws-sdk-go/aws",
+        "github.com/aws/aws-sdk-go/service/s3",
+        "bytes",
+        "errors",
+        "image",
+        "github.com/nfnt/resize",
+        "image/png",
+        "github.com/shopspring/decimal",
+        "math/big",
     ];
 
     /**
@@ -44,9 +60,9 @@ class ServiceBuilder
 
         $list_type_var = [
             'increment' => 'int',
-            'bigIncrement'  => 'int',
+            'bigIncrement'  => 'int64',
             'integer'   => 'int',
-            'bigint'    => 'int',
+            'bigint'    => 'int64',
             'smallInteger'  => 'int',
             'tinyInteger'   => 'int',
             'boolean'   => 'int',
@@ -62,9 +78,19 @@ class ServiceBuilder
         
         $list_file = scandir(__DIR__.'/../../base-go/service', SCANDIR_SORT_DESCENDING);
         foreach ($route as $key => $value) {
-            // if($value['name'] == 'system_data') {
-            //     continue;
-            // }
+            
+            if( $value["process"] == 'create_data' || $value["process"] == 'update_data' ){
+                \KhanCode\LaravelRestBuilder\Models\Moduls::validate($value,[
+                    'dataFilter' => [
+                            'required', 
+                        ],
+                ],[
+                    'dataFilter.required'   => "Pemabatasan Data harus di isi untuk route ".$value["name"]
+                ]);
+
+                if( Helpers::is_error() ) throw new ValidationException( Helpers::get_error() );
+            }
+
             $function_name = 'function_'.$value['process'].'.stub';
             
             if(in_array($function_name,$list_file))
@@ -74,6 +100,7 @@ class ServiceBuilder
 
                 // custom_check_single_data
                 if( !empty($value['custom_check_single_data']) ){
+                    
                     $value['custom_check_single_data'] = str_replace("\n", "\n\t",$value['custom_check_single_data']);
                     $code_function = str_replace('{{custom_check_single_data}}', $value['custom_check_single_data'],$code_function);
                 }
@@ -118,10 +145,12 @@ class ServiceBuilder
                     }
                 }
 
-                // make data sanitation
+                // make data sanitation                
                 $code_filter = '';
                 $column_sanitated = '';
                 if( !empty($value['dataFilter']) ){
+                    $code_filter = "raw_column := []string{}\n";
+                    $code_filter .= "\tthis_model := models.{{ModulName}}Model{}\n";
                     foreach ($value['dataFilter'] as $key_filter => $value_filter) {
                         $column_sanitated .= "`".$value_filter["name"]."`";
                         if( $key_filter != count($value['dataFilter'])-1 ){
@@ -134,14 +163,23 @@ class ServiceBuilder
                                 $type_column_assertion = $list_type_var[$c_value["type"]]??"string";
                             }
                         }
-
-                        $code_filter .= "if _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
+                        
+                        $code_filter .= "\tif _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
                         if( $type_column_assertion == 'int' ){
                             $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
+                        }else if( $type_column_assertion == 'int64' ){
+                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
+                        }else if( $type_column_assertion == 'decimal.Decimal'){
+                            $code_filter .= "\t\t".'val_param_'.$value_filter['name'].', err := decimal.NewFromString(helpers.ConvertToString(data["'.$value_filter['name'].'"]))' . "\n";
+                            $code_filter .= "\t\tif err != nil {\n";
+                                $code_filter .= "\t\terrorState := exceptions.ErrorException(500, fmt.Sprintf(\"could not decode to decimal %s\",err))\n";
+		                        $code_filter .= "\t\treturn nil, errorState\n";
+                            $code_filter .= "\t\t}\n";
+                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = val_param_' . $value_filter['name'] . "\n";
                         }else {
                             $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
                         }
-                        $code_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")";
+                        $code_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")\n";
                         $code_filter .= "\t}\n\t";
                     }
                 }
@@ -172,7 +210,8 @@ class ServiceBuilder
                             "{{ucfirst_column_foreign_key}}",
                             "{{model_name}}",
                             "{{function_name_create_intermediate_table}}",
-                            "{{foreign_key_model}}"
+                            "{{foreign_key_model}}",
+                            "{{foreign_key_joining_model}}"
                         ],[
                             $rel_value["name"],
                             ucfirst($rel_value["name"]),
@@ -185,6 +224,7 @@ class ServiceBuilder
                             $rel_value["model_name"]??$rel_value["name"],
                             UCWORDS((str_replace_first('Model','',$rel_value["modul_intermediate_table"]??NULL))."Create"),
                             $rel_value["foreign_key_model"]??NULL,
+                            $rel_value["foreign_key_joining_model"]??NULL,
                         ], $base_code_relation);
                         $code_relation .= $base_code_relation;
                     }
@@ -292,7 +332,13 @@ class ServiceBuilder
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
-            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false || strpos($base, "\t".$last_string[count($last_string)-1]) !== false) {
+            if (
+                strpos($base, ' '.$last_string[count($last_string)-1].'.') !== false 
+                || 
+                strpos($base, "\t".$last_string[count($last_string)-1].'.') !== false
+                ||
+                strpos($base, "(".$last_string[count($last_string)-1].'.') !== false
+            ) {
                 $class[] = $value;
             }
         }

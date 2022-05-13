@@ -4,7 +4,6 @@
 package models
 
 import (
-	"reflect"
     "gorm.io/gorm"
     {{class}}
 )
@@ -45,13 +44,13 @@ func (s {{Name}}Model) ScopesGetSelect(data interface{}) func (db *gorm.DB) *gor
 
 func (s {{Name}}Model) ScopesGetAll(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetUnion(data), s.ScopesGetOptions(data) )
+    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetOptions(data), s.ScopesGetUnion(data) )
   }
 }
 
 func (s {{Name}}Model) getAll(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetUnion(data), s.ScopesGetOptions(data) )
+    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetOptions(data), s.ScopesGetUnion(data) )
   }
 }
 
@@ -63,6 +62,8 @@ func (s {{Name}}Model) ScopesGetJoin(data interface{}) func (db *gorm.DB) *gorm.
 
 func (s {{Name}}Model) ScopesGetUnion(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
+    // start list query union
+    // end list query union
     return db
   }
 }
@@ -70,7 +71,6 @@ func (s {{Name}}Model) ScopesGetUnion(data interface{}) func (db *gorm.DB) *gorm
 func (s {{Name}}Model) ScopesGetOptions(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
     // start list query option
-
     // end list query option
     return db
   }
@@ -78,21 +78,18 @@ func (s {{Name}}Model) ScopesGetOptions(data interface{}) func (db *gorm.DB) *go
 
 func (s *{{Name}}Model) BeforeCreate(db *gorm.DB) (err error) {
     // start list creating option
-
     // end list creating option
   	return
 }
 
 func (s *{{Name}}Model) BeforeUpdate(db *gorm.DB) (err error) {
     // start list updating option
-
     // end list updating option
   	return
 }
 
 func (s *{{Name}}Model) BeforeDelete(db *gorm.DB) (err error) {
     // start list deleting option
-
     // end list deleting option
   	return
 }

@@ -29,6 +29,23 @@ func {{Name}}Resource(data interface{}) interface{} {
 		}
 		
 		return response
+	case []map[string]interface{}:
+		data_result := data.([]map[string]interface{})
+		data_result_processed := Multi{{Name}}Resource(data_result)
+
+		response := struct {
+			Data   interface{} `json:"data"`
+			Meta   interface{} `json:"meta"`
+			Status int         `json:"status"`
+			Error  int         `json:"error"`
+		}{
+			Data:   data_result_processed,
+			Meta:   "",
+			Status: 200,
+			Error:  0,
+		}
+
+		return response
     case map[string]interface{}:
 		data_result := data.(map[string]interface{})
 		data_result_processed := Single{{Name}}Resource(data_result)

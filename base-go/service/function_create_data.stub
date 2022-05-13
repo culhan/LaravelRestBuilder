@@ -2,9 +2,11 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{code_validation}}
     
-    raw_column := []string{}
-    this_model := models.{{ModulName}}Model{}    
 	{{code_sanitation}}
+
+    // custom code before
+    {{custom_code_before}}
+
 	resultCreate := tx.Session(&gorm.Session{}).Create(&this_model)
 
     if resultCreate.RowsAffected == 0 {
@@ -18,6 +20,9 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
     json.Unmarshal(inrec, &result)
 
     {{relation_function}}
+
+    // custom code after
+    {{custom_code_after}}
 
     resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
 	if err != nil {

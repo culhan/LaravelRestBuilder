@@ -11,14 +11,14 @@ if _, ok := data["{{parameter_name}}"]; ok {
             for _, v_{{parameter_name}} := range data["{{parameter_name}}"].([]interface{}) {
                 v_{{parameter_name}} := v_{{parameter_name}}.(map[string]interface {})
                 if _, ok := v_{{parameter_name}}["id"]; ok {
-                    if convertToString(v_{{parameter_name}}["id"]) == convertToString(value["id"]) {
+                    if convertToString(v_{{parameter_name}}["id"]) == helpers.ConvertToString(value["id"]) {
                         id_found = true
                     }
                 }
             }
 
             if !id_found {
-                _ , err := Service{{function_name_delete}}(tx.Session(&gorm.Session{}), map[string]interface{}{}, locale, convertToString(value["id"]))
+                _ , err := Service{{function_name_delete}}(tx.Session(&gorm.Session{}), map[string]interface{}{}, c, locale, helpers.ConvertToString(value["id"]))
                 if err != nil {
                     return nil, err
                 }
@@ -36,12 +36,12 @@ if _, ok := data["{{parameter_name}}"]; ok {
 
         toRelation["header_object"] = result
         if _, ok := value.(map[string]interface {})["id"]; !ok {
-            _ , err := Service{{function_name_create}}(tx.Session(&gorm.Session{}), toRelation)
+            _ , err := Service{{function_name_create}}(tx.Session(&gorm.Session{}), toRelation, c, locale)
             if err != nil {
                 return nil, err
             }
         }else {
-            _ , err := Service{{function_name_update}}(tx.Session(&gorm.Session{}), toRelation, convertToString(value.(map[string]interface {})["id"]))
+            _ , err := Service{{function_name_update}}(tx.Session(&gorm.Session{}), toRelation, c, locale, helpers.ConvertToString(value.(map[string]interface {})["id"]))
             if err != nil {
                 return nil, err
             }

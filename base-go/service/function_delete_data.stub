@@ -4,17 +4,25 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
     keyForDelete := map[string]interface{}{}
 	{{custom_check_single_data}}
 
-    _, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
+    data_single_source, err := repositories.GetSingleGormData{{ModulName}}(tx, map[string]interface{}{}, tx.Where(keyForDelete), c)
 	if err != nil {
 		return nil, err
 	}
+	data_single := data_single_source.(map[string]interface{})
+	data_single = data_single
 
-	result := models.Delete(tx.Debug().Model(&this_model).Where(keyForDelete))
+    // custom code before
+    {{custom_code_before}}
+
+	result := models.Delete(tx.Debug().Model(&this_model).Where(keyForDelete).Set("current_data", data_single))
 
     if result.RowsAffected <= 0 {
         err_exp := exceptions.ValidateException(7, `Failed delete data `+this_model.ModulName())
         return false, err_exp
     }
+
+    // custom code after
+    {{custom_code_after}}
 
     return true, nil
 }

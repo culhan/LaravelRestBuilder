@@ -4,10 +4,14 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
     
     {{custom_check_single_data}}
 	
-    resultData, err := repositories.GetSingleGormDataBusinessType(tx.Session(&gorm.Session{}), map[string]interface{}{}, singleData, c) 
+	{{custom_code_before}}
+
+    resultData, err := repositories.GetSingleGormData{{ModulName}}(tx.Session(&gorm.Session{}), map[string]interface{}{}, singleData, c) 
 	if err != nil {
 		return nil, err
 	}
+
+	{{custom_code_after}}
 
 	return resultData, nil
 }

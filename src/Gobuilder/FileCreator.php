@@ -56,19 +56,19 @@ class FileCreator
                 }, $old_file);
                 
                 for ($i=0; $i < $count_mathces ; $i++) { 
-                    $this_custom_code = self::get_string_between($old_file,'// start custom code', '// end custom code');
+                    $this_custom_code = self::get_string_between($old_file,'// start custom code', '// end custom code');                                      
                     $custom_code[] = $this_custom_code;
                     $rep = "\001".preg_quote('// start custom code'.$this_custom_code."\t".'// end custom code')."\001";
                     $old_file = preg_replace($rep, " ", $old_file, 1);
                 }
-
+                
                 $index = 0;                
                 $content = preg_replace_callback("\001".preg_quote("// start custom code")."\001",function ($m) use ($custom_code,&$index,$type) {                    
                     if(!empty($custom_code[$index]))
                     {        
                         // hapus \r\n
                         if( $type != "routes" ) {
-                            $custom_code[$index] = substr($custom_code[$index], 0, -6);
+                            $custom_code[$index] = substr($custom_code[$index], 0, -1);
                         }else {
                             $custom_code[$index] = substr($custom_code[$index], 0, -1);
                         }
@@ -161,6 +161,34 @@ class FileCreator
         // }
 
         return self::$file;
+    }
+
+    static function getCustomCode($name_file, $folder) {
+        $folder = config('laravelrestbuilder.copy_to')."/".$folder;
+        if ( file_exists(base_path()."/".$folder."/".$name_file.".go") )
+        {        
+            $old_file = self::getFile($name_file, $folder);                                  
+            $custom_code = [];
+            if(strpos($old_file, '// start custom code') !== false)
+            {
+                $count_mathces = 0;
+                preg_replace_callback('#'.preg_quote("// start custom code")."#",function ($m) use (&$count_mathces) {
+                    $count_mathces++;
+                    return $m[0];
+                }, $old_file);
+                
+                for ($i=0; $i < $count_mathces ; $i++) { 
+                    $this_custom_code = self::get_string_between($old_file,'// start custom code', '// end custom code');                                      
+                    $custom_code[] = $this_custom_code;
+                    $rep = "\001".preg_quote('// start custom code'.$this_custom_code."\t".'// end custom code')."\001";
+                    $old_file = preg_replace($rep, " ", $old_file, 1);
+                }
+
+                return $custom_code;
+            }  
+        }
+
+        return [];
     }
 
     /**

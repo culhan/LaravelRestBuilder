@@ -190,7 +190,12 @@ class LaravelRestBuilder
 
             $dir = app_path().'/../../'.session('project')['folder'].'/app/';
 
-            $files = scandir($dir.'models/');
+            $files = [];
+            $select2_data = [];
+            if( file_exists($dir.'models/') ){
+                $files = scandir($dir.'models/');
+            }            
+
             $namespace = '';
             foreach($files as $file) {
                 //skip current and parent folder entries and non-php files
@@ -455,7 +460,7 @@ class LaravelRestBuilder
             ]);
         }                
 
-        if( Helpers::is_error() ) throw new ValidationException( Helpers::get_error() );        
+        if( Helpers::is_error() ) throw new ValidationException( Helpers::get_error() );
 
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['name']);

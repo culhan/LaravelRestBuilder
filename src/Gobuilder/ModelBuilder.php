@@ -11,7 +11,9 @@ class ModelBuilder
      * default class
      */
     static $default_class = [
+        "olsera.com/kikota/app/models",
         "olsera.com/kikota/app/repositories",
+        "olsera.com/kikota/app/resources",
         "olsera.com/kikota/exceptions",
         "olsera.com/kikota/helpers",
         "encoding/json",
@@ -19,10 +21,25 @@ class ModelBuilder
 	    "strings",
         "io/ioutil",
         "time",
-        "github.com/twinj/uuid",
-        "github.com/gin-gonic/gin",
-        "github.com/shopspring/decimal",
         "fmt",
+        "github.com/twinj/uuid",
+        "golang.org/x/crypto/bcrypt",
+        "strconv",
+        "encoding/base64",
+        "reflect",
+        "os",
+        "github.com/aws/aws-sdk-go/aws/credentials",
+        "github.com/aws/aws-sdk-go/aws/session",
+        "github.com/aws/aws-sdk-go/aws",
+        "github.com/aws/aws-sdk-go/service/s3",
+        "bytes",
+        "errors",
+        "image",
+        "github.com/nfnt/resize",
+        "image/png",
+        "github.com/shopspring/decimal",
+        "github.com/gin-gonic/gin",
+        "math/big",
     ];
 
     /**
@@ -62,9 +79,9 @@ class ModelBuilder
 
         $list_type_var = [
             'increment' => 'int',
-            'bigIncrement'  => 'int',
+            'bigIncrement'  => 'int64',
             'integer'   => 'int',
-            'bigint'    => 'int',
+            'bigint'    => 'int64',
             'smallInteger'  => 'int',
             'tinyInteger'   => 'int',
             'boolean'   => 'int',
@@ -158,8 +175,8 @@ class ModelBuilder
                     $text_column .= "References:id;";
                     $text_column .= "joinReferences:id;".$relation_value["foreign_key_joining_model"];
                 }else{
-                    $text_column .= "foreignKey:id;";
-                    $text_column .= "references:".$relation_value["foreign_key"]."";
+                    $text_column .= "foreignKey:".$relation_value["foreign_key"].";";
+                    $text_column .= "references:id";
                 }
                 
                 $text_column .= "\"`";
@@ -176,15 +193,33 @@ class ModelBuilder
                 }
             }
             
-            if( isset($relation_value["foreign_key"]) ){
-                if ( !(strpos($relation_value["foreign_key"], '.') !== false) ) {
-                    $relation_value["foreign_key"] = $relation_value["table"].".".$relation_value["foreign_key"];
+            if( $relation_value["type"] == "belongs_to"){
+                if( isset($relation_value["foreign_key"]) ){
+                    if ( !(strpos($relation_value["foreign_key"], '.') !== false) ) {
+                        $relation_value["foreign_key"] = $table.".".$relation_value["foreign_key"];
+                    }
                 }
-            }
 
-            if( isset($relation_value["relation_key"]) ){
-                if ( !(strpos($relation_value["relation_key"], '.') !== false) ) {
-                    $relation_value["relation_key"] = $table.".".($relation_value["relation_key"]??"id");
+                if( isset($relation_value["relation_key"]) ){
+                    if ( !(strpos($relation_value["relation_key"], '.') !== false) ) {
+                        $relation_value["relation_key"] = $relation_value["table"].".".($relation_value["relation_key"]??"id");
+                    }
+                }else {
+                    $relation_value["relation_key"] = ($relation_value["table"].".id");
+                }
+            }else {
+                if( isset($relation_value["foreign_key"]) ){
+                    if ( !(strpos($relation_value["foreign_key"], '.') !== false) ) {
+                        $relation_value["foreign_key"] = $relation_value["table"].".".$relation_value["foreign_key"];
+                    }
+                }
+
+                if( isset($relation_value["relation_key"]) ){
+                    if ( !(strpos($relation_value["relation_key"], '.') !== false) ) {
+                        $relation_value["relation_key"] = $table.".".($relation_value["relation_key"]??"id");
+                    }
+                }else {
+                    $relation_value["relation_key"] = ($table.".id");
                 }
             }
 
@@ -209,7 +244,7 @@ class ModelBuilder
                 $relation_value["custom_order"],
                 $relation_value["table"],
                 $relation_value["foreign_key"]??NULL,
-                $relation_value["relation_key"]??($table.".id"),
+                $relation_value["relation_key"]??NULL,
                 "-- start list has many join option\n\t".$relation_value["custom_join"]."\n",
                 "-- start list has many query option\n\t".$relation_value["custom_option"]."\n",
                 "\n\t\t",
@@ -264,7 +299,21 @@ class ModelBuilder
             $base_model = str_replace('// end list query option', 'return db'."\n\t".'// end list query option',$base_model);
         }
 
-        $base_model = self::generateClass($base_model, $class);
+        if( !empty($custom_union_model) ) {
+            $union_file = file_get_contents(__DIR__.'/../../base-go/model/query_union_model.stub', FILE_USE_INCLUDE_PATH);
+
+            $param_union = $model_file_name."{}";
+            foreach ($custom_union_model as $arr_union_key => $arr_union_value) {
+                
+                $param_union .= ", ".$arr_union_value."{}";
+            }
+            
+            $union_file = str_replace("{{param_union}}", $param_union, $union_file);
+            $base_model = str_replace('// end list query union',$union_file."\r\n\t".'// end list query union',$base_model);
+        }
+
+        $custom_code = FileCreator::getCustomCode($model_file_name, 'app/models');
+        $base_model = self::generateClass($base_model, $class, $custom_code);
 
         FileCreator::create( $model_file_name, 'app/models', $base_model );
         return;
@@ -855,17 +904,17 @@ class ModelBuilder
         $base_model = str_replace('{{column}}',$cols_table_model,$base_model);
 
         if( !empty($custom_union_model) ) {
+            dd($custom_union_model);
             $union_file = file_get_contents(__DIR__.'/../base'.$base.'/model/query_union_model.stub', FILE_USE_INCLUDE_PATH);
 
+            $param_union = $model_file_name."{}";
             foreach ($custom_union_model as $arr_union_key => $arr_union_value) {
-                $union = str_replace([
-                    '{{union}}',
-                ],[
-                    $arr_union_value
-                ],$union_file);
-
-                $base_model = str_replace('// end list query union',$union."\r\n\t\t\t\t".'// end list query union',$base_model);
+                
+                $param_union .= ", ".$arr_union_value."{}";
             }
+            
+            $union_file = str_replace("{{param_union}}", $param_union, $union_file);
+            $base_model = str_replace('// end list query union',$union_file."\r\n\t\t\t\t".'// end list query union',$base_model);
         }else {
 
             if( !empty($custom_union) ) {
@@ -896,7 +945,6 @@ class ModelBuilder
         }
         
         $base_model = str_replace('{{user_id_code}}',config('laravelrestbuilder.user_id_code'),$base_model);
-        
         
         FileCreator::create( $model_file_name, 'app/Http/Models', $base_model );
     }
@@ -968,7 +1016,7 @@ class ModelBuilder
      * @param [type] $class
      * @return void
      */
-    public static function generateClass($base, $class)
+    public static function generateClass($base, $class, $custom_code = [])
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
@@ -980,6 +1028,7 @@ class ModelBuilder
                 ' '.$string_searched.'.',
                 "\t".$string_searched.'.',
                 '+'.$string_searched.'.',
+                ' '.$string_searched.'.',
             ];
 
             foreach ($stringToFind as $stf_value) {
@@ -987,16 +1036,28 @@ class ModelBuilder
                     $class[$value] = $value;
                 } 
             }
-            
-            // if( $string_searched == 'decimal' ){
-            //     if ( strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false ) {
-            //         $class[] = $value;
-            //     }    
-            // }else {
-            //     if (strpos($base, ' '.$string_searched.'.') !== false || strpos($base, "\t".$string_searched) !== false) {
-            //         $class[] = $value;
-            //     }
-            // }
+        }
+
+        foreach ($custom_code as $ckey => $cvalue) {
+            foreach (self::$default_class as $key => $value) {
+                $last_string = explode("/",$value);
+                $string_searched = $last_string[count($last_string)-1];
+
+                $stringToFind = [
+                    '*'.$string_searched.'.',
+                    ' '.$string_searched.')',
+                    ' '.$string_searched.'.',
+                    "\t".$string_searched.'.',
+                    '+'.$string_searched.'.',
+                    ' '.$string_searched.'.',
+                ];
+
+                foreach ($stringToFind as $stf_value) {
+                    if ( strpos($cvalue, $stf_value) !== false ){
+                        $class[$value] = $value;
+                    } 
+                }
+            }
         }
 
         foreach ($class as $key => $value) {

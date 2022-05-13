@@ -2,6 +2,8 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{code_validation}}
     
+	{{code_sanitation}}
+    
     {{custom_function}}
 }
 // end list function
