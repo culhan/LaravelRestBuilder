@@ -39,6 +39,7 @@ class ResourceBuilder
 
         $base_resource = file_get_contents(__DIR__.'/../../base-go/resource/base.stub', FILE_USE_INCLUDE_PATH);
         $base_mutation_code = file_get_contents(__DIR__.'/../../base-go/resource/mutation.stub', FILE_USE_INCLUDE_PATH);
+        $base_text_column_with_check = file_get_contents(__DIR__.'/../../base-go/resource/text_column_with_check.stub', FILE_USE_INCLUDE_PATH);
 
         $list_type_var = [
             'increment' => 'int',
@@ -59,77 +60,107 @@ class ResourceBuilder
         ];
 
         $mutation_data_code = '';
-        $addr_text_column = '';
-        $text_column = '';
-        $text_column_attribute = '';
-        $hidden = array_flip($hidden);
+        // $addr_text_column = '';
+        // $text_column = '';
+        // $text_column_attribute = '';
+        $text_column_with_check = '';
+        $hidden = array_flip($hidden);        
         foreach ($column as $key => $value) {
             if(isset($hidden[$value['name']])) continue;
 
-            if( !empty($text_column) ){
-                $addr_text_column .= "\n\t";
-                $text_column .= "\n\t\t";
-                $text_column_attribute .= "\n\t\t";
+            if( !empty($text_column_with_check) ){
+                // $addr_text_column .= "\n\t";
+                // $text_column .= "\n\t\t";
+                // $text_column_attribute .= "\n\t\t";
+                $text_column_with_check .= "\n\n\t";
             }
-            $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
-            $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
-            $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
+            // $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
+            // $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
+            // $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
+            $text_column_with_check .= str_replace([
+                "{{column}}",
+                "{{code}}",
+            ], [
+                $value['name'],
+                "data_result[\"".$value['name']."\"]",
+            ], $base_text_column_with_check);
         }
 
         foreach ($column_function as $key => $value) {
-            if( !empty($text_column) ){
-                $addr_text_column .= "\n\t";
-                $text_column .= "\n\t\t";
-                $text_column_attribute .= "\n\t\t";
+            if( !empty($text_column_with_check) ){
+                // $addr_text_column .= "\n\t";
+                // $text_column .= "\n\t\t";
+                // $text_column_attribute .= "\n\t\t";
+                $text_column_with_check .= "\n\n\t";
             }
-            $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
-            $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
+            // $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
+            // $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
 
+            $mutation_code = NULL;
             if( isset($value['json']) ){
                 $mutation_code = str_replace("{{var_name}}", $value['name'], $base_mutation_code);
-                $addr_text_column .= $mutation_code;
+                // $addr_text_column .= $mutation_code;
             }else {
-                $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
+                // $addr_text_column .= "data_".$value['name']." := data_result[\"".$value['name']."\"]";
             }
+
+            $text_column_with_check .= str_replace([
+                "{{column}}",
+                "{{code}}",
+            ], [
+                $value['name'],
+                $mutation_code??("data_result[\"".$value['name']."\"]"),
+            ], $base_text_column_with_check);
         }
 
         $hidden_relation = array_flip($hidden_relation);
         foreach ($relation as $key => $value) {
             if(isset($hidden_relation[$value['name']])) continue;
             
-            $class["encoding/json"] = "encoding/json";
-            if( $mutation_data_code != '' ){
-                $mutation_data_code .= "\t";
-            }
+            // $class["encoding/json"] = "encoding/json";
+            // if( $mutation_data_code != '' ){
+            //     $mutation_data_code .= "\t";
+            // }
             
-            $mutation_data_code .= file_get_contents(__DIR__.'/../../base-go/resource/mutation_code_'.$value["type"].'.stub', FILE_USE_INCLUDE_PATH);
-            $mutation_data_code = str_replace([
-                "{{var_name}}",
-                "{{relation_name}}",
-            ],[
-                $name.$value["name"],
-                $value["name"],
-            ],$mutation_data_code);
+            // $mutation_data_code .= file_get_contents(__DIR__.'/../../base-go/resource/mutation_code_'.$value["type"].'.stub', FILE_USE_INCLUDE_PATH);
+            // $mutation_data_code = str_replace([
+            //     "{{var_name}}",
+            //     "{{relation_name}}",
+            // ],[
+            //     $name.$value["name"],
+            //     $value["name"],
+            // ],$mutation_data_code);
 
-            if( !empty($text_column) ){
-                $text_column .= "\n\t\t";
-                $text_column_attribute .= "\n\t\t";
+            if( !empty($text_column_with_check) ){
+                // $text_column .= "\n\t\t";
+                // $text_column_attribute .= "\n\t\t";
+                $text_column_with_check .= "\n\n\t";
             }
-            $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
-            $text_column_attribute .= ucfirst($value['name']).":\t&".$name.$value["name"].",";
+            // $text_column .= ucfirst($value['name'])."\tinterface{}\t".'`json:"'.$value['name'].'"`';
+            // $text_column_attribute .= ucfirst($value['name']).":\t&".$name.$value["name"].",";
+
+            $text_column_with_check .= str_replace([
+                "{{column}}",
+                "{{code}}",
+            ], [
+                $value['name'],
+                str_replace("{{var_name}}", $value['name'], $base_mutation_code),
+            ], $base_text_column_with_check);
         }
         
         $base_resource = str_replace([
             '{{Name}}',
-            '{{addr_text_column}}',
-            '{{text_column}}',
-            '{{text_column_attribute}}',
+            // '{{addr_text_column}}',
+            // '{{text_column}}',
+            // '{{text_column_attribute}}',
+            '{{text_column_with_check}}',
             '{{mutation_data}}',
         ],[
             $Name,
-            $addr_text_column,
-            $text_column,
-            $text_column_attribute,
+            // $addr_text_column,
+            // $text_column,
+            // $text_column_attribute,
+            $text_column_with_check,
             $mutation_data_code,
         ],$base_resource);
 

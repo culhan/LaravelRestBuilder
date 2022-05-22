@@ -10,9 +10,15 @@
                 <input type="" class="form-control d-none" id="modul_id" name='id' value='{{ Arr::get($data, 'id', 0) }}'>
                 <input type="" class="form-control" id="modul_name" placeholder="nama modul" name='name'>
             </div>
+            <!-- <div class="form-group">
+                <label></label>
+                <textarea class="form-control" id="table_name" placeholder="nama tabel" name='table' onkeyup="ambil_data_tabel(this)">
+                </textarea>                
+            </div> -->
             <div class="form-group">
-                <label>Nama Table</label>                
-                <input type="" class="form-control" id="table_name" placeholder="nama tabel" name='table' onkeyup="ambil_data_tabel(this)">
+                <label for="">Nama Table</label>
+                <textarea name="table" class="d-none" id="table_name" onchange="ambil_data_tabel(this)"></textarea>
+                <textarea id="tab_table"></textarea>
             </div>
 
             <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom:0px">
@@ -2266,6 +2272,10 @@
             //     window.objModul = $('#modul').serializeJSON()                
             // })
             
+            nama_kolom_fungsi = 'table'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_table', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code).change();})")
+            
             nama_kolom_fungsi = 'get_company_code'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_get_company_code', {mode: \"ace/mode/php\", maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().setMode({path:\"ace/mode/phpinline\", inline:true})")
@@ -2876,6 +2886,8 @@
         function build_kolom_tabel_modul(data) {
             if(get_data_array(data,'table')) {
                 $( '[name="table"]' ).val(data['table']);
+                eval("code_editor_table.setValue($( '[name=\"table\"]' ).val())")
+                eval("code_editor_table.clearSelection()")
             }else {
                 $( '[name="table"]' ).val('');
             }

@@ -13,22 +13,19 @@ type {{Name}}Model struct {
 }
 
 func (s {{Name}}Model) TableName() string {
-	return "{{table}}"
+	return `{{table}}`
 }
 
 func (s {{Name}}Model) ModulName() string {
-	return "{{name}}"
+	return `{{name}}`
 }
 
 func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
 	get_gin_context, _ := data.(map[string]interface{})["db"].(*gorm.DB).Get("gin_context")
 	get_gin_context = get_gin_context.(*gin.Context)
-    
-    selectColumn := struct {
-		{{select_column}}
-	}{
-		{{select_column_attribute}}
-	}
+	selectColumn := map[string]interface{}{}
+  
+	{{select_column_with_function}}
 
 	return reflect.ValueOf(&selectColumn)
 }

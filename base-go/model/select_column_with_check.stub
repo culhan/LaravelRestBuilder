@@ -1,0 +1,3 @@
+if helpers.GetSimpleMapValue("show_{{column}}", "1", data.(map[string]interface{})) == "1" {
+		selectColumn["{{column}}"] = `{{query}}`
+	}

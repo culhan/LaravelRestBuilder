@@ -565,7 +565,7 @@ class LaravelRestBuilder
                 );
             }
             
-            if( !empty($data['table']) && !empty($data['column']) ) {
+            if( !empty($data['table']) ) {
                 ModelBuilder::build(
                     $data['name'],
                     $data['table'],
@@ -660,7 +660,7 @@ class LaravelRestBuilder
             ]+config('laravelrestbuilder.file');
         }elseif( session('project')['lang'] == 'go'){
 
-            if( !empty($data['table']) && !empty($data['column']) ) {
+            if( !empty($data['table']) ) {
                 GoModelBuilder::build(
                     $data['name'],
                     $data['table'],
@@ -694,7 +694,7 @@ class LaravelRestBuilder
                 );    
             }
 
-            if( !empty($data['table']) && !empty($data['column']) ) {
+            if( !empty($data['table']) ) {
                 GoRepositoryBuilder::build(
                         $data['name'],
                         $data['table']??NULL,

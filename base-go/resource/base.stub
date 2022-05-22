@@ -85,15 +85,9 @@ func Single{{Name}}Resource(data interface{}) interface{} {
 
 	data_result := data.(map[string]interface{})
 
-    {{mutation_data}}
+	singleData := map[string]interface{}{}
 
-    {{addr_text_column}}
-
-	singleData := struct{
-		{{text_column}}
-	}{
-		{{text_column_attribute}}
-	}
+    {{text_column_with_check}}
 	
 	return singleData
 }

@@ -75,7 +75,7 @@ class ModelBuilder
         $name = $model_file_name = UCWORDS($name_model);
         $model_file_name = $model_file_name."Model";
         $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
-        $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH);
+        $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH);        
 
         $list_type_var = [
             'increment' => 'int',
@@ -96,10 +96,12 @@ class ModelBuilder
         ];
 
         $text_column = '';
-        $text_select_column = '';
-        $text_select_column_attribute = '';
+        // $text_select_column = '';
+        // $text_select_column_attribute = '';
+        $text_select_column_with_function = '';
         $hidden = array_flip($hidden);
         
+        $base_select_column_with_check = file_get_contents(__DIR__.'/../../base-go/model/select_column_with_check.stub', FILE_USE_INCLUDE_PATH);
         foreach ($column as $key => $value) {
             if( !empty($text_column) ){
                 $text_column .= "\n\t";
@@ -129,26 +131,51 @@ class ModelBuilder
                 continue;
             }
 
-            if( !empty($text_select_column) ){
-                $text_select_column .= "\n\t\t";
-                $text_select_column_attribute .= "\n\t\t";
+            if( !empty($text_select_column_with_function) ){
+                // $text_select_column .= "\n\t\t";
+                // $text_select_column_attribute .= "\n\t\t";
+                $text_select_column_with_function .= "\n\n\t";
             }
 
-            $text_select_column .= ucfirst($value['name'])."\tstring";
+            // $text_select_column .= ucfirst($value['name'])."\tstring";
 
+            // if( $column_type == 'datetime' ){
+            //     $text_select_column_attribute .= ucfirst($value['name']).":\t`DATE_FORMAT(".$table.".".$value['name'].", \"%Y-%m-%d %H:%i:%s\")`,";
+            // }else {
+            //     $text_select_column_attribute .= ucfirst($value['name']).":\t`".$table.".".$value['name']."`,";
+            // }
+
+            $this_query = "";
             if( $column_type == 'datetime' ){
-                $text_select_column_attribute .= ucfirst($value['name']).":\t`DATE_FORMAT(".$table.".".$value['name'].", \"%Y-%m-%d %H:%i:%s\")`,";
+                $this_query = "DATE_FORMAT(".$table.".".$value['name'].", \"%Y-%m-%d %H:%i:%s\")";
             }else {
-                $text_select_column_attribute .= ucfirst($value['name']).":\t`".$table.".".$value['name']."`,";
+                $this_query = $table.".".$value['name'];
             }
+
+            $text_select_column_with_function .= str_replace([
+                "{{column}}",
+                "{{query}}",
+            ],[
+                $value['name'],
+                $this_query,
+            ],$base_select_column_with_check);
         }
 
         foreach ($column_function as $key => $value) {
-            $text_select_column .= "\n\t\t";
-            $text_select_column_attribute .= "\n\t\t";
+            // $text_select_column .= "\n\t\t";
+            // $text_select_column_attribute .= "\n\t\t";
 
-            $text_select_column .= ucfirst($value['name'])."\tstring";
-            $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['function']."`,";
+            // $text_select_column .= ucfirst($value['name'])."\tstring";
+            // $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['function']."`,";
+            
+            $text_select_column_with_function .= "\n\n\t";
+            $text_select_column_with_function .= str_replace([
+                "{{column}}",
+                "{{query}}",
+            ],[
+                $value['name'],
+                $value['function'],
+            ],$base_select_column_with_check);
         }
 
         // CreditCard CreditCard `gorm:"foreignkey:UserName;references:name"`
@@ -254,8 +281,17 @@ class ModelBuilder
                 $table,
             ], $query_code);
             
-            $text_select_column .= "\n\t\t".ucfirst($relation_value['name'])."\tstring";
-            $text_select_column_attribute .= "\n\t\t".ucfirst($relation_value['name']).":\t`".$query_code."`,";
+            // $text_select_column .= "\n\t\t".ucfirst($relation_value['name'])."\tstring";
+            // $text_select_column_attribute .= "\n\t\t".ucfirst($relation_value['name']).":\t`".$query_code."`,";
+
+            $text_select_column_with_function .= "\n\n\t";
+            $text_select_column_with_function .= str_replace([
+                "{{column}}",
+                "{{query}}",
+            ],[
+                $relation_value['name'],
+                $query_code,
+            ],$base_select_column_with_check);
         }
 
         $base_model = str_replace([
@@ -263,16 +299,18 @@ class ModelBuilder
             '{{name}}',
             '{{column}}',
             '{{table}}',
-            '{{select_column}}',
-            '{{select_column_attribute}}',
+            // '{{select_column}}',
+            // '{{select_column_attribute}}',
+            '{{select_column_with_function}}',
             '{{custom_join}}',
         ],[
             $name,
             $name_spaces,
             $text_column,
             $table,
-            $text_select_column,
-            $text_select_column_attribute,
+            // $text_select_column,
+            // $text_select_column_attribute,
+            $text_select_column_with_function,
             $custom_join,
         ],
         $base_model);
@@ -314,7 +352,7 @@ class ModelBuilder
 
         $custom_code = FileCreator::getCustomCode($model_file_name, 'app/models');
         $base_model = self::generateClass($base_model, $class, $custom_code);
-
+        
         FileCreator::create( $model_file_name, 'app/models', $base_model );
         return;
         dd($base_model);

@@ -1,1 +1,1 @@
-data_{{var_name}} := helpers.ConvertToArrayOrObjectMap(data_result["{{var_name}}"])
+helpers.ConvertToArrayOrObjectMap(data_result["{{var_name}}"])
