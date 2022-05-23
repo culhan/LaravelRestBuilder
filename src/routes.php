@@ -55,7 +55,7 @@ if( config('laravelrestbuilder.build_active') )
         Route::get('dataList', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@dataList');    
         Route::get('modul/{id}', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@modul');
         Route::delete('delete/modul/{id}', 'KhanCode\LaravelRestBuilder\ModulBuilder@destroy');
-        Route::get('table', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@table');
+        Route::get('tables', 'KhanCode\LaravelRestBuilder\LaravelRestBuilder@table');
         Route::get('dropTable/{id}', 'KhanCode\LaravelRestBuilder\TableBuilder@dropTable');
         Route::post('buildMigration', 'KhanCode\LaravelRestBuilder\TableBuilder@buildMigration');
         Route::get('systemTable', 'KhanCode\LaravelRestBuilder\TableBuilder@systemTable');

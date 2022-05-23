@@ -21,8 +21,11 @@ func (s {{Name}}Model) ModulName() string {
 }
 
 func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
-	get_gin_context, _ := data.(map[string]interface{})["db"].(*gorm.DB).Get("gin_context")
-	get_gin_context = get_gin_context.(*gin.Context)
+	db := data.(map[string]interface{})["db"].(*gorm.DB)
+
+  c, _ := db.Get("gin_context")
+	c = c.(*gin.Context)
+
 	selectColumn := map[string]interface{}{}
   
 	{{select_column_with_function}}

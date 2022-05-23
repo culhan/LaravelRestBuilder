@@ -809,8 +809,12 @@ class MigrationBuilder
      *
      * @return  [type]          [return description]
      */
-    static function getIndexExist( $table ) {
-        
+    static function getIndexExist( $table ) 
+    {
+        // if ( (strpos($table, ' ') !== false)) {
+        //     return [];
+        // }
+
         LaravelRestBuilder::setLaravelrestbuilderConnection();
 
         $listIndex = \DB::select( \DB::raw('
@@ -859,6 +863,11 @@ class MigrationBuilder
      */
     static function getColumnExist( $table )
     {
+        
+        // if ( (strpos($table, ' ') !== false)) {
+        //     return [];
+        // }
+
         $check = \DB::select( \DB::raw('
                                     SELECT *,CONVERT(cast(CONVERT(column_comment USING latin1) AS BINARY) USING utf8) as column_comment
                                     FROM INFORMATION_SCHEMA.COLUMNS

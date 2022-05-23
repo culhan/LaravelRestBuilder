@@ -2624,7 +2624,7 @@
             delay(function(){
                 $.ajax({
                     type: 'GET',
-                    url: '{{url('/')}}/table?table='+ele.value,
+                    url: '{{url('/')}}/tables?table='+ele.value,
                     jsonpCallback: 'testing',
                     dataType: 'json',
                     success: function(json) {
