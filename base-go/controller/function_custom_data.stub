@@ -4,7 +4,11 @@ func {{ModulName}}{{Name}}(c *gin.Context) {
 	if err == nil {
         tx.Commit()
 		if dt != nil {
-		    c.SecureJSON(200, dt)
+		    if reflect.TypeOf(dt).Kind() == reflect.String && !helpers.IsJson(helpers.ConvertToString(dt)) {
+				c.Data(200, "text/html; charset=utf-8", []byte(dt.(string)))
+			}else {
+                c.SecureJSON(200, dt)
+            }            
         }
 	}else {
         tx.Rollback()

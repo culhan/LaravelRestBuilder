@@ -268,6 +268,13 @@ class LaravelRestBuilder
 
         $table_name = Request::get('table',$tab_name);
 
+        if (str_contains($table_name, ' ')) { 
+            return [
+                    'column'    => [],
+                    'forbidden_column_name' => [],
+            ];
+        }
+
         $table = MigrationBuilder::getColumnExist($table_name);
         $table['column'] = isset($table[$table_name]) ? $table[$table_name]:[];
         $index = MigrationBuilder::getIndexExist($table_name);
@@ -364,7 +371,7 @@ class LaravelRestBuilder
                         ->get();
 
         return ($data->toArray())+[
-            'table' => $this->table($detail->table),
+            'table' => $this->table(($detail->table??'')),
             'files' => $files
         ];
     }

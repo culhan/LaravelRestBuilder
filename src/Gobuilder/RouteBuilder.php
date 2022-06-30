@@ -74,7 +74,7 @@ class RouteBuilder
             {
                 $middleware = "";
                 foreach ($value['middleware'] as $key_param => $value_param) {
-                   $middleware .= ", middleware.".$value_param."()";
+                    $middleware .= ", middleware.".$value_param."(".($value["middleware_parameter"][$value_param]??NULL).")";
                 }
                 
                 $route_code = str_replace('{{middleware}}',$middleware,$route_code);

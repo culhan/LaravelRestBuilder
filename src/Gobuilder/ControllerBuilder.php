@@ -10,7 +10,8 @@ class ControllerBuilder
      * static default class
      */
     static $default_class = [
-        "olsera.com/kikota/app/resources"
+        "olsera.com/kikota/app/resources",
+        "olsera.com/kikota/helpers",
     ];
 
     /**
@@ -64,7 +65,7 @@ class ControllerBuilder
             }            
         }
 
-        $base_controller = self::generateClass($base_controller, []);
+        $base_controller = ServiceBuilder::generateClass($base_controller, []);
         
         FileCreator::create( $controller_file_name, 'app/controllers', $base_controller );
         return;

@@ -41,6 +41,7 @@ class ServiceBuilder
         "image/png",
         "github.com/shopspring/decimal",
         "math/big",
+        "html/template",
     ];
 
     /**
