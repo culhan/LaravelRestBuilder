@@ -412,7 +412,7 @@ class LaravelRestBuilder
             foreach ($dataFile as $key => $value) {
                 if( $value == '.' || $value == '..' || !preg_match('/.go/', $value) ) continue;
                 $file = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/app/middleware/'.$value);
-                $middleware = $this->get_string_between($file, 'func ', '()');
+                $middleware = $this->get_string_between($file, 'func ', '(');
                 if( preg_match('/^[a-zA-Z]+[a-zA-Z0-9._]+$/', $middleware) ){
                     $arr_middleware[] = $middleware;
                 }

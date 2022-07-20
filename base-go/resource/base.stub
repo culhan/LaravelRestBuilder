@@ -34,10 +34,10 @@ func {{Name}}Resource(data interface{}) interface{} {
 		data_result_processed := Multi{{Name}}Resource(data_result)
 
 		response := struct {
-			Data   interface{} `json:"data"`
-			Meta   interface{} `json:"meta"`
-			Status int         `json:"status"`
-			Error  int         `json:"error"`
+			Data  	interface{} `json:"data"`
+			Meta   	interface{} `json:"meta"`
+			Status 	int         `json:"status"`
+			Error  	int         `json:"error"`
 		}{
 			Data:   data_result_processed,
 			Meta:   "",

@@ -12,6 +12,10 @@
                 // end list relation column
             ],Request::all(){{param_function}});
         
+        if( get_class($data) != "Illuminate\Pagination\LengthAwarePaginator" ){
+            return $data;
+        }
+
         return (App\Http\Resources{{custom_folder_namespace}}\{{Modul_name}}Resource::collection($data))
                 ->additional([
                     'sortableAndSearchableColumn' =>    $data->sortableAndSearchableColumn,

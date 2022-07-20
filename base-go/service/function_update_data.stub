@@ -6,15 +6,8 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 	{{code_sanitation}}
     {{custom_check_single_data}}
 
-    data_single_source, err := repositories.GetSingleGormData{{ModulName}}(tx, map[string]interface{}{}, singleData, c) 
-	if err != nil {
-		return nil, err
-	}
-    data_single := data_single_source.(map[string]interface{})
-	data_single = data_single
-
     {{custom_code_before}}
-	resultUpdate := singleData.Session(&gorm.Session{}).Select(raw_column).Set("current_data", data_single).Updates(&this_model)
+	resultUpdate := singleData.Session(&gorm.Session{}).Select(raw_column).Updates(&this_model)
     
     if( resultUpdate.Error != nil ){
 		errorState := exceptions.ErrorException(500, "update "+this_model.ModulName()+" failed")
@@ -32,7 +25,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{custom_code_after}}
     
-    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, this_model, c) 
+    resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, models.{{ModulName}}Model{Id:this_model.Id}, c) 
 	if err != nil {
 		return nil, err
 	}

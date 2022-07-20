@@ -42,6 +42,7 @@ class ServiceBuilder
         "github.com/shopspring/decimal",
         "math/big",
         "html/template",
+        "github.com/bojanz/currency",
     ];
 
     /**
