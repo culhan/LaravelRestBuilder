@@ -371,8 +371,9 @@ class LaravelRestBuilder
                         ->get();
 
         return ($data->toArray())+[
-            'table' => $this->table(($detail->table??'')),
-            'files' => $files
+            'table' => ($detail->table??''),
+            'files' => $files,
+            'a' => session('project')
         ];
     }
 
@@ -471,6 +472,7 @@ class LaravelRestBuilder
 
         $data = ColumnBuilder::build($data,'column');
         $data['name'] = camel_case($data['name']);
+        if(empty($data['column'])) $data['column'] = [];
         if(empty($data['column_function'])) $data['column_function'] = [];
         if(empty($data['relation'])) $data['relation'] = [];
         if(empty($data['hidden'])) $data['hidden'] = [];

@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Events;
+
+use App;
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
+class {{Name}}
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    {{variable_initialization}}
+
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct({{parameter}})
+    {
+        {{before_code}}
+
+        {{variable_code}}
+
+        {{after_code}}
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return \Illuminate\Broadcasting\Channel|array
+     */
+    public function broadcastOn()
+    {
+        
+    }
+}

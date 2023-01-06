@@ -1,0 +1,10 @@
+/**
+     * [{{name}} description]
+     * @return [type]         [description]
+     */
+    public function {{name}}({{param}})
+    {
+        return $this->service->{{name}}(Request::all(){{param_function}});
+    }
+
+    // end list function

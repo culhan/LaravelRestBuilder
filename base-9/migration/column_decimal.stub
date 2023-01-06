@@ -1,0 +1,1 @@
+$table->decimal('{{name}}', {{precision}}, {{scale}});

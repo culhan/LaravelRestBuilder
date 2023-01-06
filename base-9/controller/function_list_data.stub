@@ -1,0 +1,28 @@
+/**
+     * [{{name}} description]
+     * @return [type] [description]
+     */
+    public function {{name}}({{param}})
+    {
+        $data = $this->service->get{{Name}}Data([
+                // start list column
+                // end list column
+            ],[
+                // start list relation column
+                // end list relation column
+            ],Request::all(){{param_function}});
+        
+        if( get_class($data) != "Illuminate\Pagination\LengthAwarePaginator" ){
+            return $data;
+        }
+
+        return (App\Http\Resources{{custom_folder_namespace}}\{{Modul_name}}Resource::collection($data))
+                ->additional([
+                    'sortableAndSearchableColumn' =>    $data->sortableAndSearchableColumn,
+                    'relationColumn'    =>  $data->relationColumn,
+                    'status'    => 200,
+                    'error' => 0
+                ]);
+    }
+
+    // end list function

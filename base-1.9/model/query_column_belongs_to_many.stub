@@ -5,7 +5,7 @@
 {{column_belongs_to_many}}                                
                         ) {{custom_order}} 
                     ),''),']') 
-                    from {{belongs_to_many_intermediate_table}}
+                    from {{belongs_to_many_intermediate_table_full}}
                     left join {{belongs_to_many_table}} on ({{belongs_to_many_table}}.id = {{belongs_to_many_intermediate_table}}.{{foreign_key_joining_model}})
                     -- start list belongs to many join option
                     -- end list belongs to many join option

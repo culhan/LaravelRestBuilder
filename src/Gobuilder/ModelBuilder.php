@@ -40,6 +40,7 @@ class ModelBuilder
         "github.com/shopspring/decimal",
         "github.com/gin-gonic/gin",
         "math/big",
+        "gorm.io/gorm",        
     ];
 
     /**
@@ -1067,6 +1068,8 @@ class ModelBuilder
                 "\t".$string_searched.'.',
                 '+'.$string_searched.'.',
                 ' '.$string_searched.'.',
+                '!'.$string_searched.'.',
+                '('.$string_searched.'.',
             ];
 
             foreach ($stringToFind as $stf_value) {
@@ -1088,6 +1091,8 @@ class ModelBuilder
                     "\t".$string_searched.'.',
                     '+'.$string_searched.'.',
                     ' '.$string_searched.'.',
+                    '!'.$string_searched.'.',
+                    '('.$string_searched.'.',
                 ];
 
                 foreach ($stringToFind as $stf_value) {

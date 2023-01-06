@@ -1,0 +1,52 @@
+/**
+     * [{{name}} description]
+     * @param  [type] $data [description]
+     * @return [type]       [description]
+     */
+    public function {{name}}($data{{param_function}})
+    {
+        $dataRecord = $data;
+
+        {{data-filter}}
+
+        {{data-validation}}        
+
+        // start list belongs to check create
+        
+        // end list belongs to check create        
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+
+        // locking function
+
+        \DB::beginTransaction();
+
+        // custom code before
+        {{custom_code_before}}
+
+        // create
+        $result = $this->model->create($dataRecord);
+        
+        // start list has one create
+        
+        // end list has one create
+        
+        // start list has many create
+        
+        // end list has many create
+
+        // start list belongs to many create
+        
+        // end list belongs to many create        
+        
+        // custom code after
+        {{custom_code_after}}
+
+        \DB::commit();
+
+        // unlocking function
+
+        return $this->getSingleData($result->{{primary_key}});
+	}
+
+    // end list function

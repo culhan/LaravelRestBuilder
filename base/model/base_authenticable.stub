@@ -9,6 +9,7 @@ use Validator;
 use Laravel\Passport\HasApiTokens;
 use KhanCode\LaravelBaseRest\Helpers;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Arr;
 
 class {{Name}} extends Authenticatable
 {

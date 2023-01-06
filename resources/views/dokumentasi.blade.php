@@ -1310,7 +1310,10 @@ table .fa-close {
                         <th scope="col">Description</th>
                     </tr>
                 </thead>
-                <tbody>
+            </table>
+            <envs>
+            </envs>
+                <!-- <tbody>
                     <tr>
                         <th scope="row"></th>
                         <td><input type="text" name="env_params[0][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,0)"></td>
@@ -1318,7 +1321,7 @@ table .fa-close {
                         <td><input type="text" name="env_params[0][desc]" placeholder="description" class="input form-control"></td>
                     </tr>
                 </tbody>
-            </table>
+            </table> -->
             <form>
         </div>
         <div class="modal-footer">

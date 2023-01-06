@@ -1,0 +1,1 @@
+$table->enum('{{name}}', [{{enum_type}}]);

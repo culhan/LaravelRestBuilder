@@ -1,0 +1,3 @@
+$data = $dataRecord = array_merge([
+            {{default}}
+        ],$dataRecord);

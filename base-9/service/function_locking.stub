@@ -1,0 +1,2 @@
+$lockKey = {{lock_key}};
+        Locking::checkAndWait($lockKey);

@@ -1,0 +1,28 @@
+/**
+     * [{{name}} description]
+     * @param  [type] $id     [description]
+     * @param  [type] $data   [description]
+     * @return [type]         [description]
+     */
+    public function get{{Name}}Data($id,$data = [])
+    {
+        $dataRecord = $data;
+
+        {{data-filter}}
+        
+        {{data-validation}}
+
+        if( !empty( Helpers::is_error() ) ) throw new ValidationException( Helpers::get_error() );
+        
+        // custom code before
+        {{custom_code_before}}
+
+        $return = $this->repository->getSingleData($id, $data);
+
+        // custom code after
+        {{custom_code_after}}
+
+        return $return;
+    }
+
+    // end list function

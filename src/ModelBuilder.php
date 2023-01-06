@@ -188,7 +188,7 @@ class ModelBuilder
 
                 $cols_table_model .= (!empty($cols_table_model) ? "\t\t":'').$column_query;
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\"".'{{table}}.'.$value['name']."\",\r\n";
-                $column_set_bindings .= 'array_get($data, "show_'.$value['name'].'", 1),'."\r\n\t\t\t\t\t";
+                $column_set_bindings .= 'Arr::get($data, "show_'.$value['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
 
             $fillable_table_model .= "\t\t\"".$value['name']."\",";
@@ -210,7 +210,7 @@ class ModelBuilder
 
                 $cols_table_model .= (!empty($cols_table_model) ? "\t\t":'').$column_function_query;          
                 // $cols_table_model .= (!empty($cols_table_model) ? "\t\t\t\t\t":'')."\DB::raw(\"".str_replace("\n","\n\t\t\t\t\t",$value_column_function['function'])." as ".$value_column_function['name']."\"),\r\n";
-                $column_set_bindings .= 'array_get($data, "show_'.$value_column_function['name'].'", 1),'."\r\n\t\t\t\t\t";
+                $column_set_bindings .= 'Arr::get($data, "show_'.$value_column_function['name'].'", 1),'."\r\n\t\t\t\t\t";
             }
 
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) ) {                                                
@@ -267,7 +267,7 @@ class ModelBuilder
             foreach ($relation as $key_relation => $value_relation) {                
 
                 $value_relation['name'] = empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param'];
-                $column_set_bindings .= 'array_get($data, "show_'.$value_relation['name'].'", 1),'."\r\n\t\t\t\t\t";
+                $column_set_bindings .= 'Arr::get($data, "show_'.$value_relation['name'].'", 1),'."\r\n\t\t\t\t\t";
                 $value_relation['custom_order'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_order']);
                 $value_relation['custom_join'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_join']);
                 $value_relation['custom_option'] = str_replace("\n","\n\t\t\t\t\t\t\t\t",$value_relation['custom_option']);
@@ -473,7 +473,16 @@ class ModelBuilder
 
                 // belongs to many query
                 if($value_relation['type']=='belongs_to_many')
-                {                                        
+                {                   
+                    
+                    $value_relation['intermediate_table_full'] = $value_relation['intermediate_table'];
+                    // when intermediate table is union
+                    if (str_contains($value_relation['intermediate_table'], ' ')) {                                                                        
+                        $pieces = explode(' ', $value_relation['intermediate_table']);
+                        $value_relation['intermediate_table'] = array_pop($pieces);
+                        $value_relation['intermediate_table_full'] = str_replace("\r\n","\r\n\t\t\t\t\t",$value_relation['intermediate_table_full']);
+                    }
+                    
                     // function belongs to many
                     $function = file_get_contents(__DIR__.'/../base'.$base.'/model/function_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
                     
@@ -560,13 +569,33 @@ class ModelBuilder
                         }
                     }
                     $column_belongs_to_many = self::generateColumnRelation($value_relation['select_column']);
+
+                    $belongs_to_many_query = str_replace([
+                            '{{column_belongs_to_many}}',
+                            '{{belongs_to_many_intermediate_table_full}}',
+                            '{{belongs_to_many_intermediate_table}}',
+                            '{{belongs_to_many_table}}',
+                            '{{foreign_key_model}}',
+                            '{{foreign_key_joining_model}}',
+                            '{{belongs_to_many_name}}',
+                        ],
+                        [   
+                            "".$column_belongs_to_many,
+                            $value_relation['intermediate_table_full'],
+                            $value_relation['intermediate_table'],
+                            $value_relation['table'],
+                            $value_relation['foreign_key_model'],
+                            $value_relation['foreign_key_joining_model'],
+                            $value_relation['name'],
+                        ],$belongs_to_many_query);
+                        
+                    // $belongs_to_many_query = str_replace('{{column_belongs_to_many}}',"".$column_belongs_to_many,$belongs_to_many_query);
+                    // $belongs_to_many_query = str_replace('{{belongs_to_many_intermediate_table}}',$value_relation['intermediate_table'],$belongs_to_many_query);
+                    // $belongs_to_many_query = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$belongs_to_many_query);                    
+                    // $belongs_to_many_query = str_replace('{{foreign_key_model}}',$value_relation['foreign_key_model'],$belongs_to_many_query);
+                    // $belongs_to_many_query = str_replace('{{foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$belongs_to_many_query);
+                    // $belongs_to_many_query = str_replace('{{belongs_to_many_name}}',$value_relation['name'],$belongs_to_many_query);
                     
-                    $belongs_to_many_query = str_replace('{{column_belongs_to_many}}',"".$column_belongs_to_many,$belongs_to_many_query);
-                    $belongs_to_many_query = str_replace('{{belongs_to_many_intermediate_table}}',$value_relation['intermediate_table'],$belongs_to_many_query);
-                    $belongs_to_many_query = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$belongs_to_many_query);                    
-                    $belongs_to_many_query = str_replace('{{foreign_key_model}}',$value_relation['foreign_key_model'],$belongs_to_many_query);
-                    $belongs_to_many_query = str_replace('{{foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$belongs_to_many_query);
-                    $belongs_to_many_query = str_replace('{{belongs_to_many_name}}',$value_relation['name'],$belongs_to_many_query);
                     if( !empty($value_relation['custom_join']) )
                     {
                         $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
@@ -577,41 +606,46 @@ class ModelBuilder
                     }
                     
                     $cols_table_model .= $belongs_to_many_query."\r\n";
-
-                    // start build migration for intermediate table                    
-                    $intermediate_name = $name_model.'_'.$value_relation['name'];
-                    $intermediate_table_name = $value_relation['intermediate_table'];
                     
-                    // set default column
-                    $value_relation['column'] = [
-                    [
-                        'name'  =>  $value_relation['foreign_key_model'],
-                        'type'  =>  ($value_relation['foreign_key_model_type']??"integer"),
-                    ],
-                    [
-                        'name'  =>  $value_relation['foreign_key_joining_model'],
-                        'type'  =>  ($value_relation['foreign_key_joining_model_type']??"integer"),
-                    ],  
-                    ];
+                    // when intermediate table is union
+                    if (!str_contains($value_relation['intermediate_table_full'], ' ')) { 
+                        // start build migration for intermediate table                    
+                        $intermediate_name = $name_model.'_'.$value_relation['name'];
+                        $intermediate_table_name = $value_relation['intermediate_table'];
+                        
+                        // set default column
+                        $value_relation['column'] = [
+                        [
+                            'name'  =>  $value_relation['foreign_key_model'],
+                            'type'  =>  ($value_relation['foreign_key_model_type']??"integer"),
+                        ],
+                        [
+                            'name'  =>  $value_relation['foreign_key_joining_model'],
+                            'type'  =>  ($value_relation['foreign_key_joining_model_type']??"integer"),
+                        ],  
+                        ];
 
-                    $value_relation = columnBuilder::build($value_relation,'column');
+                        $value_relation = columnBuilder::build($value_relation,'column');
+                        
+                        if( !empty($value_relation['column_add_on']) )
+                        {
+                            $value_relation['column'] = array_merge($value_relation['column_add_on'],$value_relation['column']);
+                        }
+
+                        $index = MigrationBuilder::getIndexExist($intermediate_table_name);                    
+                        $index = !empty($index['list_index']) ? $index['list_index']:[];
+                        
+                        
+                        MigrationBuilder::build($intermediate_name,$intermediate_table_name,$value_relation['column'],$index);
                     
-                    if( !empty($value_relation['column_add_on']) )
-                    {
-                        $value_relation['column'] = array_merge($value_relation['column_add_on'],$value_relation['column']);
+                        // migrate
+                        LaravelRestBuilder::setLaravelrestbuilderConnection();
+                        \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);                        
+                        
+                        // end build migration for intermediate table   
                     }
 
-                    $index = MigrationBuilder::getIndexExist($intermediate_table_name);                    
-                    $index = !empty($index['list_index']) ? $index['list_index']:[];
-                    
-                    MigrationBuilder::build($intermediate_name,$intermediate_table_name,$value_relation['column'],$index);
-                    
-                    // migrate
-                    LaravelRestBuilder::setLaravelrestbuilderConnection();
-                    \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);
                     LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
-                    
-                    // end build migration for intermediate table
                     
                 }
 
@@ -685,6 +719,8 @@ class ModelBuilder
 
         if( $base == '-0'){
             FileCreator::create( $model_file_name, 'app/Http/Model'.$custom_folder, $base_model );
+        }elseif( $base == '-9'){
+            FileCreator::create( $model_file_name, 'app/Models'.$custom_folder, $base_model );
         }else{
             FileCreator::create( $model_file_name, 'app/Http/Models'.$custom_folder, $base_model );
         }

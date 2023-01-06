@@ -2,9 +2,13 @@
 // File ini ini di  buat dengan Laravel Rest Builder,
 // Jika ada perubahan tambahkan code diantara comment "start custom code" dan "end custom code" di akhir file
 // atau hubungi A'mal Sholihan
-namespace App\Http\Models;
+namespace App\Http\Models{{custom_folder_namespace}};
 
-class {{Name}} extends BaseModelV2
+use KhanCode\LaravelBaseRest\Helpers;
+use KhanCode\LaravelBaseRest\BaseModel;
+use Illuminate\Support\Arr;
+
+class {{Name}} extends BaseModel
 {
     public $table = "{{table}}";
 
@@ -43,22 +47,6 @@ class {{Name}} extends BaseModelV2
     }
 
     /**
-     * [scopeGetUnion description]
-     *
-     * @param   [type]  $query  [$query description]
-     * @param   [type]  $data   [$data description]
-     *
-     * @return  [type]          [return description]
-     */
-    public function scopeGetUnion($query, $data = [])
-    {
-        return $query
-                // start list query union
-                // end list query union
-                ;
-    }
-
-    /**
      * [scopeGetOption description]
      *
      * @param   [type]  $query  [$query description]
@@ -71,6 +59,22 @@ class {{Name}} extends BaseModelV2
         return $query
                 // start list query option
                 // end list query option
+                ;
+    }
+
+    /**
+     * [scopeGetUnion description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetUnion($query, $data = [])
+    {
+        return $query
+                // start list query union
+                // end list query union
                 ;
     }
 
@@ -178,6 +182,5 @@ class {{Name}} extends BaseModelV2
             // end list deleting option
 
         });
-
     }
 }

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use KhanCode\LaravelRestBuilder\Models\Projects;
 use KhanCode\LaravelRestBuilder\Models\Endpoint;
+use KhanCode\LaravelRestBuilder\Models\Envs;
+use KhanCode\LaravelRestBuilder\Models\EnvItems;
 
 class DokumentasiBuilder
 {
@@ -27,6 +29,38 @@ class DokumentasiBuilder
                 'projects'   =>  Projects::userData()->get(),
                 'user'  =>  auth()->guard('laravelrestbuilder_auth')->user()
             ]);
+    }
+
+    /** 
+     * 
+     */
+    public function createNewEnv()
+    {
+        Envs::create([
+            "project_id"    => config('laravelrestbuilder.project_id'),
+            "name"  => !empty($input['name'])?$input['name']:'',
+        ]);
+    }
+
+    /**
+     * 
+     */
+    public function getAllEnvByProject()
+    {
+        return Envs::getAll()
+            ->where('project_id', config('laravelrestbuilder.project_id'))
+            ->get();
+    }
+
+    /**
+     * 
+     */
+    public function getAllEnvByProjectAndEnv($id)
+    {
+        return EnvItems::getAll()
+            ->where('project_id', config('laravelrestbuilder.project_id'))
+            ->where('env_id', $id)
+            ->get();
     }
 
     /**

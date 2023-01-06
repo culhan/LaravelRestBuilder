@@ -1,5 +1,6 @@
 func {{ModulName}}{{Name}}(c *gin.Context) {
-	tx := DB.Set("gin_context", c).Begin()
+	dbtx, _ := c.Get("DB")
+    tx := dbtx.(*gorm.DB).Set("gin_context", c).Begin()
     dt, err := services.Service{{ModulName}}{{Name}}( tx, c.MustGet("Request").(map[string]interface {}), c{{UrlParam}} )
 	if err == nil {
         tx.Commit()

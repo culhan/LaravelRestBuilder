@@ -97,6 +97,10 @@ if( config('laravelrestbuilder.build_active') )
         Route::post('importPostman', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@importPostman');
         Route::post('addEnv', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@addEnv');
         Route::get('getJumlahEndpoint', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@getJumlahEndpoint');
+
+        Route::post('createNewEnv', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@createNewEnv');
+        Route::get('getAllEnvByProject', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@getAllEnvByProject');
+        Route::get('getAllEnvByProjectAndEnv/{id}', 'KhanCode\LaravelRestBuilder\DokumentasiBuilder@getAllEnvByProjectAndEnv');
         
     });
 }

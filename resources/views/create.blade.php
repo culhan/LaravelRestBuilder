@@ -1408,6 +1408,19 @@
                         '<textarea id="tab_'+name_route+'[custom_code_after]">'+isi_after+
                         '</textarea>'+
                     '</div>';
+
+                html_code_php += 
+                    '<div class="row mb-3 custom_data_'+i+'">'+
+                        '<div class="col-sm-3" style="padding-top:5px;">'+
+                            '<label><b>Custom Code After Commit</b></label>'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="mt-3 custom_data_'+i+' custom_code_after_commit_'+i+' ">'+                        
+                        '<textarea name="'+name_route+'[custom_code_after_commit]" class="d-none" rows="10">'+isi_after+
+                        '</textarea>'+
+                        '<textarea id="tab_'+name_route+'[custom_code_after_commit]">'+isi_after+
+                        '</textarea>'+
+                    '</div>';
                 
                 $( '.custom_data_'+i ).remove()
                 toAppend.append(html_code_php)
@@ -1415,6 +1428,7 @@
                 if(i == 'route_sementara') {
                     aceGenerate({ name_cols : name_route + "[custom_code_before]" });
                     aceGenerate({ name_cols : name_route + "[custom_code_after]" });
+                    aceGenerate({ name_cols : name_route + "[custom_code_after_commit]" });
                     
                     // eval("code_editor_custom_code_before_= ace.edit('tab_' + name_route + '[custom_code_before]')")
                     // eval("code_editor_custom_code_before_.setOptions({mode: \"ace/mode/phpinline\", maxLines: 30, minLines: 5, wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true })")
@@ -1662,7 +1676,13 @@
                                 '<label>Intermediate Tabel </label>'+
                             '</div>'+
                             '<div class="col-sm">'+
-                                '<input type="" class="form-control" placeholder="intermediate table" name="relation['+i+'][intermediate_table]">'+
+                                '<textarea name="relation['+i+'][intermediate_table]" class="d-none">'+
+                                    '-- intermediate_table'+
+                                '</textarea>'+
+                                '<textarea id="relation_intermediate_table_'+i+'">'+
+                                    '-- intermediate_table'+
+                                '</textarea>'+    
+                                // '<input type="" class="form-control" placeholder="intermediate table" name="relation['+i+'][intermediate_table]">'+
                             '</div>'+
                         '</div>'+
                         '';
@@ -1808,7 +1828,8 @@
                 
                 $( "[name='relation["+i+"][membuat_data]']" ).switcher();
                 $( "[name='relation["+i+"][simpan_data]']" ).switcher();
-                                
+                                               
+                createCodeEditor( 'relation_intermediate_table_'+i, "relation["+i+"][intermediate_table]", 'sql' );
                 createCodeEditor( 'relation_custom_join_'+i, "relation["+i+"][custom_join]", 'sql' );
                 createCodeEditor( 'relation_custom_option_'+i, "relation["+i+"][custom_option]", 'sql' );
                 createCodeEditor( 'relation_custom_order_'+i, "relation["+i+"][custom_order]", 'sql' );
@@ -2945,7 +2966,7 @@
                 fillCodeEditor( 'relation_custom_union'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_union]", value_relasi['custom_union'] );                
             }
             if( value_relasi['custom_join'] ) {
-                fillCodeEditor( 'relation_custom_join_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_join]", value_relasi['custom_join'] );                
+                fillCodeEditor( 'relation_custom_join_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_join]", value_relasi['custom_join'] );
             }
             if( value_relasi['custom_option'] ) {
                 fillCodeEditor( 'relation_custom_option_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_option]", value_relasi['custom_option'] );
@@ -2953,6 +2974,9 @@
             if( value_relasi['custom_order'] ) {
                 fillCodeEditor( 'relation_custom_order_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][custom_order]", value_relasi['custom_order'] );                
             }            
+            if( value_relasi['intermediate_table'] ) {                
+                fillCodeEditor( 'relation_intermediate_table_'+jumlah_relasi_builded, "relation["+jumlah_relasi_builded+"][intermediate_table]", value_relasi['intermediate_table'] );
+            }
             if( value_relasi['simpan_data'] ) {
                 $( '[name="relation['+jumlah_relasi_builded+'][simpan_data]"]' ).prop('checked',true).change()
             }

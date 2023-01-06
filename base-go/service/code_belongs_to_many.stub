@@ -4,9 +4,7 @@ if _, ok := data["{{parameter_name}}"]; ok {
 
     for _, value := range data["{{parameter_name}}"].([]interface{}) {
         
-        toRelation := make(map[string]interface{})
-
-        toRelation["{{foreign_key_joining_model}}"] = value
+        toRelation := value.(map[string]interface{})
         toRelation["{{foreign_key_model}}"] = result["id"]
 
         if _, ok := data["header_object"]; ok {

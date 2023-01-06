@@ -43,6 +43,7 @@ class ServiceBuilder
         "math/big",
         "html/template",
         "github.com/bojanz/currency",
+        // "gorm.io/gorm", sudah ada di base
     ];
 
     /**
@@ -199,7 +200,7 @@ class ServiceBuilder
                     foreach ($relation as $rel_key => $rel_value) {
                         
                         $base_code_relation = file_get_contents(__DIR__.'/../../base-go/service/code_'.$rel_value['type'].'.stub', FILE_USE_INCLUDE_PATH)."\n";
-
+                        
                         $model_name_function = str_replace_first('Model','',$rel_value["model_name"]??$rel_value["name"]);
                         $base_code_relation = str_replace([
                             "{{parameter_name}}",
@@ -224,7 +225,7 @@ class ServiceBuilder
                             "\n\t",
                             ucfirst($rel_value["foreign_key"]??NULL),
                             $rel_value["model_name"]??$rel_value["name"],
-                            UCWORDS((str_replace_first('Model','',$rel_value["modul_intermediate_table"]??NULL))."Create"),
+                            UCWORDS((str_replace_first('Model','',$rel_value["modul_intermediate_table"]??NULL)).ucfirst( (empty(array_get($value,"fungsi_relasi.".$rel_value["name"],NULL))?"Create":array_get($value,"fungsi_relasi.".$rel_value["name"],NULL))) ),
                             $rel_value["foreign_key_model"]??NULL,
                             $rel_value["foreign_key_joining_model"]??NULL,
                         ], $base_code_relation);

@@ -6,6 +6,7 @@ namespace App\Http\Models{{custom_folder_namespace}};
 
 use KhanCode\LaravelBaseRest\Helpers;
 use KhanCode\LaravelBaseRest\BaseModel;
+use Illuminate\Support\Arr;
 
 class {{Name}} extends BaseModel
 {

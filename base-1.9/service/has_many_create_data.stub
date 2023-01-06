@@ -3,8 +3,8 @@
         {
             if( empty($data['{{name_has_many}}'][0]) ) {
                 $this->{{service_name}}Service = New {{service_name}}Service;
-                if( count($result->{{service_name}}()->get()) > 0 ) {
-                    foreach ($result->{{service_name}}()->get() as $key_{{name_has_many}} => $value_{{name_has_many}}) {
+                if( count($result->{{name_has_many}}()->get()) > 0 ) {
+                    foreach ($result->{{name_has_many}}()->get() as $key_{{name_has_many}} => $value_{{name_has_many}}) {
                         $this->{{service_name}}Service->delete($value_{{name_has_many}}->getKey());
                     }
                 }

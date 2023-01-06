@@ -12,6 +12,7 @@ class ControllerBuilder
     static $default_class = [
         "olsera.com/kikota/app/resources",
         "olsera.com/kikota/helpers",
+        "gorm.io/gorm",
     ];
 
     /**
@@ -65,7 +66,7 @@ class ControllerBuilder
             }            
         }
 
-        $base_controller = ServiceBuilder::generateClass($base_controller, []);
+        $base_controller = ModelBuilder::generateClass($base_controller, []);
         
         FileCreator::create( $controller_file_name, 'app/controllers', $base_controller );
         return;
@@ -109,12 +110,47 @@ class ControllerBuilder
      * @param [type] $class
      * @return void
      */
-    public static function generateClass($base, $class)
+    public static function generateClass($base, $class, $custom_code = [])
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
-            if (strpos($base, ' '.$last_string[count($last_string)-1]) !== false) {
-                $class[] = $value;
+            $string_searched = $last_string[count($last_string)-1];
+
+            $stringToFind = [
+                '*'.$string_searched.'.',
+                ' '.$string_searched.')',
+                ' '.$string_searched.'.',
+                "\t".$string_searched.'.',
+                '+'.$string_searched.'.',
+                ' '.$string_searched.'.',
+            ];
+
+            foreach ($stringToFind as $stf_value) {
+                if ( strpos($base, $stf_value) !== false ){
+                    $class[$value] = $value;
+                } 
+            }
+        }
+
+        foreach ($custom_code as $ckey => $cvalue) {
+            foreach (self::$default_class as $key => $value) {
+                $last_string = explode("/",$value);
+                $string_searched = $last_string[count($last_string)-1];
+
+                $stringToFind = [
+                    '*'.$string_searched.'.',
+                    ' '.$string_searched.')',
+                    ' '.$string_searched.'.',
+                    "\t".$string_searched.'.',
+                    '+'.$string_searched.'.',
+                    ' '.$string_searched.'.',
+                ];
+
+                foreach ($stringToFind as $stf_value) {
+                    if ( strpos($cvalue, $stf_value) !== false ){
+                        $class[$value] = $value;
+                    } 
+                }
             }
         }
 

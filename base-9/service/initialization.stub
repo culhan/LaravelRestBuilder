@@ -1,0 +1,1 @@
+$this->model = new App\Models{{custom_folder_namespace}}\{{Name}};
