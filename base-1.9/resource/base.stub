@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources{{custom_folder_namespace}};
 
 use App;
+use KhanCode\LaravelBaseRest\Helpers;
 use Illuminate\Http\Resources\Json\Resource;
 
 class {{Name}}Resource extends Resource
@@ -34,7 +35,7 @@ class {{Name}}Resource extends Resource
     {
         return [
             'status'    => 200,
-            'error'     => 0
+            'error'     => ( !empty( Helpers::is_error() ) ) ? json_decode( Helpers::get_error() ) : 0
         ];
     }
 }
