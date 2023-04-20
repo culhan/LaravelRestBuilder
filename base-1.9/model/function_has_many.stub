@@ -3,7 +3,7 @@
      * @return [type] [description]
      */
     public function {{has_many_name}}(){
-        return $this->hasmany('\App\Http\Models\{{has_many_name_model}}',\DB::raw('{{column_has_many_foreign_key}}'),'id');
+        return $this->hasmany('\App\Http\Models\{{has_many_name_model}}',\DB::raw('{{column_has_many_foreign_key}}'),'{{column_has_many_relation_key}}');
     }
 
     // end list relation function

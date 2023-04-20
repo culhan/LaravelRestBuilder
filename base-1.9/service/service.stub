@@ -3,11 +3,10 @@ namespace App\Http\Services{{custom_folder_namespace}};
 
 use App;
 use Request;
-use KhanCode\LaravelBaseRest\Helpers;
-use KhanCode\LaravelBaseRest\Locking;
-use KhanCode\LaravelBaseRest\DataEmptyException;
-use KhanCode\LaravelBaseRest\ValidationException;
-use KhanCode\LaravelBaseRest\BaseService;
+use App\Http\Locking;
+use App\Exceptions\DataEmptyException;
+use App\Exceptions\ValidationException;
+use App\Http\Services\BaseService;
 
 /**
  * code for system logic

@@ -1,10 +1,10 @@
 // create data {{name_has_many}}
         if(!empty($data['{{name_has_many}}']))
         {
+            $this->{{service_name}}Service = New {{service_name}}Service;
             if( empty($data['{{name_has_many}}'][0]) ) {
-                $this->{{service_name}}Service = New {{service_name}}Service;
                 if( count($result->{{name_has_many}}()->get()) > 0 ) {
-                    foreach ($result->{{name_has_many}}()->get() as $key_{{name_has_many}} => $value_{{name_has_many}}) {
+                    foreach ($result->{{name_has_many}}()->getAll()->get() as $value_{{name_has_many}}) {
                         $this->{{service_name}}Service->delete($value_{{name_has_many}}->getKey());
                     }
                 }
@@ -18,12 +18,16 @@
                     ];
                 }
 
-                $this->{{service_name}}Service = New {{service_name}}Service;
-                foreach ($data['{{name_has_many}}'] as $key_{{name_has_many}} => $value_{{name_has_many}}) {
-                    $this->{{service_name}}Service->{{function}}($value_{{name_has_many}}+[
+                $id_updated_{{name_has_many}} = [];
+                foreach ($data['{{name_has_many}}'] as $value_{{name_has_many}}) {
+                    $id_updated_{{name_has_many}}[] = $this->{{service_name}}Service->{{function}}($value_{{name_has_many}}+[
                         "{{foregin_key}}"   =>  $result->{{relation_key}},
                         "header_object" => $to_header_object,
-                    ]);
+                    ])->{$this->{{service_name}}Service->model->getKeyName()};
+                }
+
+                foreach ($result->{{name_has_many}}()->getAll()->whereNotIn('id', $id_updated_{{name_has_many}})->get() as $value_to_delete_{{name_has_many}}) {
+                    $this->{{service_name}}Service->delete($value_to_delete_{{name_has_many}}->getKey());
                 }
             }
         }

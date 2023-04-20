@@ -21,6 +21,10 @@ class ModulBuilder
         \DB::beginTransaction();
 
         $files = ModulFiles::getAll()->where('modul_id',$id)->get();
+
+        config(['laravelrestbuilder.modul'   =>  [
+            'id'    => $id,
+        ]]);
         
         foreach ($files as $key => $value) {
             // chown($value->name, 666); //Insert an Invalid UserId to set to Nobody Owern; 666 is my standard for "Nobody" 

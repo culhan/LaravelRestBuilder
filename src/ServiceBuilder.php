@@ -166,8 +166,13 @@ class ServiceBuilder
 
                     // has many create data
                     if( $value_relation['type'] == 'has_many' )
-                    {                        
-                        $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/has_many_create_data.stub', FILE_USE_INCLUDE_PATH);
+                    {       
+                        if( !empty($value_relation['hapus_data']) ){
+                            $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/has_many_create_delete_data.stub', FILE_USE_INCLUDE_PATH);
+                        }else {
+                            $base_create_code = file_get_contents(__DIR__.'/../base'.$base.'/service/has_many_create_data.stub', FILE_USE_INCLUDE_PATH);
+                        }
+                        
                         $base_create_code = str_replace([
                                 '{{name_has_many}}',
                                 '{{relation_key}}',

@@ -9,10 +9,10 @@
         
         \DB::beginTransaction();
 
+        {{check_single_data}}
+        
         // custom code before
         {{custom_code_before}}
-
-        {{check_single_data}}
 
         // start list belongs to many delete
         

@@ -4,11 +4,9 @@
 // atau hubungi A'mal Sholihan
 namespace App\Http\Models{{custom_folder_namespace}};
 
-use KhanCode\LaravelBaseRest\Helpers;
-use KhanCode\LaravelBaseRest\BaseModel;
-use Illuminate\Support\Arr;
+use App\Http\Models\BaseModelV2;
 
-class {{Name}} extends BaseModel
+class {{Name}} extends BaseModelV2
 {
     public $table = "{{table}}";
 
@@ -47,22 +45,6 @@ class {{Name}} extends BaseModel
     }
 
     /**
-     * [scopeGetOption description]
-     *
-     * @param   [type]  $query  [$query description]
-     * @param   [type]  $data   [$data description]
-     *
-     * @return  [type]          [return description]
-     */
-    public function scopeGetOption($query, $data = [])
-    {
-        return $query
-                // start list query option
-                // end list query option
-                ;
-    }
-
-    /**
      * [scopeGetUnion description]
      *
      * @param   [type]  $query  [$query description]
@@ -75,6 +57,22 @@ class {{Name}} extends BaseModel
         return $query
                 // start list query union
                 // end list query union
+                ;
+    }
+
+    /**
+     * [scopeGetOption description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetOption($query, $data = [])
+    {
+        return $query
+                // start list query option
+                // end list query option
                 ;
     }
 

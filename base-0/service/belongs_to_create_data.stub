@@ -2,7 +2,6 @@
         if(array_has($data,'{{name_belongs_to}}'))
         {
             $this->{{service_name}}Service = New {{service_name}}Service;
-            $this->{{service_name}}Service->{{function}}($data['{{name_belongs_to}}']);
-            $dataRecord["{{foregin_key}}"]   =    $result->id;
+            $result{{service_name}} = $this->{{service_name}}Service->{{function}}($data['{{name_belongs_to}}']);
+            $dataRecord["{{foregin_key}}"]   =    $result{{service_name}}->id;
         }
-        

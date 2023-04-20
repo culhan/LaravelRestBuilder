@@ -57,10 +57,13 @@ class DokumentasiBuilder
      */
     public function getAllEnvByProjectAndEnv($id)
     {
-        return EnvItems::getAll()
+        $dataEnv = EnvItems::getAll()
             ->where('project_id', config('laravelrestbuilder.project_id'))
             ->where('env_id', $id)
             ->get();
+
+        Cache::put('laravelrestbuilder.'.config('laravelrestbuilder.project_id'),$dataEnv);
+        return $dataEnv;
     }
 
     /**
@@ -362,10 +365,34 @@ class DokumentasiBuilder
      * @return void
      */
     public function saveEnv()
-    {
-        Cache::put('laravelrestbuilder.'.config('laravelrestbuilder.project_id'),request('env_params'));
+    {   
+        \DB::beginTransaction();
 
-        return $this->getEnv();
+        $env = Envs::UpdateOrCreate(request()->only([
+            "id",
+            "project_id",
+            "name",
+        ]));
+
+        $usedId = [];
+        foreach (request()->only(["env_params"])["env_params"]??[] as $value) {
+            $item = EnvItems::UpdateOrCreate([
+                "`env_items`.`key`"   => $value['key']??'',
+                "project_id"    => request("project_id"),
+                "env_id"    => $env->id,
+            ], $value);
+            $usedId[] = $item->id;
+        }
+
+        EnvItems::whereNull("deleted_by")
+            ->where("env_id", $env->id)
+            ->where("project_id", request("project_id"))
+            ->whereNotIn("id", $usedId)
+            ->delete();
+
+        \DB::commit();
+
+        return $env;
     }
 
     /**

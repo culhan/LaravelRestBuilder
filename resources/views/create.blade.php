@@ -1739,6 +1739,21 @@
                             '</div>'+
                         '</div>'+
                         '';
+
+                    if( data.value == "has_many" ) {
+                        html_relasi_detail += 
+                            '<div class="row mb-3 '+data.value+'_'+i+'">'+
+                                '<div class="col-sm-2" style="padding-top:5px;">'+
+                                    '<label>Menghapus Data </label>'+
+                                '</div>'+
+                                '<div class="col-sm">'+
+                                    '<div class="form-check form-check-inline with-check">'+
+                                        '<input class="form-check-input" type="checkbox" name="relation['+i+'][hapus_data]">'+
+                                    '</div>'+
+                                '</div>'+
+                            '</div>'+
+                            '';
+                    }
                 }
 
                 html_relasi_detail += 
@@ -1828,6 +1843,7 @@
                 
                 $( "[name='relation["+i+"][membuat_data]']" ).switcher();
                 $( "[name='relation["+i+"][simpan_data]']" ).switcher();
+                $( "[name='relation["+i+"][hapus_data]']" ).switcher();
                                                
                 createCodeEditor( 'relation_intermediate_table_'+i, "relation["+i+"][intermediate_table]", 'sql' );
                 createCodeEditor( 'relation_custom_join_'+i, "relation["+i+"][custom_join]", 'sql' );
@@ -2979,6 +2995,9 @@
             }
             if( value_relasi['simpan_data'] ) {
                 $( '[name="relation['+jumlah_relasi_builded+'][simpan_data]"]' ).prop('checked',true).change()
+            }
+            if( value_relasi['hapus_data'] ) {
+                $( '[name="relation['+jumlah_relasi_builded+'][hapus_data]"]' ).prop('checked',true).change()
             }
 
             // khusus many to many

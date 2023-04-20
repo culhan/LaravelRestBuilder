@@ -743,8 +743,8 @@ table .fa-close {
                     htmlTabContent += '<div class="col-md-10">'
                         htmlTabContent += '<input type="text" class="input-name form-control" aria-label="" value="'+name+'" name="name">'
                     htmlTabContent += '</div>'
-                    htmlTabContent += '<div class="col-md-2 d-flex">'
-                        htmlTabContent += '<p class="ml-auto"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#env_modal">Environment</button></p>'
+                    htmlTabContent += '<div class="col-md-2">'
+                        htmlTabContent += '<button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#env_modal">Environment</button>'
                     htmlTabContent += '</div>'
                     htmlTabContent += '<div class="col-md-12">'
                         htmlTabContent += '<textarea name="description" class="form-control mb-3 desc-textarea" rows="1" placeholder="deskripsi">'+description+'</textarea>'
@@ -1201,6 +1201,7 @@ table .fa-close {
     </script>
     <script src="<?php echo URL::to('/vendor/khancode/js/src/ace.js');?>"></script>
     <script src="{{url('/')}}/vendor/khancode/js/submit.js"></script>
+    <script src="{{url('/')}}/vendor/khancode/js/dokumentasi.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/ace-generator.js"></script>
 
     <script>
@@ -1301,27 +1302,30 @@ table .fa-close {
         </div>
         <div class="modal-body">
             <form id="form-env">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Key</th>
-                        <th scope="col">Value</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                </thead>
-            </table>
-            <envs>
-            </envs>
-                <!-- <tbody>
-                    <tr>
-                        <th scope="row"></th>
-                        <td><input type="text" name="env_params[0][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,0)"></td>
-                        <td><textarea type="text" name="env_params[0][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>
-                        <td><input type="text" name="env_params[0][desc]" placeholder="description" class="input form-control"></td>
-                    </tr>
-                </tbody>
-            </table> -->
+                <input type="hidden" class="form-control" name="id">
+                <input type="hidden" class="form-control" name="project_id" value="{{ session('project')['id'] }}">
+                <envs>
+                    <input type="" class="form-control list_data_envs" name="name">
+                </envs>
+                <br>
+                <table class="table env_items">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Key</th>
+                            <th scope="col">Value</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row"></th>
+                            <td><input type="text" name="env_params[0][key]" placeholder="key" class="input form-control" onkeyup="addListEnvParams(this,0)"></td>
+                            <td><textarea type="text" name="env_params[0][value]" placeholder="value" class="input form-control" rows="1"></textarea></td>
+                            <td><input type="text" name="env_params[0][desc]" placeholder="description" class="input form-control"></td>
+                        </tr>
+                    </tbody>
+                </table>
             <form>
         </div>
         <div class="modal-footer">

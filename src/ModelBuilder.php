@@ -376,6 +376,8 @@ class ModelBuilder
                     }
                     $function = str_replace('{{has_one_name}}',ucwords($value_relation['name']),$function);
                     $function = str_replace('{{column_has_one_foreign_key}}',$value_relation['foreign_key'],$function);                    
+                    $function = str_replace('{{column_has_many_relation_key}}',$value_relation['relation_key']??'id',$function);                    
+                    
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column has one
@@ -432,6 +434,7 @@ class ModelBuilder
                     }
                     $function = str_replace('{{has_many_name}}',ucwords($value_relation['name']),$function);
                     $function = str_replace('{{column_has_many_foreign_key}}',$value_relation['foreign_key'],$function);                    
+                    $function = str_replace('{{column_has_many_relation_key}}',$value_relation['relation_key']??'id',$function);                    
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
                     // column has many

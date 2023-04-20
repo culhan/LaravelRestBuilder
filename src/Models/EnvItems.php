@@ -11,6 +11,14 @@ class EnvItems extends BaseModel
     public $timestamps = true;
             
     protected $soft_delete  =   true;
+
+    public $fillable = [
+        "key",
+        "value",
+        "description",
+        "project_id",
+        "env_id"
+    ];
     
     /**
      * The name of the "created at" column.
@@ -32,8 +40,6 @@ class EnvItems extends BaseModel
      * @var string
      */
     const DELETED_AT = 'deleted_at';
-    
-    public $fillable = [];
 
     /**
      * [scopeGetAll description]
