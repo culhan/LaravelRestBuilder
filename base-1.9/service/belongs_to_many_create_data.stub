@@ -17,7 +17,7 @@
                             }
                         }else{
                             (New \App\Http\Repositories{{custom_folder_namespace}}\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->getSingleData($value_relation_belongs_to_many['{{foreign_key_joining_model}}'],$data);
-                            $result->{{name_param_belongs_to_many}}()->attach($value_relation_belongs_to_many['{{foreign_key_joining_model}}'], array_except($value_relation_belongs_to_many, ['{{foreign_key_joining_model}}']));
+                            $result->{{name_param_belongs_to_many}}()->attach($value_relation_belongs_to_many['{{foreign_key_joining_model}}'], array_only($value_relation_belongs_to_many, [{{sanitation}}]));
                         }
                     }else {
                         (New \App\Http\Repositories{{custom_folder_namespace}}\{{service_name}}Repository)->setModulName('{{name_belongs_to_many}}')->{{check_data_function}}($value_relation_belongs_to_many,$data);

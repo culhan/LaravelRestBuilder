@@ -5,6 +5,10 @@
      */
     public function {{name}}({{param}})
     {
+        $dataRecord = $data??[];
+        
+        {{data-filter}}
+
         // start code
         // end code
 	}

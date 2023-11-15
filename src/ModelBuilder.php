@@ -611,42 +611,42 @@ class ModelBuilder
                     $cols_table_model .= $belongs_to_many_query."\r\n";
                     
                     // when intermediate table is union
-                    if (!str_contains($value_relation['intermediate_table_full'], ' ')) { 
-                        // start build migration for intermediate table                    
-                        $intermediate_name = $name_model.'_'.$value_relation['name'];
-                        $intermediate_table_name = $value_relation['intermediate_table'];
+                    // if (!str_contains($value_relation['intermediate_table_full'], ' ')) { 
+                    //     // start build migration for intermediate table                    
+                    //     $intermediate_name = $name_model.'_'.$value_relation['name'];
+                    //     $intermediate_table_name = $value_relation['intermediate_table'];
                         
-                        // set default column
-                        $value_relation['column'] = [
-                        [
-                            'name'  =>  $value_relation['foreign_key_model'],
-                            'type'  =>  ($value_relation['foreign_key_model_type']??"integer"),
-                        ],
-                        [
-                            'name'  =>  $value_relation['foreign_key_joining_model'],
-                            'type'  =>  ($value_relation['foreign_key_joining_model_type']??"integer"),
-                        ],  
-                        ];
+                    //     // set default column
+                    //     $value_relation['column'] = [
+                    //     [
+                    //         'name'  =>  $value_relation['foreign_key_model'],
+                    //         'type'  =>  ($value_relation['foreign_key_model_type']??"integer"),
+                    //     ],
+                    //     [
+                    //         'name'  =>  $value_relation['foreign_key_joining_model'],
+                    //         'type'  =>  ($value_relation['foreign_key_joining_model_type']??"integer"),
+                    //     ],  
+                    //     ];
 
-                        $value_relation = columnBuilder::build($value_relation,'column');
+                    //     $value_relation = columnBuilder::build($value_relation,'column');
                         
-                        if( !empty($value_relation['column_add_on']) )
-                        {
-                            $value_relation['column'] = array_merge($value_relation['column_add_on'],$value_relation['column']);
-                        }
+                    //     if( !empty($value_relation['column_add_on']) )
+                    //     {
+                    //         $value_relation['column'] = array_merge($value_relation['column_add_on'],$value_relation['column']);
+                    //     }
 
-                        $index = MigrationBuilder::getIndexExist($intermediate_table_name);                    
-                        $index = !empty($index['list_index']) ? $index['list_index']:[];
+                    //     $index = MigrationBuilder::getIndexExist($intermediate_table_name);                    
+                    //     $index = !empty($index['list_index']) ? $index['list_index']:[];
                         
                         
-                        MigrationBuilder::build($intermediate_name,$intermediate_table_name,$value_relation['column'],$index);
+                    //     MigrationBuilder::build($intermediate_name,$intermediate_table_name,$value_relation['column'],$index);
                     
-                        // migrate
-                        LaravelRestBuilder::setLaravelrestbuilderConnection();
-                        \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);                        
+                    //     // migrate
+                    //     LaravelRestBuilder::setLaravelrestbuilderConnection();
+                    //     \Artisan::call('migrate',['--path' => config('laravelrestbuilder.copy_to').'/database/migrations','--force' => true]);                        
                         
-                        // end build migration for intermediate table   
-                    }
+                    //     // end build migration for intermediate table   
+                    // }
 
                     LaravelRestBuilder::setDefaultLaravelrestbuilderConnection();
                     

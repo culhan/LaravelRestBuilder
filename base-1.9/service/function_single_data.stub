@@ -15,7 +15,9 @@
         // custom code before
         {{custom_code_before}}
 
-        $return = $this->repository->getSingleData($id, $data);
+        {{check_single_data}}
+
+        $return = $single_data;
 
         // custom code after
         {{custom_code_after}}

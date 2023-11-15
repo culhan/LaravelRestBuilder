@@ -2,8 +2,8 @@
 
 return [
     'build_active'  =>  true,
-    'company_id_code' => 'user()->com_id',
-    'user_id_code'  =>  'user()->id',
+    'company_id_code' => '(isset(user()->com_id))?user()->com_id:NULL',
+    'user_id_code'  =>  '(isset(user()->id))?user()->id:NULL',
     'copy_to'   =>  '',    
     'project_id'    =>  0,
     'file'  =>  [],
