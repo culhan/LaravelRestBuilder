@@ -1,3 +1,3 @@
 if _, ok := data_result["{{column}}"]; ok {
-		singleData["{{column}}"] = {{code}}
+		{{code}}
 	}

@@ -43,6 +43,10 @@ class ServiceBuilder
         "math/big",
         "html/template",
         "github.com/bojanz/currency",
+        "github.com/huaweicloud/huaweicloud-sdk-go-obs/obs",
+        "golang.org/x/text/cases",
+        "golang.org/x/text/language",
+        "encoding/csv",
         // "gorm.io/gorm", sudah ada di base
     ];
 
@@ -55,7 +59,7 @@ class ServiceBuilder
      * @param [type] $route
      * @return void
      */
-    static function build( $name, $column, $column_function, $route, $relation, $hidden, $class )
+    static function build( $name, $column, $column_function, $route, $relation, $hidden, $class, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details )
     {
         $Name = UCWORDS($name);
         $service_file_name = 'S_'.$Name;
@@ -233,6 +237,13 @@ class ServiceBuilder
                     }
                 }
                 // {{relation_function}}
+                
+                $custom_code_modified_column = "";
+                if( !empty($with_timestamp_details['update']) && ($value['process'] == "update_data" or $value['process'] == "create_update_data") ){
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t\t".$custom_code_modified_column;
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t\t".$custom_code_modified_column;
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t\t".$custom_code_modified_column;
+                }
 
                 if(!empty($value['custom_code_before'])){
                     $custom_code_before = "\n\t".str_replace("\n", "\n\t", $value['custom_code_before'])."\n";
@@ -256,6 +267,7 @@ class ServiceBuilder
                     "{{custom_code_before}}",
                     "{{custom_code_after}}",
                     "{{system_function}}",
+                    "{{custom_code_modified_column}}"
                 ],[
                     $param_function,
                     $Name,
@@ -265,6 +277,7 @@ class ServiceBuilder
                     $custom_code_before,
                     $custom_code_after,
                     str_replace("\n", "\n\t", $value['system_function']??""),
+                    $custom_code_modified_column,
                 ],$code_function);
 
                 if( $key != count($route)-1 ){

@@ -7,9 +7,7 @@ $("[name='column_function_sementara[json]']").switcher();
 eval("code_editor_column_function= ace.edit('column_function_sementara', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
 eval("code_editor_column_function.getSession().on('change', function(e) {val_code = code_editor_column_function.getSession().getValue();$( '[name=\"column_function_sementara[function]\"]' ).val(val_code);})")
 
-eval("code_editor_column_function_response_code= ace.edit('column_function_sementara_response_code', {mode: \"ace/mode/php\",maxLines: 30,minLines: 5,wrap: true,autoScrollEditorIntoView: false, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
-eval("code_editor_column_function_response_code.getSession().setMode({path:\"ace/mode/php\", inline:true})")            
-eval("code_editor_column_function_response_code.getSession().on('change', function(e) {val_code_response_code = code_editor_column_function_response_code.getSession().getValue();$( '[name=\"column_function_sementara[response_code]\"]' ).val(val_code_response_code);})")
+aceGenerate({ name_cols: "column_function_sementara[response_code]" });
 
 function build_list_column_function_tabel(data) {
 
@@ -129,8 +127,9 @@ function clear_column_function_sementara() {
     eval("code_editor_column_function.setValue($( '[name=\"column_function_sementara[function]\"]' ).val())")
     eval("code_editor_column_function.clearSelection()")
 
-    eval("code_editor_column_function_response_code.setValue($( '[name=\"column_function_sementara[response_code]\"]' ).val())")
-    eval("code_editor_column_function_response_code.clearSelection()")
+    fillAceGenerate({ name_cols: "column_function_sementara[response_code]" })
+    // eval("code_editor_column_function_response_code.setValue($( '[name=\"column_function_sementara[response_code]\"]' ).val())")
+    // eval("code_editor_column_function_response_code.clearSelection()")
 
     $('[name="column_function_sementara[json]"]').prop('checked', false).change()    
 }
@@ -175,14 +174,13 @@ function editcolumn_functionFromTable(i) {
 function fill_column_function_sementara(data) {
 
     $('[name="column_function_sementara[name]"]').val(data.name)
-    $('[name="column_function_sementara[function]"]').val(data.function)
+    $('[name="column_function_sementara[function]"]').val(data.function)    
     $('[name="column_function_sementara[response_code]"]').val(data.response_code)
 
     eval("code_editor_column_function.setValue($( '[name=\"column_function_sementara[function]\"]' ).val())")
     eval("code_editor_column_function.clearSelection()")
-
-    eval("code_editor_column_function_response_code.setValue($( '[name=\"column_function_sementara[response_code]\"]' ).val())")
-    eval("code_editor_column_function_response_code.clearSelection()")
+    
+    fillAceGenerate({ name_cols: "column_function_sementara[response_code]", code: data.response_code })    
     
     if( data['json'] ) {
         $( '[name="column_function_sementara[json]"]' ).prop('checked',true).change()

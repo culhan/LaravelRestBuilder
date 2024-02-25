@@ -343,6 +343,12 @@
                             <pre>*input ".code." akan di baca kode php</pre>
                         </div>
                         <div class="form-group">
+                            <label for="exampleFormControlSelect1">Custom Group</label>
+                            <textarea name="custom_group" class="d-none"></textarea>
+                            <textarea id="tab_custom_group"></textarea>
+                            <pre>*input ".code." akan di baca kode php</pre>
+                        </div>
+                        <div class="form-group">
                             <label for="get_custom_creating">Custom Creating</label>
                             <textarea name="get_custom_creating" class="d-none"></textarea>
                             <textarea id="tab_get_custom_creating"></textarea>
@@ -761,9 +767,9 @@
                                 </div>
                                 <div class="col-sm">
                                     <textarea name="column_function_sementara[response_code]" class="d-none"></textarea>
-                                    <textarea id="column_function_sementara_response_code"></textarea>
+                                    <textarea id="tab_column_function_sementara[response_code]"></textarea>
                                     <pre>php code untuk response</pre>
-                                </div>
+                                </div>                                                              
                             </div>
                             <div class="row mb-3">
                                 <div class="col-sm-2" style="padding-top:5px;">
@@ -2336,6 +2342,10 @@
             nama_kolom_fungsi = 'custom_filter'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_filter', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
             eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
+
+            nama_kolom_fungsi = 'custom_group'
+            eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_group', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
+            eval("code_editor_" + nama_kolom_fungsi + ".getSession().on('change', function(e) {val_code = code_editor_"+nama_kolom_fungsi+".getSession().getValue();$( '[name=\""+nama_kolom_fungsi+"\"]' ).val(val_code);})")
             
             nama_kolom_fungsi = 'custom_union'
             eval("code_editor_" + nama_kolom_fungsi + "= ace.edit('tab_custom_union', {mode: \"ace/mode/sql\",maxLines: 30,minLines: 5,wrap: true, enableBasicAutocompletion: true, enableLiveAutocompletion: true, enableSnippets: true})")
@@ -2848,6 +2858,9 @@
             $( '[name="custom_filter"]' ).val('');
             eval("code_editor_custom_filter.setValue('')")
             eval("code_editor_custom_filter.clearSelection()")
+            $( '[name="custom_group"]' ).val('');
+            eval("code_editor_custom_group.setValue('')")
+            eval("code_editor_custom_group.clearSelection()")
 
             if(data.key) $( '[name="key"]' ).val(data.key).change();
             if(data.custom_folder) $( '[name="custom_folder"]' ).val(data.custom_folder).change();
@@ -2876,6 +2889,12 @@
                 $( '[name="custom_filter"]' ).val(data.custom_filter);
                 eval("code_editor_custom_filter.setValue($( '[name=\"custom_filter\"]' ).val())")
                 eval("code_editor_custom_filter.clearSelection()")
+            }
+
+            if(data.custom_group) {
+                $( '[name="custom_group"]' ).val(data.custom_group);
+                eval("code_editor_custom_group.setValue($( '[name=\"custom_group\"]' ).val())")
+                eval("code_editor_custom_group.clearSelection()")
             }
 
             if(data.custom_union) {

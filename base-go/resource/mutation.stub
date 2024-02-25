@@ -1,1 +1,1 @@
-helpers.ConvertToArrayOrObjectMap(data_result["{{var_name}}"])
+singleData["{{var_name}}"] = helpers.ConvertToArrayOrObjectMap(data_result["{{var_name}}"])

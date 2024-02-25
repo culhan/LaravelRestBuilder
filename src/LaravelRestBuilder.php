@@ -587,6 +587,7 @@ class LaravelRestBuilder
                     $data['with_ipstamp'],
                     $data['with_companystamp'],
                     $data['custom_filter'],
+                    $data['custom_group'],
                     $data['custom_union'],
                     $data['custom_union_model']??NULL,
                     $data['custom_join'],
@@ -741,6 +742,9 @@ class LaravelRestBuilder
                     $data['relation'],
                     $data['hidden'],
                     $class['service']??[],
+                    $data['with_timestamp_details'],
+                    $data['with_authstamp_details'],
+                    $data['with_ipstamp_details']
                 );
 
                 GoRouteBuilder::build(

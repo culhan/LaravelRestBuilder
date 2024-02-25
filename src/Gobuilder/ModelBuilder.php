@@ -40,7 +40,10 @@ class ModelBuilder
         "github.com/shopspring/decimal",
         "github.com/gin-gonic/gin",
         "math/big",
-        "gorm.io/gorm",        
+        "gorm.io/gorm",
+        "github.com/huaweicloud/huaweicloud-sdk-go-obs/obs",
+        "golang.org/x/text/cases",
+        "golang.org/x/text/language",
     ];
 
     /**
@@ -76,6 +79,7 @@ class ModelBuilder
         $name = $model_file_name = UCWORDS($name_model);
         $model_file_name = $model_file_name."Model";
         $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
+        $model_name_err = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $name);
         $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH);        
 
         $list_type_var = [
@@ -304,6 +308,7 @@ class ModelBuilder
             // '{{select_column_attribute}}',
             '{{select_column_with_function}}',
             '{{custom_join}}',
+            '{{model_name_err}}',
         ],[
             $name,
             $name_spaces,
@@ -313,6 +318,7 @@ class ModelBuilder
             // $text_select_column_attribute,
             $text_select_column_with_function,
             $custom_join,
+            $model_name_err
         ],
         $base_model);
 
@@ -329,6 +335,12 @@ class ModelBuilder
         if ( !empty($custom_deleting) ) {
             $custom_deleting = str_replace("\n","\n\t",$custom_deleting."\n\n// end list deleting option");
             $base_model = str_replace('// end list deleting option',$custom_deleting,$base_model);
+        }
+
+        if( !empty($with_timestamp_details['delete']) ){
+            $with_timestamp_details['delete_column'] = $with_timestamp_details['delete_column']??'deleted_time';
+            if( !empty($custom_filter) ) $custom_filter = "\n".$custom_filter;
+            $custom_filter = 'db.Where("'.$table.'.'.$with_timestamp_details['delete_column'].' is null")'.$custom_filter;
         }
 
         if( !empty($custom_filter) ) {

@@ -35,7 +35,7 @@ class ModelBuilder
      * @param [type] $hidden_relation
      * @return void
      */
-    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details, $custom_folder = '' )
+    static function build( $name_model, $table, $key, $increment_key, $column, $column_function = [], $with_timestamp, $with_authstamp, $with_ipstamp, $with_companystamp, $custom_filter, $custom_group, $custom_union, $custom_union_model, $custom_join, $relation, $hidden, $with_company_restriction, $with_delete_restriction, $casts, $with_authenticable, $get_company_code = NULL, $custom_creating, $custom_updating, $custom_deleting, $hidden_relation, $with_timestamp_details, $with_authstamp_details, $with_ipstamp_details, $custom_folder = '' )
     {
         $base = config('laravelRestBuilder.base');
         $mysql_version = config('laravelRestBuilder.mysql_version');
@@ -147,6 +147,13 @@ class ModelBuilder
             $custom_filter = str_replace("\n","\n\t\t\t\t",$custom_filter);
             $option_custom_filter = str_replace('{{custom_filter}}',$custom_filter,$option_custom_filter);
             $base_model = str_replace('// end list query option',$option_custom_filter,$base_model);
+        }
+
+        if( !empty($custom_group) ) {
+            $option_custom_group = file_get_contents(__DIR__.'/../base'.$base.'/model/option_query_custom_group.stub', FILE_USE_INCLUDE_PATH);
+            $custom_group = str_replace("\n","\n\t\t\t\t",$custom_group);
+            $option_custom_group = str_replace('{{custom_group}}',$custom_group,$option_custom_group);
+            $base_model = str_replace('// end list query group',$option_custom_group,$base_model);
         }
 
         if( !empty($custom_creating) ) {

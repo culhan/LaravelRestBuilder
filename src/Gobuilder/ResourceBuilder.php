@@ -10,6 +10,7 @@ class ResourceBuilder
      * default class
      */
     static $default_class = [
+        "github.com/gin-gonic/gin",
         "olsera.com/kikota/app/models",
         "olsera.com/kikota/app/repositories",
         "olsera.com/kikota/exceptions",
@@ -82,7 +83,7 @@ class ResourceBuilder
                 "{{code}}",
             ], [
                 $value['name'],
-                "data_result[\"".$value['name']."\"]",
+                "singleData[\"".$value['name']."\"] = data_result[\"".$value['name']."\"]",
             ], $base_text_column_with_check);
         }
 
@@ -97,7 +98,13 @@ class ResourceBuilder
             // $text_column_attribute .= ucfirst($value['name']).":\t&data_".$value['name'].",";
 
             $mutation_code = NULL;
-            if( isset($value['json']) ){
+            if( !empty($value["response_code"]) ){
+                $mutation_code = str_replace(
+                    "\n",
+                    "\n\t\t",
+                    $value["response_code"]
+                );
+            }if( isset($value['json']) ){
                 $mutation_code = str_replace("{{var_name}}", $value['name'], $base_mutation_code);
                 // $addr_text_column .= $mutation_code;
             }else {
@@ -109,7 +116,7 @@ class ResourceBuilder
                 "{{code}}",
             ], [
                 $value['name'],
-                $mutation_code??("data_result[\"".$value['name']."\"]"),
+                $mutation_code??("singleData[\"".$value['name']."\"] = data_result[\"".$value['name']."\"]"),
             ], $base_text_column_with_check);
         }
 
@@ -229,12 +236,51 @@ class ResourceBuilder
      * @param [type] $class
      * @return void
      */
-    public static function generateClass($base, $class)
+    public static function generateClass($base, $class, $custom_code = [])
     {
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("/",$value);
-            if ( strpos($base, ' '.$last_string[count($last_string)-1]) !== false ) {
-                $class[] = $value;
+            $string_searched = $last_string[count($last_string)-1];
+
+            $stringToFind = [
+                '*'.$string_searched.'.',
+                ' '.$string_searched.')',
+                ' '.$string_searched.'.',
+                "\t".$string_searched.'.',
+                '+'.$string_searched.'.',
+                ' '.$string_searched.'.',
+                '!'.$string_searched.'.',
+                '('.$string_searched.'.',
+            ];
+
+            foreach ($stringToFind as $stf_value) {
+                if ( strpos($base, $stf_value) !== false ){
+                    $class[$value] = $value;
+                } 
+            }
+        }
+
+        foreach ($custom_code as $ckey => $cvalue) {
+            foreach (self::$default_class as $key => $value) {
+                $last_string = explode("/",$value);
+                $string_searched = $last_string[count($last_string)-1];
+
+                $stringToFind = [
+                    '*'.$string_searched.'.',
+                    ' '.$string_searched.')',
+                    ' '.$string_searched.'.',
+                    "\t".$string_searched.'.',
+                    '+'.$string_searched.'.',
+                    ' '.$string_searched.'.',
+                    '!'.$string_searched.'.',
+                    '('.$string_searched.'.',
+                ];
+
+                foreach ($stringToFind as $stf_value) {
+                    if ( strpos($cvalue, $stf_value) !== false ){
+                        $class[$value] = $value;
+                    } 
+                }
             }
         }
 

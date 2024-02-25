@@ -16,14 +16,15 @@ func (s {{Name}}Model) TableName() string {
 }
 
 func (s {{Name}}Model) ModulName() string {
-	return `{{name}}`
+	return `{{model_name_err}}`
 }
 
 func (s {{Name}}Model) ScopesGetReflectSelect(data interface{}) reflect.Value {
 	db := data.(map[string]interface{})["db"].(*gorm.DB)
 
-  c, _ := db.Get("gin_context")
-	c = c.(*gin.Context)
+  c_interaface, _ := db.Get("gin_context")
+	c := c_interaface.(*gin.Context)
+  c = c
 
 	selectColumn := map[string]interface{}{}
   

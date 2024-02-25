@@ -79,6 +79,22 @@ class {{Name}} extends BaseModel
     }
 
     /**
+     * [scopeGetGroup description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetGroup($query, $data = [])
+    {
+        return $query
+                // start list query group
+                // end list query group
+                ;
+    }
+
+    /**
      * [scopeGetAll description]
      *
      * @param   [type]  $query  [$query description]
@@ -91,6 +107,7 @@ class {{Name}} extends BaseModel
         return $query->getJoin($data)
                     ->getSelect($data)                
                     ->getOption($data)
+                    ->getGroup($data)
                     ->getUnion($data);
     }
 

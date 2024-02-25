@@ -16,6 +16,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
     status := singleData.Assign(&this_model).FirstOrCreate(&model)
     
     if status.RowsAffected > 0 {
+        {{custom_code_modified_column}}
         singleData.Select(raw_column).Updates(&model)
     }
 
@@ -27,7 +28,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{relation_function}}
 
-	resultData, err := repositories.GetSingleWhereData{{ModulName}}(tx, map[string]interface{}{}, model, c) 
+	resultData, err := repositories.GetSingleGormData{{ModulName}}(tx.Session(&gorm.Session{}), data, tx.Session(&gorm.Session{}).Where(keyFirstOrCreate), c)     
     if err != nil {
 		return nil, err
 	}

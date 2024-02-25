@@ -45,22 +45,6 @@ class {{Name}} extends BaseModelV2
     }
 
     /**
-     * [scopeGetUnion description]
-     *
-     * @param   [type]  $query  [$query description]
-     * @param   [type]  $data   [$data description]
-     *
-     * @return  [type]          [return description]
-     */
-    public function scopeGetUnion($query, $data = [])
-    {
-        return $query
-                // start list query union
-                // end list query union
-                ;
-    }
-
-    /**
      * [scopeGetOption description]
      *
      * @param   [type]  $query  [$query description]
@@ -77,6 +61,38 @@ class {{Name}} extends BaseModelV2
     }
 
     /**
+     * [scopeGetUnion description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetUnion($query, $data = [])
+    {
+        return $query
+                // start list query union
+                // end list query union
+                ;
+    }
+
+    /**
+     * [scopeGetGroup description]
+     *
+     * @param   [type]  $query  [$query description]
+     * @param   [type]  $data   [$data description]
+     *
+     * @return  [type]          [return description]
+     */
+    public function scopeGetGroup($query, $data = [])
+    {
+        return $query
+                // start list query group
+                // end list query group
+                ;
+    }
+
+    /**
      * [scopeGetAll description]
      *
      * @param   [type]  $query  [$query description]
@@ -89,6 +105,7 @@ class {{Name}} extends BaseModelV2
         return $query->getJoin($data)
                     ->getSelect($data)                
                     ->getOption($data)
+                    ->getGroup($data)
                     ->getUnion($data);
     }
 

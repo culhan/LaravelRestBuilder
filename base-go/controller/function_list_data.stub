@@ -5,7 +5,7 @@ func {{ModulName}}{{Name}}(c *gin.Context) {
 	if err == nil {
         tx.Commit()
         if dt != nil {
-		    c.SecureJSON(200, resources.{{ModulName}}Resource(dt))
+		    c.SecureJSON(200, resources.{{ModulName}}Resource(dt, c))
         }
 	}else {
         tx.Rollback()

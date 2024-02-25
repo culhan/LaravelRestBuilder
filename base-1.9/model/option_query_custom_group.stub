@@ -1,0 +1,2 @@
+->groupBy(\DB::raw("{{custom_group}}"))
+                // end list query group

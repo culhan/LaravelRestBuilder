@@ -2,7 +2,7 @@
      * [{{name}} description]
      * @return [type] [description]
      */
-    public function get{{Name}}Data($searchableSortableColumn,$relation,$data{{param_function}})
+    public function get{{Name}}Data($sortableAndSearchableColumn,$relation,$data{{param_function}})
     {
         $dataRecord = $data_filter = $data;
 
@@ -15,7 +15,7 @@
         // custom code before
         {{custom_code_before}}
 
-        $return = $this->repository->getIndexData($searchableSortableColumn,$relation,$data_filter);
+        $return = $this->repository->getIndexData($sortableAndSearchableColumn,$relation,$data_filter);
 
         // custom code after
         {{custom_code_after}}
