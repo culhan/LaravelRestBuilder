@@ -2,9 +2,9 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{code_validation}}
     
+    {{belongs_to_check_create}}
     
     keyFirstOrCreate := map[string]interface{}{}
-    model := models.{{ModulName}}Model{}
     
 	{{code_sanitation}}
     // keyFirstOrCreate.Name = data["name"].(string)
@@ -13,20 +13,21 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     singleData := tx.Session(&gorm.Session{}).Model(&models.{{ModulName}}Model{}).Where(keyFirstOrCreate)
     
-    status := singleData.Assign(&this_model).FirstOrCreate(&model)
+    status := singleData.Assign(&this_model).FirstOrCreate(&this_model)
     
     if status.RowsAffected > 0 {
         {{custom_code_modified_column}}
-        singleData.Select(raw_column).Updates(&model)
-    }
-
-    {{custom_code_after}}
+        singleData.Select(raw_column).Updates(&this_model)
+    }    
 
     var result map[string]interface{}
     inrec, _ := json.Marshal(this_model)
     json.Unmarshal(inrec, &result)
 
     {{relation_function}}
+
+    // custom code after
+    {{custom_code_after}}
 
 	resultData, err := repositories.GetSingleGormData{{ModulName}}(tx.Session(&gorm.Session{}), data, tx.Session(&gorm.Session{}).Where(keyFirstOrCreate), c)     
     if err != nil {

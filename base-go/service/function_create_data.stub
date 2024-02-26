@@ -1,7 +1,9 @@
 func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
     {{code_validation}}
-    
+
+    {{belongs_to_check_create}}
+
 	{{code_sanitation}}
 
     // custom code before

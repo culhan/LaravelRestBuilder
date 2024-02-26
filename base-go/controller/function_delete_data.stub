@@ -4,7 +4,7 @@ func {{ModulName}}{{Name}}(c *gin.Context) {
     dt, err := services.Service{{ModulName}}{{Name}}( tx, c.MustGet("Request").(map[string]interface {}), c{{UrlParam}} )
 	if err == nil {
         tx.Commit()
-		c.SecureJSON(200, resources.DeletedResource(dt, c))
+		c.SecureJSON(200, resources.DeletedResource(dt))
 	}else {
         tx.Rollback()
     }

@@ -217,13 +217,15 @@ class ModelBuilder
             $query_code = file_get_contents(__DIR__.'/../../base-go/model/query_'.$relation_value['type'].'.stub', FILE_USE_INCLUDE_PATH);
 
             $rel_column = '';
-            $counted_relation = count($relation_value['select_column']);
             foreach ($relation_value['select_column'] as $relation_key_select_column => $relation_value_select_column) {
-                $rel_column .= "\t\t\t'".$relation_value_select_column['name']."', ".$relation_value_select_column["column"];
-                if( $relation_key_select_column != ($counted_relation-1) ){
-                    $rel_column .= ",\n";
-                }
+                $rel_column .= "\t\t\t'".$relation_value_select_column['name']."', ".$relation_value_select_column["column"].", \n";
             }
+
+            foreach ($relation_value['column_add_on']??[] as $relation_key_column_add_on => $relation_value_column_add_on) {
+                $rel_column .= "\t\t\t'".$relation_value_column_add_on['name']."', ".$relation_value["intermediate_table"].".".$relation_value_column_add_on['name'].", \n";
+            }
+
+            $rel_column = substr($rel_column, 0, -3);;
             
             if( $relation_value["type"] == "belongs_to"){
                 if( isset($relation_value["foreign_key"]) ){

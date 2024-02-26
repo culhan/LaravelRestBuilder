@@ -85,7 +85,6 @@ class ServiceBuilder
         
         $list_file = scandir(__DIR__.'/../../base-go/service', SCANDIR_SORT_DESCENDING);
         foreach ($route as $key => $value) {
-            
             if( $value["process"] == 'create_data' || $value["process"] == 'update_data' ){
                 \KhanCode\LaravelRestBuilder\Models\Moduls::validate($value,[
                     'dataFilter' => [
@@ -141,7 +140,7 @@ class ServiceBuilder
                         $code_function = str_replace('{{code_validation}}', '',$code_function);
                     }
                 }
-                $code_function = str_replace('{{param_validate}}',$param_validation,$code_function);
+                $code_function = str_replace('{{param_validate}}',$param_validation,$code_function);                
 
                 // make param function
                 $param_function = '';
@@ -153,11 +152,12 @@ class ServiceBuilder
                 }
 
                 // make data sanitation                
-                $code_filter = '';
-                $column_sanitated = '';
+                $code_filter = "";
+                $data_filter = "";
+                $column_sanitated = "";
                 if( !empty($value['dataFilter']) ){
-                    $code_filter = "raw_column := []string{}\n";
-                    $code_filter .= "\tthis_model := models.{{ModulName}}Model{}\n";
+                    $code_filter = file_get_contents(__DIR__.'/../../base-go/service/code_sanitation.stub', FILE_USE_INCLUDE_PATH);
+                
                     foreach ($value['dataFilter'] as $key_filter => $value_filter) {
                         $column_sanitated .= "`".$value_filter["name"]."`";
                         if( $key_filter != count($value['dataFilter'])-1 ){
@@ -171,38 +171,77 @@ class ServiceBuilder
                             }
                         }
                         
-                        $code_filter .= "\tif _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
+                        if( !empty($data_filter) ) $data_filter .= "\n\t";
+
+                        $data_filter .= "if _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
                         if( $type_column_assertion == 'int' ){
-                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
+                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
                         }else if( $type_column_assertion == 'int64' ){
-                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
+                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
                         }else if( $type_column_assertion == 'decimal.Decimal'){
-                            $code_filter .= "\t\t".'val_param_'.$value_filter['name'].', err := decimal.NewFromString(helpers.ConvertToString(data["'.$value_filter['name'].'"]))' . "\n";
-                            $code_filter .= "\t\tif err != nil {\n";
-                                $code_filter .= "\t\terrorState := exceptions.ErrorException(500, fmt.Sprintf(\"could not decode to decimal %s\",err))\n";
-		                        $code_filter .= "\t\treturn nil, errorState\n";
-                            $code_filter .= "\t\t}\n";
-                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = val_param_' . $value_filter['name'] . "\n";
+                            $data_filter .= "\t\t".'val_param_'.$value_filter['name'].', err := decimal.NewFromString(helpers.ConvertToString(data["'.$value_filter['name'].'"]))' . "\n";
+                            $data_filter .= "\t\tif err != nil {\n";
+                                $data_filter .= "\t\terrorState := exceptions.ErrorException(500, fmt.Sprintf(\"could not decode to decimal %s\",err))\n";
+		                        $data_filter .= "\t\treturn nil, errorState\n";
+                            $data_filter .= "\t\t}\n";
+                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = val_param_' . $value_filter['name'] . "\n";
                         }else {
-                            $code_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
+                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
                         }
-                        $code_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")\n";
-                        $code_filter .= "\t}\n\t";
+                        $data_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")\n";
+                        $data_filter .= "\t}";
                     }
                 }
+                
                 $code_function = str_replace([
                     '{{code_sanitation}}',
+                    '{{data_filter}}',
                     '{{column_sanitated}}'
                 ],[
                     $code_filter,
+                    $data_filter,
                     $column_sanitated
                 ],$code_function);
-
+                
+                
                 // make relation code
                 $code_relation = '';
+                $code_fungsi_check_relasi_belongs_to = "";
                 if( !empty($relation) ){
                     foreach ($relation as $rel_key => $rel_value) {
                         
+                        //belongs_to check when create
+                        if( $rel_value['type'] == "belongs_to" ){
+                            $base_code_belongs_to_check_data = file_get_contents(__DIR__.'/../../base-go/service/belongs_to_check_data.stub', FILE_USE_INCLUDE_PATH);
+                            
+                            foreach ($value["fungsi_check_relasi_disabled"]??[] as $key_fungsi_check_relasi => $fungsi_check_relasi) {
+                                if( $key_fungsi_check_relasi == $rel_value["name"] && empty($fungsi_check_relasi) ){
+
+                                    $function_name = "GetSingleGormData".ucwords(camel_case($rel_value["name"]));
+                                    if( !empty($value["fungsi_check_relasi"][$key_fungsi_check_relasi]) ){
+                                        $function_name = $value["fungsi_check_relasi"][$key_fungsi_check_relasi];
+                                    }
+                                    
+                                    $code_fungsi_check_relasi_belongs_to .= str_replace([
+                                        "{{name}}",
+                                        "{{foreign_key}}",
+                                        "{{function_name}}",
+                                        "{{table}}",
+                                        "{{relation_key}}",
+                                        "\n",
+                                    ],[
+                                        $rel_value["name"],
+                                        $rel_value["foreign_key"],
+                                        $function_name,
+                                        $rel_value["table"],
+                                        $rel_value["relation_key"]??"id",
+                                        "\n\t",
+                                    ], $base_code_belongs_to_check_data);      
+                                    
+                                }
+                            }
+                        }
+
                         $base_code_relation = file_get_contents(__DIR__.'/../../base-go/service/code_'.$rel_value['type'].'.stub', FILE_USE_INCLUDE_PATH)."\n";
                         
                         $model_name_function = str_replace_first('Model','',$rel_value["model_name"]??$rel_value["name"]);
@@ -236,11 +275,16 @@ class ServiceBuilder
                         $code_relation .= $base_code_relation;
                     }
                 }
-                // {{relation_function}}
                 
                 $custom_code_modified_column = "";
-                if( !empty($with_timestamp_details['update']) && ($value['process'] == "update_data" or $value['process'] == "create_update_data") ){
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t\t".$custom_code_modified_column;
+                if( !empty($with_timestamp_details['update']) && ($value['process'] == "update_data") ){
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t".$custom_code_modified_column;
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t".$custom_code_modified_column;
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t".$custom_code_modified_column;
+                }
+
+                if( !empty($with_timestamp_details['update']) && ($value['process'] == "create_update_data") ){
+                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t".$custom_code_modified_column;
                     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t\t".$custom_code_modified_column;
                     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t\t".$custom_code_modified_column;
                 }
@@ -267,7 +311,8 @@ class ServiceBuilder
                     "{{custom_code_before}}",
                     "{{custom_code_after}}",
                     "{{system_function}}",
-                    "{{custom_code_modified_column}}"
+                    "{{custom_code_modified_column}}",
+                    "{{belongs_to_check_create}}",
                 ],[
                     $param_function,
                     $Name,
@@ -278,12 +323,13 @@ class ServiceBuilder
                     $custom_code_after,
                     str_replace("\n", "\n\t", $value['system_function']??""),
                     $custom_code_modified_column,
+                    $code_fungsi_check_relasi_belongs_to
                 ],$code_function);
 
                 if( $key != count($route)-1 ){
                     $code_function = str_replace('// end list function',"\n" . '// end list function',$code_function);
                 }
-
+                
                 // assign function to base
                 $base_service = str_replace('// end list function',$code_function,$base_service);
             }

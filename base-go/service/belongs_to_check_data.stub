@@ -1,0 +1,14 @@
+// check {{foreign_key}}
+if data["{{foreign_key}}"] != nil {
+    data_{{name}}, err_{{name}} := repositories.{{function_name}}(
+        tx.Session(&gorm.Session{}), 
+        data, 
+        tx.Where("{{table}}.{{relation_key}} = ?", data["{{foreign_key}}"]),
+        c,
+    )
+    data_{{name}} = data_{{name}}
+
+    if err_{{name}} != nil {
+        return nil, err_{{name}}
+    }
+}

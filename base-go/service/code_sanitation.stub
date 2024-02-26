@@ -1,0 +1,3 @@
+raw_column := []string{}
+    this_model := models.{{ModulName}}Model{}
+    {{data_filter}}
