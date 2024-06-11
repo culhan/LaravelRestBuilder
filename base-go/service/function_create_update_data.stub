@@ -1,24 +1,34 @@
 func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *gin.Context{{UrlParam}}) (interface{}, interface{}) {
 
+	keyFirstOrCreate := map[string]interface{}{}
+	
     {{code_validation}}
     
-    {{belongs_to_check_create}}
-    
-    keyFirstOrCreate := map[string]interface{}{}
+    {{belongs_to_check_create}}    
     
 	{{code_sanitation}}
     // keyFirstOrCreate.Name = data["name"].(string)
 
     {{custom_code_before}}
 
-    singleData := tx.Session(&gorm.Session{}).Model(&models.{{ModulName}}Model{}).Where(keyFirstOrCreate)
-    
-    status := singleData.Assign(&this_model).FirstOrCreate(&this_model)
-    
-    if status.RowsAffected > 0 {
-        {{custom_code_modified_column}}
-        singleData.Select(raw_column).Updates(&this_model)
-    }    
+    singleData := tx.Session(&gorm.Session{}).Model(&this_model).Where(keyFirstOrCreate)
+
+    status := singleData.Take(map[string]interface{}{})
+
+	if status.RowsAffected == 0 {
+		tx.Session(&gorm.Session{}).Create(&this_model)
+	} else {
+		{{custom_code_modified_column}}
+		resultUpdate := singleData.Select(raw_column).Updates(&this_model)
+
+		if resultUpdate.Error != nil {
+			errorState := exceptions.ErrorException(500, "update "+this_model.ModulName()+" failed")
+
+			return nil, errorState
+		}
+
+		singleData.Select(`*`).Find(&this_model)
+	}    
 
     var result map[string]interface{}
     inrec, _ := json.Marshal(this_model)

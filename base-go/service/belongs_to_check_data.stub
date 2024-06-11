@@ -1,14 +1,16 @@
 // check {{foreign_key}}
+var data_{{name}} interface{}
 if data["{{foreign_key}}"] != nil {
-    data_{{name}}, err_{{name}} := repositories.{{function_name}}(
+    var err_{{name}} interface{}
+    data_{{name}}, err_{{name}} = repositories.{{function_name}}(
         tx.Session(&gorm.Session{}), 
         data, 
         tx.Where("{{table}}.{{relation_key}} = ?", data["{{foreign_key}}"]),
         c,
     )
     data_{{name}} = data_{{name}}
-
     if err_{{name}} != nil {
         return nil, err_{{name}}
     }
 }
+data_{{name}} = data_{{name}}

@@ -35,6 +35,7 @@ class RouteBuilder
     static function build( $name, $route, $old_name, $class )
     {
         $Name = UCWORDS($name);
+        $old_name = UCWORDS($old_name);
         $route_file = $name;        
         $base_route = file_get_contents(__DIR__.'/../../base-go/route/base.stub', FILE_USE_INCLUDE_PATH);
         $base_route_code = file_get_contents(__DIR__.'/../../base-go/route/route.stub', FILE_USE_INCLUDE_PATH);
@@ -105,14 +106,14 @@ class RouteBuilder
         // tambah route di main
         $system_route = file_get_contents(base_path().config('laravelrestbuilder.copy_to').'/main.go', FILE_USE_INCLUDE_PATH);
 
-        // check jika sudah ada
+        // check jika belum ada
         if (strpos($system_route, "routes.$Name(r)") === false) {
             $system_route = str_replace("// end route list", "routes.$Name(r)"."\n\t"."// end route list", $system_route);
         }
 
         // hapus route lama, jika ada perubhan nama
-        if( !empty($old_name) ) {
-            $system_route = str_replace("\troutes.$old_name(r)\n","",$system_route);            
+        if( !empty($old_name) && $old_name != $Name ) {
+            $system_route = str_replace("\troutes.$old_name(r)\n","",$system_route);
         }
 
         FileCreator::create( 'main', '', $system_route, 'route', false );

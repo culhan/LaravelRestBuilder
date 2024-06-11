@@ -180,8 +180,10 @@ class ModelBuilder
         $option_isJson = file_get_contents(__DIR__.'/../base'.$base.'/model/option_isJson.stub', FILE_USE_INCLUDE_PATH);
         $base_set_bindings = "{{column}}";
         $column_set_bindings = "";
-        
-        foreach ($column as $key => $value) {            
+        $list_name_cols = [];
+
+        foreach ($column as $key => $value) {     
+            $list_name_cols[$value['name']] = $value['name'];       
             // jika bukan forbidden column dan hidden masukkan ke query global
             if( !isset(LaravelRestBuilder::$forbidden_column_name[$value['name']]) && !isset($hidden[$value['name']]) )
             {
@@ -201,11 +203,11 @@ class ModelBuilder
             $fillable_table_model .= "\t\t\"".$value['name']."\",";
             if( !empty($column[$key+1]) ) {
                 $fillable_table_model .= "\r\n";
-            }
-
+            }            
         }
-
+        
         foreach ($column_function as $key_column_function => $value_column_function) {
+            $list_name_cols[$value_column_function['name']] = $value_column_function['name'];
             if( empty(LaravelRestBuilder::$forbidden_column_name[$value_column_function['name']]) && isset($value_column_function['function']) ){      
                 $column_function_query = str_replace([
                     '{{column_function_name}}',
@@ -271,7 +273,7 @@ class ModelBuilder
                 $hidden_relation = array_flip($hidden_relation);
             }
 
-            foreach ($relation as $key_relation => $value_relation) {                
+            foreach ($relation as $key_relation => $value_relation) {                     
 
                 $value_relation['name'] = empty($value_relation['name_param']) ? $value_relation['name'] : $value_relation['name_param'];
                 $column_set_bindings .= 'Arr::get($data, "show_'.$value_relation['name'].'", 1),'."\r\n\t\t\t\t\t";
@@ -525,97 +527,69 @@ class ModelBuilder
                     if( !empty($value_relation['custom_option']) )
                     {
                         $function = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t".'-- end list belongs to many query option',$function);
-                    }
-
-                    // $function = str_replace('{{belongs_to_many_name}}',UCWORDS($value_relation['name']),$function);
-                    // if(!empty($value_relation['model_name'])) {
-                    //     $function = str_replace('{{belongs_to_many_model_name}}',UCWORDS($value_relation['model_name']),$function);
-                    // }else {
-                    //     $function = str_replace('{{belongs_to_many_model_name}}',UCWORDS($value_relation['name']),$function);
-                    // }
-                    // $function = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$function);
-                    // $function = str_replace('{{belongs_to_many_intermediate_table}}',$value_relation['intermediate_table'],$function);
-                    
-                    // $function = str_replace('{{column_belongs_to_many_foreign_key_model}}',$value_relation['foreign_key_model'],$function);
-                    // $function = str_replace('{{column_belongs_to_many_foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$function);                    
-                    
-                    // belum bisa di gunakan
-                    // if( !empty($value_relation['custom_option']) ) {
-                    //     $custom_option_relation = file_get_contents(__DIR__.'/../base'.$base.'/model/custom_option_relation_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
-                    //     $custom_option_relation = str_replace([
-                    //             '{{custom_option}}',
-                    //             '{{column_belongs_to_many_foreign_key_model}}',
-                    //             '{{belongs_to_many_intermediate_table}}'
-                    //         ],
-                    //         [
-                    //             $value_relation['custom_option'],
-                    //             $value_relation['foreign_key_model'],
-                    //             $value_relation['intermediate_table'],
-                    //         ],
-                    //     $custom_option_relation);
-
-                    //     $function = str_replace(';',"\n".$custom_option_relation,$function);
-                    // }                    
+                    }                    
                     
                     $base_model = str_replace('// end list relation function',$function,$base_model);
 
-                    // column belongs to many
-                    $belongs_to_many_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
-                    $value_relation['select_column'] = array_merge($value_relation['select_column'],[
-                        [
-                            "name" => $value_relation['foreign_key_joining_model'],
-                            "column"    => $value_relation['intermediate_table'].'.'.$value_relation['foreign_key_joining_model'],
-                            "type"  =>  "integer",
-                        ]
-                    ]);
-                    if( !empty($value_relation['column_add_on']) )
-                    {
-                        foreach ($value_relation['column_add_on'] as $key_add_on => $value_add_on) {
-                            $value_relation['select_column'][] = [
-                                "name" => $value_add_on['name'],
-                                "column"    => $value_relation['intermediate_table'].'.'.$value_add_on['name'],
-                                "type"  =>  $value_add_on['type'],
-                            ];
+                    if(!isset($list_name_cols[$value_relation['name']])){
+                        // column belongs to many
+                        $belongs_to_many_query = file_get_contents(__DIR__.'/../base'.$base.'/model/query_column_belongs_to_many.stub', FILE_USE_INCLUDE_PATH);
+                        $value_relation['select_column'] = array_merge($value_relation['select_column'],[
+                            [
+                                "name" => $value_relation['foreign_key_joining_model'],
+                                "column"    => $value_relation['intermediate_table'].'.'.$value_relation['foreign_key_joining_model'],
+                                "type"  =>  "integer",
+                            ]
+                        ]);
+                        if( !empty($value_relation['column_add_on']) )
+                        {
+                            foreach ($value_relation['column_add_on'] as $key_add_on => $value_add_on) {
+                                $value_relation['select_column'][] = [
+                                    "name" => $value_add_on['name'],
+                                    "column"    => $value_relation['intermediate_table'].'.'.$value_add_on['name'],
+                                    "type"  =>  $value_add_on['type'],
+                                ];
+                            }
                         }
-                    }
-                    $column_belongs_to_many = self::generateColumnRelation($value_relation['select_column']);
+                        $column_belongs_to_many = self::generateColumnRelation($value_relation['select_column']);
 
-                    $belongs_to_many_query = str_replace([
-                            '{{column_belongs_to_many}}',
-                            '{{belongs_to_many_intermediate_table_full}}',
-                            '{{belongs_to_many_intermediate_table}}',
-                            '{{belongs_to_many_table}}',
-                            '{{foreign_key_model}}',
-                            '{{foreign_key_joining_model}}',
-                            '{{belongs_to_many_name}}',
-                        ],
-                        [   
-                            "".$column_belongs_to_many,
-                            $value_relation['intermediate_table_full'],
-                            $value_relation['intermediate_table'],
-                            $value_relation['table'],
-                            $value_relation['foreign_key_model'],
-                            $value_relation['foreign_key_joining_model'],
-                            $value_relation['name'],
-                        ],$belongs_to_many_query);
+                        $belongs_to_many_query = str_replace([
+                                '{{column_belongs_to_many}}',
+                                '{{belongs_to_many_intermediate_table_full}}',
+                                '{{belongs_to_many_intermediate_table}}',
+                                '{{belongs_to_many_table}}',
+                                '{{foreign_key_model}}',
+                                '{{foreign_key_joining_model}}',
+                                '{{belongs_to_many_name}}',
+                            ],
+                            [   
+                                "".$column_belongs_to_many,
+                                $value_relation['intermediate_table_full'],
+                                $value_relation['intermediate_table'],
+                                $value_relation['table'],
+                                $value_relation['foreign_key_model'],
+                                $value_relation['foreign_key_joining_model'],
+                                $value_relation['name'],
+                            ],$belongs_to_many_query);
+                            
+                        // $belongs_to_many_query = str_replace('{{column_belongs_to_many}}',"".$column_belongs_to_many,$belongs_to_many_query);
+                        // $belongs_to_many_query = str_replace('{{belongs_to_many_intermediate_table}}',$value_relation['intermediate_table'],$belongs_to_many_query);
+                        // $belongs_to_many_query = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$belongs_to_many_query);                    
+                        // $belongs_to_many_query = str_replace('{{foreign_key_model}}',$value_relation['foreign_key_model'],$belongs_to_many_query);
+                        // $belongs_to_many_query = str_replace('{{foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$belongs_to_many_query);
+                        // $belongs_to_many_query = str_replace('{{belongs_to_many_name}}',$value_relation['name'],$belongs_to_many_query);
                         
-                    // $belongs_to_many_query = str_replace('{{column_belongs_to_many}}',"".$column_belongs_to_many,$belongs_to_many_query);
-                    // $belongs_to_many_query = str_replace('{{belongs_to_many_intermediate_table}}',$value_relation['intermediate_table'],$belongs_to_many_query);
-                    // $belongs_to_many_query = str_replace('{{belongs_to_many_table}}',$value_relation['table'],$belongs_to_many_query);                    
-                    // $belongs_to_many_query = str_replace('{{foreign_key_model}}',$value_relation['foreign_key_model'],$belongs_to_many_query);
-                    // $belongs_to_many_query = str_replace('{{foreign_key_joining_model}}',$value_relation['foreign_key_joining_model'],$belongs_to_many_query);
-                    // $belongs_to_many_query = str_replace('{{belongs_to_many_name}}',$value_relation['name'],$belongs_to_many_query);
-                    
-                    if( !empty($value_relation['custom_join']) )
-                    {
-                        $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
+                        if( !empty($value_relation['custom_join']) )
+                        {
+                            $belongs_to_many_query = str_replace('-- end list belongs to many join option',$value_relation['custom_join']."\r\n\t\t\t\t\t".'-- end list belongs to many join option',$belongs_to_many_query);
+                        }
+                        if( !empty($value_relation['custom_option']) )
+                        {
+                            $belongs_to_many_query = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t".'-- end list belongs to many query option',$belongs_to_many_query);
+                        }
+                        
+                        $cols_table_model .= $belongs_to_many_query."\r\n";
                     }
-                    if( !empty($value_relation['custom_option']) )
-                    {
-                        $belongs_to_many_query = str_replace('-- end list belongs to many query option',$value_relation['custom_option']."\r\n\t\t\t\t\t".'-- end list belongs to many query option',$belongs_to_many_query);
-                    }
-                    
-                    $cols_table_model .= $belongs_to_many_query."\r\n";
                     
                     // when intermediate table is union
                     // if (!str_contains($value_relation['intermediate_table_full'], ' ')) { 

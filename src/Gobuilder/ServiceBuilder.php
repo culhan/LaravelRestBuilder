@@ -47,6 +47,8 @@ class ServiceBuilder
         "golang.org/x/text/cases",
         "golang.org/x/text/language",
         "encoding/csv",
+        "github.com/leekchan/accounting",
+        "gorm.io/gorm/clause",
         // "gorm.io/gorm", sudah ada di base
     ];
 
@@ -217,7 +219,7 @@ class ServiceBuilder
                             foreach ($value["fungsi_check_relasi_disabled"]??[] as $key_fungsi_check_relasi => $fungsi_check_relasi) {
                                 if( $key_fungsi_check_relasi == $rel_value["name"] && empty($fungsi_check_relasi) ){
 
-                                    $function_name = "GetSingleGormData".ucwords(camel_case($rel_value["name"]));
+                                    $function_name = "GetSingleGormData".ucwords(camel_case(str_replace("Model", "",$rel_value["model_name"])));
                                     if( !empty($value["fungsi_check_relasi"][$key_fungsi_check_relasi]) ){
                                         $function_name = $value["fungsi_check_relasi"][$key_fungsi_check_relasi];
                                     }

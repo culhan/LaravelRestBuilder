@@ -496,8 +496,11 @@ class LaravelRestBuilder
 
             // jika beda nama
             if($data['name'] != $old_data->name || $data['custom_folder'] != $old_data->custom_folder) {
-                $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()->where('modul_id',$data['id'])->get();
-        
+                $files = \KhanCode\LaravelRestBuilder\Models\ModulFiles::getAll()
+                    ->where('modul_id',$data['id'])
+                    ->where('name','not like', "%main.go")
+                    ->get();
+                
                 foreach ($files as $key => $value) {
                     // chown($value->name, 666); //Insert an Invalid UserId to set to Nobody Owern; 666 is my standard for "Nobody" 
                     $folder = base_path()."/".config('laravelrestbuilder.copy_to')."/";

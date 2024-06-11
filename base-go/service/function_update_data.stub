@@ -7,12 +7,13 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 	{{code_sanitation}}
     {{custom_check_single_data}}
 
-    data_single_data, err_single_data := repositories.GetSingleGormData{{ModulName}}(
+    data_single_data_map, err_single_data := repositories.GetSingleGormData{{ModulName}}(
         tx.Session(&gorm.Session{}), 
         data, 
         singleData,
         c,
     )
+    data_single_data := data_single_data_map.(map[string]interface{})
     data_single_data = data_single_data
 
     if err_single_data != nil {

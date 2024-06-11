@@ -13,7 +13,7 @@ import (
 
 func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (models.ReturnData, interface{}) {
 
-	data_result, err := models.GetSearch(tx, {{name}}Model, data)
+	data_result, err := models.GetSearch(tx.Session(&gorm.Session{}), {{name}}Model, data)
 	if err != nil {
 		return models.ReturnData{}, err
 	}
@@ -23,7 +23,7 @@ func GetIndexData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{
 
 func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (interface{}, interface{}) {
 
-	data_result := models.GetSingleWhereData(tx, data, {{name}}Model)
+	data_result := models.GetSingleWhereData(tx.Session(&gorm.Session{}), data, {{name}}Model)
 
     if 0 == len(data_result) {
 		error_return := exceptions.ValidateException(7, helpers.Trans(c.Param("locale"), "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
@@ -37,7 +37,7 @@ func GetSingleWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model mod
 func GetSingleGormData{{Name}}(tx *gorm.DB, data interface{}, query *gorm.DB, c *gin.Context) (interface{}, interface{}) {
 
     data_result := map[string]interface{}{}
-	models.GetGormWhereData(tx, models.{{Name}}Model{}, data, query).Take(&data_result)
+	models.GetGormWhereData(tx.Session(&gorm.Session{}), models.{{Name}}Model{}, data, query.Session(&gorm.Session{})).Take(&data_result)
 
     if 0 == len(data_result) {
 		error_return := exceptions.ValidateException(7, helpers.Trans(c.Param("locale"), "error.no_data_found", map[string]interface{}{"data": models.{{Name}}Model{}.ModulName()}))
@@ -50,7 +50,7 @@ func GetSingleGormData{{Name}}(tx *gorm.DB, data interface{}, query *gorm.DB, c 
 
 func GetMultiWhereData{{Name}}(tx *gorm.DB, data interface{}, {{name}}Model models.{{Name}}Model, c *gin.Context) (interface{}, interface{}) {
 
-	data_result := models.GetMultiWhereData(tx, data, {{name}}Model)
+	data_result := models.GetMultiWhereData(tx.Session(&gorm.Session{}), data, {{name}}Model)
 
     if 0 == len(data_result) {
 		error_return := exceptions.ValidateException(7, helpers.Trans(c.Param("locale"), "error.no_data_found", map[string]interface{}{"data": {{name}}Model.ModulName()}))
