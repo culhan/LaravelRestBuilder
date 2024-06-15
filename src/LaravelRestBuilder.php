@@ -372,8 +372,7 @@ class LaravelRestBuilder
 
         return ($data->toArray())+[
             'table' => ($detail->table??''),
-            'files' => $files,
-            'a' => session('project')
+            'files' => $files
         ];
     }
 

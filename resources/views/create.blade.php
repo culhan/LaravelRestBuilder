@@ -102,6 +102,7 @@
                                                     <option value="time">Time</option>
                                                     <option value="json">Json</option>
                                                     <option value="enum">Enum</option>
+                                                    <option value="float">Float</option>
                                                 </select>                                        
                                             </div>
                                         </div>

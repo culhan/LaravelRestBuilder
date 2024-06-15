@@ -20,11 +20,16 @@ class FileCreator
      * @param [type] $name_file
      * @param [type] $folder
      * @param string $content
-     * @return void
+     * @return string
      */
     static function create( $name_file, $folder, $content = "some text here", $type = 'modul', $copy = true )
     {
         $file_folder = $folder;
+        $content = str_replace([
+            "{{code_name}}",
+        ],[
+            \Arr::get(session('project'),'code_name')
+        ], $content);
         
         $file_model = new ModulFiles;
         $file_key = 'modul_id';
@@ -195,7 +200,7 @@ class FileCreator
      * get file
      *
      * @param [type] $name_file
-     * @return void
+     * @return string
      */
     static function getFile( $name_file, $folder )
     {
@@ -222,7 +227,7 @@ class FileCreator
      * @param [type] $string
      * @param [type] $start
      * @param [type] $end
-     * @return void
+     * @return string
      */
     static function get_string_between($string, $start, $end)
     {

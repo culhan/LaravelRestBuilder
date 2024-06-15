@@ -11,12 +11,12 @@ class RouteBuilder
      * default class
      */
     static $default_class = [
-        "olsera.com/kikota/app/models",
-        "olsera.com/kikota/app/repositories",
-        "olsera.com/kikota/app/middleware",
-        "olsera.com/kikota/exceptions",
-        "olsera.com/kikota/helpers",
-        "olsera.com/kikota/app/controllers",
+        "{{code_name}}/app/models",
+        "{{code_name}}/app/repositories",
+        "{{code_name}}/app/middleware",
+        "{{code_name}}/exceptions",
+        "{{code_name}}/helpers",
+        "{{code_name}}/app/controllers",
         "encoding/json",
         "net/http",
 	    "strings",

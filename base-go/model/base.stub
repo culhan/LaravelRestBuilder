@@ -44,7 +44,7 @@ func (s {{Name}}Model) ScopesGetSelect(data interface{}) func (db *gorm.DB) *gor
 
 func (s {{Name}}Model) ScopesGetAll(data interface{}) func (db *gorm.DB) *gorm.DB {
   return func (db *gorm.DB) *gorm.DB {
-    return db.Scopes( s.ScopesGetSelect(data), s.ScopesGetJoin(data), s.ScopesGetOptions(data), s.ScopesGetUnion(data) )
+    return Process(db, data, {{Name}}Model{})
   }
 }
 

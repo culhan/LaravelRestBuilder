@@ -4,7 +4,7 @@
 package controllers
 
 import (
-	"olsera.com/kikota/app/services"
+	"{{code_name}}/app/services"
     {{class}}
 )
 

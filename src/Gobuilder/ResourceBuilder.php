@@ -11,10 +11,10 @@ class ResourceBuilder
      */
     static $default_class = [
         "github.com/gin-gonic/gin",
-        "olsera.com/kikota/app/models",
-        "olsera.com/kikota/app/repositories",
-        "olsera.com/kikota/exceptions",
-        "olsera.com/kikota/helpers",
+        "{{code_name}}/app/models",
+        "{{code_name}}/app/repositories",
+        "{{code_name}}/exceptions",
+        "{{code_name}}/helpers",
         "encoding/json",
         "net/http",
 	    "strings",

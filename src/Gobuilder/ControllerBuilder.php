@@ -10,8 +10,8 @@ class ControllerBuilder
      * static default class
      */
     static $default_class = [
-        "olsera.com/kikota/app/resources",
-        "olsera.com/kikota/helpers",
+        "{{code_name}}/app/resources",
+        "{{code_name}}/helpers",
         "gorm.io/gorm",
     ];
 

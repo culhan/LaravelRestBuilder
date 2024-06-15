@@ -12,12 +12,12 @@ class ServiceBuilder
      * default class
      */
     static $default_class = [
-        "olsera.com/kikota/app/models",
-        "olsera.com/kikota/app/repositories",
-        "olsera.com/kikota/app/resources",
-        "olsera.com/kikota/exceptions",
-        "olsera.com/kikota/helpers",
-        "olsera.com/kikota/customvalidator",        
+        "{{code_name}}/app/models",
+        "{{code_name}}/app/repositories",
+        "{{code_name}}/app/resources",
+        "{{code_name}}/exceptions",
+        "{{code_name}}/helpers",
+        "{{code_name}}/customvalidator",        
         "encoding/json",
         "net/http",
 	    "strings",
@@ -339,7 +339,7 @@ class ServiceBuilder
 
         // if( array_get($column, "0.type", "integer") == "integer" ){
         //     $class["strconv"] = "strconv";
-        //     $class["olsera.com/kikota/exceptions"] = "olsera.com/kikota/exceptions";
+        //     $class["{{code_name}}/exceptions"] = "{{code_name}}/exceptions";
         //     $code_type_first_column = file_get_contents(__DIR__.'/../../base-go/service/code_type_first_column.stub', FILE_USE_INCLUDE_PATH);
         //     $base_service = str_replace('{{code_type_first_column}}', $code_type_first_column,$base_service);
         // }else{

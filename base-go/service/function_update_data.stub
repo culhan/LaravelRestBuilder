@@ -13,12 +13,11 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
         singleData,
         c,
     )
-    data_single_data := data_single_data_map.(map[string]interface{})
-    data_single_data = data_single_data
-
     if err_single_data != nil {
         return nil, err_single_data
     }
+    data_single_data := data_single_data_map.(map[string]interface{})
+    data_single_data = data_single_data
 
     {{custom_code_before}}
 

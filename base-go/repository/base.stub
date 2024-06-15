@@ -4,9 +4,9 @@
 package repositories
 
 import (
-    "olsera.com/kikota/helpers"
-	"olsera.com/kikota/app/models"
-    "olsera.com/kikota/exceptions"
+    "{{code_name}}/helpers"
+	"{{code_name}}/app/models"
+    "{{code_name}}/exceptions"
     "github.com/gin-gonic/gin"
     "gorm.io/gorm"
 )

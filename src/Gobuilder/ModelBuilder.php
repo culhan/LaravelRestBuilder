@@ -11,11 +11,11 @@ class ModelBuilder
      * default class
      */
     static $default_class = [
-        "olsera.com/kikota/app/models",
-        "olsera.com/kikota/app/repositories",
-        "olsera.com/kikota/app/resources",
-        "olsera.com/kikota/exceptions",
-        "olsera.com/kikota/helpers",
+        "{{code_name}}/app/models",
+        "{{code_name}}/app/repositories",
+        "{{code_name}}/app/resources",
+        "{{code_name}}/exceptions",
+        "{{code_name}}/helpers",
         "encoding/json",
         "net/http",
 	    "strings",
@@ -97,7 +97,8 @@ class ModelBuilder
             'string'    => 'string',
             'char'  => 'string',
             'text'  => 'string',
-            'time'  => 'string'
+            'time'  => 'string',
+            'float' => 'decimal.Decimal',
         ];
 
         $text_column = '';

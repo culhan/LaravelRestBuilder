@@ -917,6 +917,8 @@ class MigrationBuilder
                 $type = "json";
             }else if ($value->DATA_TYPE == 'enum') {
                 $type = "enum";
+            }else if ($value->DATA_TYPE == 'float') {
+                $type = "float";
             }else {
                 $type = "unidentified (".$value->DATA_TYPE.")";
             }
