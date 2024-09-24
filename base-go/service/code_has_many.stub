@@ -11,7 +11,7 @@ if _, ok := data["{{parameter_name}}"]; ok {
             for _, v_{{parameter_name}} := range data["{{parameter_name}}"].([]interface{}) {
                 v_{{parameter_name}} := v_{{parameter_name}}.(map[string]interface {})
                 if _, ok := v_{{parameter_name}}["id"]; ok {
-                    if convertToString(v_{{parameter_name}}["id"]) == helpers.ConvertToString(value["id"]) {
+                    if helpers.ConvertToString(v_{{parameter_name}}["id"]) == helpers.ConvertToString(value["id"]) {
                         id_found = true
                     }
                 }

@@ -13,7 +13,7 @@ if _, ok := data["{{parameter_name}}"]; ok {
             return nil, err
         }
     }else {
-        _ , err := Service{{function_name_update}}(tx.Session(&gorm.Session{}), toRelation, convertToString(toRelation["id"]))
+        _ , err := Service{{function_name_update}}(tx.Session(&gorm.Session{}), toRelation, helpers.ConvertToString((toRelation["id"])))
         if err != nil {
             return nil, err
         }

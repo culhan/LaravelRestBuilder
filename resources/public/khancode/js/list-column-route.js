@@ -175,6 +175,18 @@ function build_fungsi_simpan_relasi_table(data) {
             v_type = "Belongs To Many";
         }
 
+        switch_check_data = "";
+        switch_check_data +=
+            '<div class="with-check"><input class="form-check-input check_function_route" attr_check="[' +
+            value_relation["name"] +
+            ']" type="checkbox" onchange="show_hide_check_function_route(this,' +
+            iDataTable +
+            ')"></div>';
+        switch_check_data +=
+            '<input type="text" name="route_sementara[fungsi_relasi][' +
+            value_relation["name"] +
+            ']" style="display:none" value=0>';
+
         tableHtml += "<tr>";
         tableHtml += "<td>";
         tableHtml += iDataTable + 1;

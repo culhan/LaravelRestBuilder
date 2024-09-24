@@ -17,6 +17,7 @@ class ServiceBuilder
         "{{code_name}}/app/resources",
         "{{code_name}}/exceptions",
         "{{code_name}}/helpers",
+        "{{code_name}}/faceRecognation",
         "{{code_name}}/customvalidator",        
         "encoding/json",
         "net/http",
@@ -49,6 +50,10 @@ class ServiceBuilder
         "encoding/csv",
         "github.com/leekchan/accounting",
         "gorm.io/gorm/clause",
+        "github.com/skip2/go-qrcode",
+        "image/color",
+        "io",
+        "github.com/SebastiaanKlippert/go-wkhtmltopdf",
         // "gorm.io/gorm", sudah ada di base
     ];
 
@@ -181,12 +186,7 @@ class ServiceBuilder
                         }else if( $type_column_assertion == 'int64' ){
                             $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
                         }else if( $type_column_assertion == 'decimal.Decimal'){
-                            $data_filter .= "\t\t".'val_param_'.$value_filter['name'].', err := decimal.NewFromString(helpers.ConvertToString(data["'.$value_filter['name'].'"]))' . "\n";
-                            $data_filter .= "\t\tif err != nil {\n";
-                                $data_filter .= "\t\terrorState := exceptions.ErrorException(500, fmt.Sprintf(\"could not decode to decimal %s\",err))\n";
-		                        $data_filter .= "\t\treturn nil, errorState\n";
-                            $data_filter .= "\t\t}\n";
-                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = val_param_' . $value_filter['name'] . "\n";
+                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToDecimal(data["'.$value_filter['name'].'"], true)' . "\n";
                         }else {
                             $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
                         }
@@ -210,8 +210,8 @@ class ServiceBuilder
                 $code_relation = '';
                 $code_fungsi_check_relasi_belongs_to = "";
                 if( !empty($relation) ){
-                    foreach ($relation as $rel_key => $rel_value) {
-                        
+                    foreach ($relation as $rel_key => $rel_value) {                                            
+
                         //belongs_to check when create
                         if( $rel_value['type'] == "belongs_to" ){
                             $base_code_belongs_to_check_data = file_get_contents(__DIR__.'/../../base-go/service/belongs_to_check_data.stub', FILE_USE_INCLUDE_PATH);
@@ -242,6 +242,8 @@ class ServiceBuilder
                                     
                                 }
                             }
+                        }else {
+                            if( !empty($value['fungsi_relasi_enabled']) && empty($value['fungsi_relasi_enabled'][$rel_value["name"]])) continue;
                         }
 
                         $base_code_relation = file_get_contents(__DIR__.'/../../base-go/service/code_'.$rel_value['type'].'.stub', FILE_USE_INCLUDE_PATH)."\n";
@@ -403,7 +405,20 @@ class ServiceBuilder
                 ||
                 strpos($base, "(".$last_string[count($last_string)-1].'.') !== false
             ) {
-                $class[] = $value;
+                $class[$value] = $value;
+            }
+        }
+
+        foreach (self::$default_class as $key => $value) {
+            $last_string = explode("-",$value);
+            if (
+                strpos($base, ' '.$last_string[count($last_string)-1].'.') !== false 
+                || 
+                strpos($base, "\t".$last_string[count($last_string)-1].'.') !== false
+                ||
+                strpos($base, "(".$last_string[count($last_string)-1].'.') !== false
+            ) {
+                $class[$value] = $value;
             }
         }
 

@@ -1379,6 +1379,11 @@
                 if( dataOld[name_route+'[custom_code_after]'] ){ 
                     isi_after = dataOld[name_route+'[custom_code_after]']
                 }
+
+                isi_after_commit = ''
+                if( typeof dataOld[name_route+'[custom_code_after]'] != "undefined" ){ 
+                    isi_after_commit = dataOld[name_route+'[custom_code_after_commit]']
+                }
                 
                 if( project_lang == 'php' ){
                     if(ele.value == 'create_update_data' && !isi_before.includes("$keyFirstOrCreate")) {
@@ -1423,9 +1428,9 @@
                         '</div>'+
                     '</div>'+
                     '<div class="mt-3 custom_data_'+i+' custom_code_after_commit_'+i+' ">'+                        
-                        '<textarea name="'+name_route+'[custom_code_after_commit]" class="d-none" rows="10">'+isi_after+
+                        '<textarea name="'+name_route+'[custom_code_after_commit]" class="d-none" rows="10">'+isi_after_commit+
                         '</textarea>'+
-                        '<textarea id="tab_'+name_route+'[custom_code_after_commit]">'+isi_after+
+                        '<textarea id="tab_'+name_route+'[custom_code_after_commit]">'+isi_after_commit+
                         '</textarea>'+
                     '</div>';
                 

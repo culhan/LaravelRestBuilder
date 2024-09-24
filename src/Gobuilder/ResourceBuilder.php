@@ -22,6 +22,7 @@ class ResourceBuilder
         "time",
         "reflect",
         "math/big",
+        "gorm.io/gorm",
     ];
 
     /**

@@ -158,6 +158,8 @@ class FileCreator
         fwrite($fp,$content);
         fclose($fp);
 
+        exec("/usr/local/go/bin/gofmt -w ".base_path()."/".$folder."/".$name_file.".go 2>&1", $output, $return_var);
+        // dd($output, $return_var);
         // if( !empty(config('laravelrestbuilder.copy_to')) && $copy)
         // {
         //     $fp = fopen(base_path().config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".go","wb");
