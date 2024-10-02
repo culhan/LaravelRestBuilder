@@ -297,7 +297,7 @@ class FileCreator
         
         ];       
 
-        exec("/var/www/html/rest_builder/vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix " . base_path()."/".$folder."/".$name_file.".php --rules='".json_encode($rules)."'", $output_format);        
+        // exec("/var/www/html/rest_builder/vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix " . base_path()."/".$folder."/".$name_file.".php --rules='".json_encode($rules)."'", $output_format);        
         // if( !empty(config('laravelrestbuilder.copy_to')) && $copy)
         // {
         //     $fp = fopen(base_path().config('laravelrestbuilder.copy_to')."/".$folder."/".$name_file.".php","wb");

@@ -151,9 +151,7 @@ class FileCreator
 
         $fp = fopen(base_path() . "/" . $folder . "/" . $name_file . ".go", "wb");
         fwrite($fp, $content);
-        fclose($fp);
-
-        exec("/usr/local/gopath/go/bin/gopls format -w " . base_path() . "/" . $folder . "/" . $name_file . ".go", $output_format);
+        fclose($fp);        
 
         // if( !empty(config('laravelrestbuilder.copy_to')) && $copy)
         // {
