@@ -2,6 +2,7 @@
 
 namespace KhanCode\LaravelRestBuilder\Gobuilder;
 
+use KhanCode\LaravelRestBuilder\Gobuilder\ServiceBuilder;
 use KhanCode\LaravelRestBuilder\Models\ModulFiles;
 use KhanCode\LaravelRestBuilder\Models\EmailFiles;
 use KhanCode\LaravelRestBuilder\Models\EventFiles;
@@ -24,11 +25,6 @@ class FileCreator
     public static function create($name_file, $folder, $content = "some text here", $type = 'modul', $copy = true)
     {
         $file_folder = $folder;
-        $content = str_replace([
-            "{{code_name}}",
-        ], [
-            \Arr::get(session('project'), 'code_name')
-        ], $content);
 
         $file_model = new ModulFiles();
         $file_key = 'modul_id';
@@ -145,13 +141,22 @@ class FileCreator
                     'code'  => $content
                 ]);
             }
-        }
+        }        
 
-        config(['laravelrestbuilder.file'   =>  self::$file]);
+        $content = ServiceBuilder::generateClass($content, []);
+        $content = str_replace([
+            "{{code_name}}",
+        ], [
+            \Arr::get(session('project'), 'code_name')
+        ], $content);
+
+        $refreshed = config('laravelrestbuilder.refreshed')??[];
+        $refreshed[] = base_path() . "/" . $folder . "/" . $name_file . ".go";
+        config(['laravelrestbuilder.refreshed'   => $refreshed ]);
 
         $fp = fopen(base_path() . "/" . $folder . "/" . $name_file . ".go", "wb");
         fwrite($fp, $content);
-        fclose($fp);        
+        fclose($fp);
 
         // if( !empty(config('laravelrestbuilder.copy_to')) && $copy)
         // {
@@ -233,5 +238,21 @@ class FileCreator
         $ini += strlen($start);
         $len = strpos($string, $end, $ini) - $ini;
         return substr($string, $ini, $len);
+    }
+
+    public static function get_string_between_per_line($string, $start, $end) 
+    {
+        $founds = [];
+        $stringPerline = explode("\r\n",$string);
+        foreach ($stringPerline as $key => $perline) {
+            if( !empty($perline)){
+                $found = self::get_string_between($perline, $start, $end);
+                if( $found ){
+                    $founds[] = str_replace(" ", "", strtolower($found));
+                }
+            }
+        }
+
+        return $founds;
     }
 }

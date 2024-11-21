@@ -11,6 +11,46 @@ type {{Name}}Model struct {
     {{column}}
 }
 
+func (s {{Name}}Model) Assign(dataRecord map[string]interface{}) {{Name}}Model {
+	rv := reflect.Indirect(reflect.ValueOf(&s))
+	rt := rv.Type()
+	for i, limit := 0, rt.NumField(); i < limit; i++ {
+		fld := rt.Field(i)
+		fldLower := strings.ToLower(fld.Name)
+
+		if dataRecord[fldLower] != nil {
+			helpers.SetStructValue(&s, fld.Name, dataRecord[fldLower])
+		}
+	}
+
+	return s
+}
+
+func (s {{Name}}Model) Fillable(process string, dataRecord map[string]interface{}) []string {
+	fields := make([]string, 0)
+
+	if process == "create" {
+		{{column_process_creating}}		
+	}
+
+	if process == "update" {
+		{{column_process_updating}}
+	}
+
+	rv := reflect.Indirect(reflect.ValueOf(&s))
+	rt := rv.Type()
+	for i, limit := 0, rt.NumField(); i < limit; i++ {
+		fld := rt.Field(i)
+		fldLower := strings.ToLower(fld.Name)
+
+		if dataRecord[fldLower] != nil {
+			fields = append(fields, fldLower)
+		}
+	}
+
+	return fields
+}
+
 func (s {{Name}}Model) TableName() string {
 	return `{{table}}`
 }

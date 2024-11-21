@@ -9,7 +9,8 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
     // custom code before
     {{custom_code_before}}
 
-	resultCreate := tx.Session(&gorm.Session{}).Create(&this_model)
+	this_model = models.{{ModulName}}Model{}.Assign(dataRecord)
+	resultCreate := tx.Session(&gorm.Session{}).Select(this_model.Fillable("create", dataRecord)).Create(&this_model)
 
     if resultCreate.RowsAffected == 0 {
         errorState := exceptions.ErrorException(500, "store "+this_model.ModulName()+" failed")

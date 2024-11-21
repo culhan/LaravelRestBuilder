@@ -54,6 +54,9 @@ class ServiceBuilder
         "image/color",
         "io",
         "github.com/SebastiaanKlippert/go-wkhtmltopdf",
+        "excelize" => "github.com/xuri/excelize/v2",
+        "unicode/utf8",
+        "unicode",
         // "gorm.io/gorm", sudah ada di base
     ];
 
@@ -182,15 +185,19 @@ class ServiceBuilder
 
                         $data_filter .= "if _, ok := data[\"".$value_filter['name']."\"]; ok {\n";
                         if( $type_column_assertion == 'int' ){
-                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
+                            // $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
+                            $data_filter .= "\t\t".'dataRecord["' . ($value_filter['name']) . '"] = helpers.ConvertToInt(data["'.$value_filter['name'].'"])' . "\n";
                         }else if( $type_column_assertion == 'int64' ){
-                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
+                            // $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
+                            $data_filter .= "\t\t".'dataRecord["' . ($value_filter['name']) . '"] = helpers.ConvertToInt64(data["'.$value_filter['name'].'"])' . "\n";
                         }else if( $type_column_assertion == 'decimal.Decimal'){
-                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToDecimal(data["'.$value_filter['name'].'"], true)' . "\n";
+                            // $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToDecimal(data["'.$value_filter['name'].'"], true)' . "\n";
+                            $data_filter .= "\t\t".'dataRecord["' . ($value_filter['name']) . '"] = helpers.ConvertToDecimal(data["'.$value_filter['name'].'"], true)' . "\n";
                         }else {
-                            $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
+                            // $data_filter .= "\t\t".'this_model.' . ucfirst($value_filter['name']) . ' = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
+                            $data_filter .= "\t\t".'dataRecord["' . ($value_filter['name']) . '"] = helpers.ConvertToString(data["'.$value_filter['name'].'"])' . "\n";
                         }
-                        $data_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")\n";
+                        // $data_filter .= "\t\traw_column = append(raw_column, \"".$value_filter['name']."\")\n";
                         $data_filter .= "\t}";
                     }
                 }
@@ -281,17 +288,23 @@ class ServiceBuilder
                 }
                 
                 $custom_code_modified_column = "";
-                if( !empty($with_timestamp_details['update']) && ($value['process'] == "update_data") ){
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t".$custom_code_modified_column;
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t".$custom_code_modified_column;
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t".$custom_code_modified_column;
-                }
+                // if( !empty($with_timestamp_details['create']) && ($value['process'] == "create_data") ){
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"created_time\")\n\t".$custom_code_modified_column;
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"created_by\")\n\t".$custom_code_modified_column;
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"created_from\")\n\t".$custom_code_modified_column;
+                // }
 
-                if( !empty($with_timestamp_details['update']) && ($value['process'] == "create_update_data") ){
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t".$custom_code_modified_column;
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t\t".$custom_code_modified_column;
-                    $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t\t".$custom_code_modified_column;
-                }
+                // if( !empty($with_timestamp_details['update']) && ($value['process'] == "update_data") ){
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t".$custom_code_modified_column;
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t".$custom_code_modified_column;
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t".$custom_code_modified_column;
+                // }
+
+                // if( !empty($with_timestamp_details['update']) && ($value['process'] == "create_update_data") ){
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_time\")\n\t".$custom_code_modified_column;
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_by\")\n\t\t".$custom_code_modified_column;
+                //     $custom_code_modified_column = "raw_column = append(raw_column, \"modified_from\")\n\t\t".$custom_code_modified_column;
+                // }
 
                 if(!empty($value['custom_code_before'])){
                     $custom_code_before = "\n\t".str_replace("\n", "\n\t", $value['custom_code_before'])."\n";
@@ -348,7 +361,7 @@ class ServiceBuilder
         //     $base_service = str_replace('{{code_type_first_column}}',"this_model.Id = id",$base_service);
         // }
 
-        $base_service = self::generateClass($base_service, $class);
+        // $base_service = self::generateClass($base_service, $class);
         
         FileCreator::create( $service_file_name, 'app/services', $base_service );
         return;
@@ -392,23 +405,33 @@ class ServiceBuilder
      *
      * @param [type] $base
      * @param [type] $class
-     * @return void
+     * @return string
      */
     public static function generateClass($base, $class)
     {
         foreach (self::$default_class as $key => $value) {
-            $last_string = explode("/",$value);
+
+            $value_to_check = $value;
+            if ( is_string($key) ){
+                $value_to_check = $key;
+            }
+
+            $last_string = explode("/",$value_to_check);         
             if (
                 strpos($base, ' '.$last_string[count($last_string)-1].'.') !== false 
                 || 
                 strpos($base, "\t".$last_string[count($last_string)-1].'.') !== false
                 ||
                 strpos($base, "(".$last_string[count($last_string)-1].'.') !== false
-            ) {
+                ||
+                strpos($base, "*".$last_string[count($last_string)-1].'.') !== false
+                ||
+                strpos($base, "&".$last_string[count($last_string)-1].'.') !== false
+            ) {                
                 $class[$value] = $value;
             }
         }
-
+        
         foreach (self::$default_class as $key => $value) {
             $last_string = explode("-",$value);
             if (
@@ -417,6 +440,10 @@ class ServiceBuilder
                 strpos($base, "\t".$last_string[count($last_string)-1].'.') !== false
                 ||
                 strpos($base, "(".$last_string[count($last_string)-1].'.') !== false
+                ||
+                strpos($base, "*".$last_string[count($last_string)-1].'.') !== false
+                ||
+                strpos($base, "&".$last_string[count($last_string)-1].'.') !== false
             ) {
                 $class[$value] = $value;
             }

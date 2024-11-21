@@ -15,11 +15,11 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     status := singleData.Take(map[string]interface{}{})
 
+	this_model = this_model.Assign(dataRecord)
 	if status.RowsAffected == 0 {
-		tx.Session(&gorm.Session{}).Create(&this_model)
+		tx.Session(&gorm.Session{}).Select(this_model.Fillable("create", dataRecord)).Create(&this_model)
 	} else {
-		{{custom_code_modified_column}}
-		resultUpdate := singleData.Select(raw_column).Updates(&this_model)
+		resultUpdate := singleData.Select(this_model.Fillable("update", dataRecord)).Updates(&this_model)
 
 		if resultUpdate.Error != nil {
 			errorState := exceptions.ErrorException(500, "update "+this_model.ModulName()+" failed")

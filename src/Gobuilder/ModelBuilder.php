@@ -44,6 +44,8 @@ class ModelBuilder
         "github.com/huaweicloud/huaweicloud-sdk-go-obs/obs",
         "golang.org/x/text/cases",
         "golang.org/x/text/language",
+        "unicode/utf8",
+        "unicode",
     ];
 
     /**
@@ -125,7 +127,7 @@ class ModelBuilder
             
             $text_column .= ucfirst($value['name'])."\t".$column_type."\t"."`json:\"".$value['name']."\" ";
             if( $column_type == 'int' ) {
-                $text_column .= "gorm:\"default:".$value["default"]."\"`";
+                $text_column .= "gorm:\"default:0\"`"; # force 0 issue at https://gorm.io/docs/create.html#Default-Values
             }else {
                 $text_column .= "gorm:\"default:NULL\"`";
             }
@@ -323,17 +325,33 @@ class ModelBuilder
             $custom_join,
             $model_name_err
         ],
-        $base_model);
+        $base_model);        
 
+        $code_creating_changed = "";
         if( !empty($custom_creating) ) {
             $custom_creating = str_replace("\n","\n\t",$custom_creating."\n\n// end list creating option");
             $base_model = str_replace('// end list creating option',$custom_creating,$base_model);
-        }
 
+            $creating_changed = FileCreator::get_string_between_per_line($custom_creating, "s.", "=");
+            $base_creating_changed = "fields = append(fields, {{column}})";            
+            foreach ($creating_changed as $changed) {
+                $code_creating_changed .= str_replace("{{column}}", "\"".$changed."\"", $base_creating_changed)."\n\t";
+            }            
+        }
+        $base_model = str_replace("{{column_process_creating}}", $code_creating_changed, $base_model);
+
+        $code_updating_changed = "";
         if ( !empty($custom_updating) ) {
             $custom_updating = str_replace("\n","\n\t",$custom_updating."\n\n// end list updating option");
             $base_model = str_replace('// end list updating option',$custom_updating,$base_model);
+            
+            $updating_changed = FileCreator::get_string_between_per_line($custom_updating, "s.", "=");
+            $base_updating_changed = "fields = append(fields, {{column}})";            
+            foreach ($updating_changed as $changed) {
+                $code_updating_changed .= str_replace("{{column}}", "\"".$changed."\"", $base_updating_changed)."\n\t";
+            }
         }
+        $base_model = str_replace("{{column_process_updating}}", $code_updating_changed, $base_model);
 
         if ( !empty($custom_deleting) ) {
             $custom_deleting = str_replace("\n","\n\t",$custom_deleting."\n\n// end list deleting option");

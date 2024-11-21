@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/ace-diff@^2.0.0/dist/ace-diff.min.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/ace-diff@^2.0.0/dist/ace-diff.min.css"> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 
     <link href="{{url('/')}}/vendor/khancode/css/loading.css" rel="stylesheet">
@@ -776,11 +776,22 @@
     <script src="{{url('/')}}/vendor/khancode/bootstrap/js/bootstrap.min.js"></script>
 
     <!-- script diff -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.13.1/ace.js"></script> -->
+
+    <!-- <script src="https://unpkg.com/ace-diff@^3.0.0"></script> -->
+
+    <!-- optionally include CSS, or use your own -->
+    <!-- <link href="https://unpkg.com/ace-diff@^3.0.0/dist/ace-diff.min.css" rel="stylesheet"> -->
+
+    <!-- optionally there is also a dark mode CSS -->
+    <!-- <link href="https://unpkg.com/ace-diff@^3.0.0/dist/ace-diff-dark.min.css" rel="stylesheet"> -->
+
     <script src="{{url('/')}}/vendor/khancode/js/src/ace.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/src/ext-language_tools.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/codeEditorCustom.js"></script>
     <script src="{{url('/')}}/vendor/khancode/js/ace-generator.js"></script>    
-    <script src="https://unpkg.com/ace-diff@^2.0.0"></script>
+    <!-- <script src="https://unpkg.com/ace-diff@^2.0.0"></script> -->
+    <!-- <script src="https://unpkg.com/ace-diff@^3.0.0"></script> -->
     <script src="{{url('/')}}/vendor/khancode/js/URI.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     

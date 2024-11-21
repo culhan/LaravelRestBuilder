@@ -765,11 +765,9 @@ class LaravelRestBuilder
                 ->where('modul_id',$data['id'])
                 ->get();
 
-            $updated = config('laravelrestbuilder.file')["updated"]??[];
-            $created = config('laravelrestbuilder.file')["created"]??[];
-
-            $files_to_format = $updated+$created;
+            $files_to_format = config('laravelrestbuilder.refreshed')??[];
             $files_to_format = implode(" ", $files_to_format);
+            
             exec("/usr/local/gopath/go/bin/gopls format -w ".$files_to_format, $output_format);
 
             return [

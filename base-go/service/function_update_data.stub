@@ -4,7 +4,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{belongs_to_check_create}}
     
-	{{code_sanitation}}
+	{{code_sanitation}}    
     {{custom_check_single_data}}
 
     data_single_data_map, err_single_data := repositories.GetSingleGormData{{ModulName}}(
@@ -21,8 +21,8 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{custom_code_before}}
 
-    {{custom_code_modified_column}}
-	resultUpdate := singleData.Session(&gorm.Session{}).Select(raw_column).Updates(&this_model)
+    this_model = models.{{ModulName}}Model{}.Assign(dataRecord)
+	resultUpdate := singleData.Session(&gorm.Session{}).Select(this_model.Fillable("update", dataRecord)).Updates(&this_model)
     
     if( resultUpdate.Error != nil ){
 		errorState := exceptions.ErrorException(500, "update "+this_model.ModulName()+" failed")
