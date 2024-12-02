@@ -28,6 +28,8 @@ func (s {{Name}}Model) Assign(dataRecord map[string]interface{}) {{Name}}Model {
 
 func (s {{Name}}Model) Fillable(process string, dataRecord map[string]interface{}) []string {
 	fields := make([]string, 0)
+	base := {{Name}}Model{}
+	rv_base := reflect.Indirect(reflect.ValueOf(&base))
 
 	if process == "create" {
 		{{column_process_creating}}		
@@ -45,6 +47,10 @@ func (s {{Name}}Model) Fillable(process string, dataRecord map[string]interface{
 
 		if dataRecord[fldLower] != nil {
 			fields = append(fields, fldLower)
+		} else if rv.Field(i).Comparable() {
+			if !rv.Field(i).Equal(rv_base.Field(i)) {
+				fields = append(fields, fldLower)
+			}
 		}
 	}
 

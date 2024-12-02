@@ -1,3 +1,4 @@
 dataRecord := map[string]interface{}{}
-    this_model := models.{{ModulName}}Model{}
+    this_model := models.{{ModulName}}Model{}    
     {{data_filter}}
+    this_model = this_model

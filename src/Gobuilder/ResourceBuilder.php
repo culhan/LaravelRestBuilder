@@ -23,6 +23,7 @@ class ResourceBuilder
         "reflect",
         "math/big",
         "gorm.io/gorm",
+        "html",
     ];
 
     /**

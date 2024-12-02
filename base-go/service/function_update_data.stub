@@ -21,7 +21,7 @@ func Service{{ModulName}}{{Name}}( tx *gorm.DB, data map[string]interface{}, c *
 
     {{custom_code_before}}
 
-    this_model = models.{{ModulName}}Model{}.Assign(dataRecord)
+    this_model = this_model.Assign(dataRecord)
 	resultUpdate := singleData.Session(&gorm.Session{}).Select(this_model.Fillable("update", dataRecord)).Updates(&this_model)
     
     if( resultUpdate.Error != nil ){

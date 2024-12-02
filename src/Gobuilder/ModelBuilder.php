@@ -82,7 +82,8 @@ class ModelBuilder
         $model_file_name = $model_file_name."Model";
         $name_spaces = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $model_file_name);
         $model_name_err = preg_replace('/(?<=\\w)(?=[A-Z])/'," $1", $name);
-        $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH);        
+        $base_model = file_get_contents(__DIR__.'/../../base-go/model/base.stub', FILE_USE_INCLUDE_PATH); 
+        $hidden_relation = array_flip($hidden_relation);       
 
         $list_type_var = [
             'increment' => 'int',
@@ -176,6 +177,10 @@ class ModelBuilder
             // $text_select_column .= ucfirst($value['name'])."\tstring";
             // $text_select_column_attribute .= ucfirst($value['name']).":\t`".$value['function']."`,";
             
+            if( isset($hidden_relation[$value['name']]) ){
+                continue;
+            }
+
             $text_select_column_with_function .= "\n\n\t";
             $text_select_column_with_function .= str_replace([
                 "{{column}}",
@@ -603,9 +608,6 @@ class ModelBuilder
         
         if( !empty($relation) )
         {
-            if( !empty($hidden_relation) ) {
-                $hidden_relation = array_flip($hidden_relation);
-            }
 
             foreach ($relation as $key_relation => $value_relation) {                
 
